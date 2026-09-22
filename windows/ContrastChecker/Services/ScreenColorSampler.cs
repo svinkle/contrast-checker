@@ -18,6 +18,8 @@ namespace ContrastChecker.Services
         private const int WM_RBUTTONDOWN = 0x0204;
         private const int WM_KEYDOWN = 0x0100;
         private const int VK_ESCAPE = 0x1B;
+        private const int VK_RETURN = 0x0D;
+        private const int VK_SPACE = 0x20;
 
         private const uint SPI_SETCURSORS = 0x0057;
         private const uint OCR_NORMAL = 32512;
@@ -314,6 +316,21 @@ namespace ContrastChecker.Services
                         Application.Current?.Dispatcher?.Invoke(() =>
                         {
                             onCancelled?.Invoke();
+                        });
+
+                        return (IntPtr)1;
+                    }
+                    else if (vkCode == VK_RETURN || vkCode == VK_SPACE)
+                    {
+                        // Confirmed via Enter or Space key
+                        var selected = _currentHoverColor;
+                        var onSelected = _onSelected;
+
+                        StopPicking();
+
+                        Application.Current?.Dispatcher?.Invoke(() =>
+                        {
+                            onSelected?.Invoke(selected);
                         });
 
                         return (IntPtr)1;

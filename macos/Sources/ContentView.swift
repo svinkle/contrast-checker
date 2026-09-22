@@ -1,10 +1,62 @@
 import SwiftUI
 import AppKit
 
+// MARK: - Focus Navigation Field
+
+public enum FocusField: Hashable, CaseIterable {
+    case close
+    case contrastRatio
+    case bgPicker
+    case bgHex
+    case fgPicker
+    case fgHex
+}
+
+// MARK: - Accessible Focus Ring Modifier
+
+struct FocusRingModifier: ViewModifier {
+    let isFocused: Bool
+    let isCircle: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                Group {
+                    if isFocused {
+                        if isCircle {
+                            Circle()
+                                .stroke(Color.black.opacity(0.4), lineWidth: 3.5)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.accentColor, lineWidth: 2)
+                                )
+                                .padding(-3)
+                        } else {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(Color.black.opacity(0.4), lineWidth: 3.5)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                        .stroke(Color.accentColor, lineWidth: 2)
+                                )
+                                .padding(-4)
+                        }
+                    }
+                }
+            )
+    }
+}
+
+extension View {
+    func focusRing(isFocused: Bool, isCircle: Bool = false) -> some View {
+        self.modifier(FocusRingModifier(isFocused: isFocused, isCircle: isCircle))
+    }
+}
+
 public struct ContentView: View {
     @ObservedObject var model: ColorModel
     @ObservedObject var sampler: ColorSamplerManager
     var onClose: (() -> Void)?
+    @StateObject private var navManager = KeyboardNavigationManager()
 
     public init(model: ColorModel, sampler: ColorSamplerManager, onClose: (() -> Void)? = nil) {
         self.model = model
@@ -35,6 +87,7 @@ public struct ContentView: View {
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
+                    .focusRing(isFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .close, isCircle: true)
                     .help("Close window (⌘W)")
                     .padding(12)
 
@@ -53,6 +106,7 @@ public struct ContentView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .focusRing(isFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .contrastRatio, isCircle: false)
                         .help("Click to copy contrast ratio (\(model.contrastRatioString))")
 
                         Text("Contrast Ratio")
@@ -74,6 +128,8 @@ public struct ContentView: View {
                         title: "Background",
                         hex: model.bgHex,
                         color: model.backgroundColor,
+                        isPickerFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .bgPicker,
+                        isHexFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .bgHex,
                         onPick: {
                             sampler.pickBackgroundColor(into: model)
                         },
@@ -90,6 +146,8 @@ public struct ContentView: View {
                         title: "Foreground",
                         hex: model.fgHex,
                         color: model.foregroundColor,
+                        isPickerFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .fgPicker,
+                        isHexFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .fgHex,
                         onPick: {
                             sampler.pickForegroundColor(into: model)
                         },
@@ -138,6 +196,38 @@ public struct ContentView: View {
             }
         }
         .frame(width: 340, height: 260)
+        .onAppear {
+            navManager.startMonitoring(
+                onAction: { field in
+                    activateField(field)
+                },
+                onClose: onClose
+            )
+        }
+        .onDisappear {
+            navManager.stopMonitoring()
+        }
+    }
+
+    private func activateField(_ field: FocusField) {
+        switch field {
+        case .close:
+            if let onClose = onClose {
+                onClose()
+            } else {
+                NSApp.keyWindow?.orderOut(nil)
+            }
+        case .contrastRatio:
+            model.copyValue(model.contrastRatioString, label: model.contrastRatioString)
+        case .bgPicker:
+            sampler.pickBackgroundColor(into: model)
+        case .bgHex:
+            model.copyValue(model.bgHex, label: model.bgHex)
+        case .fgPicker:
+            sampler.pickForegroundColor(into: model)
+        case .fgHex:
+            model.copyValue(model.fgHex, label: model.fgHex)
+        }
     }
 }
 
@@ -147,6 +237,8 @@ struct ColorItemRow: View {
     let title: String
     let hex: String
     let color: NSColor
+    var isPickerFocused: Bool = false
+    var isHexFocused: Bool = false
     let onPick: () -> Void
     let onCopy: () -> Void
 
@@ -162,6 +254,7 @@ struct ColorItemRow: View {
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
+            .focusRing(isFocused: isPickerFocused, isCircle: true)
             .help("Pick \(title.lowercased()) color from anywhere on screen")
 
             // Color Swatch Circle
@@ -182,6 +275,7 @@ struct ColorItemRow: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .focusRing(isFocused: isHexFocused, isCircle: false)
             .help("Click to copy \(title.lowercased()) HEX (\(hex))")
 
             Spacer()
@@ -190,6 +284,98 @@ struct ColorItemRow: View {
             Text(title)
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.secondary)
+        }
+    }
+}
+
+// MARK: - Keyboard Navigation Manager
+
+@MainActor
+final class KeyboardNavigationManager: ObservableObject {
+    @Published var currentFocus: FocusField? = nil
+    @Published var isKeyboardNavigating: Bool = false
+
+    private var keyMonitor: Any?
+    private var mouseMonitor: Any?
+    private var resignMonitor: NSObjectProtocol?
+
+    func startMonitoring(onAction: @escaping (FocusField) -> Void, onClose: (() -> Void)?) {
+        stopMonitoring()
+
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self = self else { return event }
+            guard let keyWindow = NSApp.keyWindow, keyWindow.isKeyWindow else { return event }
+
+            if event.keyCode == 48 { // Tab key
+                self.isKeyboardNavigating = true
+                let isShift = event.modifierFlags.contains(.shift)
+                self.moveFocus(reverse: isShift)
+                return nil
+            } else if (event.keyCode == 49 || event.keyCode == 36) && self.isKeyboardNavigating && self.currentFocus != nil {
+                // Space (49) or Return (36)
+                if let focus = self.currentFocus {
+                    onAction(focus)
+                }
+                return nil
+            } else if event.keyCode == 53 { // Escape
+                if self.currentFocus != nil {
+                    self.currentFocus = nil
+                    self.isKeyboardNavigating = false
+                    return nil
+                }
+                return event
+            }
+            return event
+        }
+
+        mouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            self?.isKeyboardNavigating = false
+            self?.currentFocus = nil
+            return event
+        }
+
+        resignMonitor = NotificationCenter.default.addObserver(
+            forName: NSWindow.didResignKeyNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.isKeyboardNavigating = false
+                self?.currentFocus = nil
+            }
+        }
+    }
+
+    func stopMonitoring() {
+        if let km = keyMonitor {
+            NSEvent.removeMonitor(km)
+            keyMonitor = nil
+        }
+        if let mm = mouseMonitor {
+            NSEvent.removeMonitor(mm)
+            mouseMonitor = nil
+        }
+        if let rm = resignMonitor {
+            NotificationCenter.default.removeObserver(rm)
+            resignMonitor = nil
+        }
+    }
+
+    private func moveFocus(reverse: Bool) {
+        let allFields = FocusField.allCases
+        guard !allFields.isEmpty else { return }
+
+        guard let current = currentFocus, let currentIndex = allFields.firstIndex(of: current) else {
+            currentFocus = reverse ? allFields.last : allFields.first
+            return
+        }
+
+        if reverse {
+            let prevIndex = (currentIndex - 1 + allFields.count) % allFields.count
+            currentFocus = allFields[prevIndex]
+        } else {
+            let nextIndex = (currentIndex + 1) % allFields.count
+            currentFocus = allFields[nextIndex]
         }
     }
 }

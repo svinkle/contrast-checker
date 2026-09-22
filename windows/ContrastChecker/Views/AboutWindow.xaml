@@ -11,6 +11,21 @@
         KeyDown="OnKeyDown"
         MouseLeftButtonDown="OnWindowDrag">
 
+    <Window.Resources>
+        <Style x:Key="RectFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Grid Margin="-4,-2">
+                            <Border BorderBrush="#000000" BorderThickness="3.5" CornerRadius="5" SnapsToDevicePixels="True" Opacity="0.6" />
+                            <Border BorderBrush="#4CC2FF" BorderThickness="2" CornerRadius="4" SnapsToDevicePixels="True" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="15">
         <Border Background="#202024"
                 BorderBrush="#33FFFFFF"
@@ -20,7 +35,8 @@
                 <DropShadowEffect BlurRadius="16" ShadowDepth="4" Opacity="0.4" Color="#000000" />
             </Border.Effect>
 
-            <Grid Margin="24">
+            <AdornerDecorator>
+                <Grid Margin="24">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -75,6 +91,10 @@
                         Width="100" Height="30"
                         HorizontalAlignment="Center"
                         Cursor="Hand"
+                        Focusable="True"
+                        IsTabStop="True"
+                        FocusVisualStyle="{StaticResource RectFocusVisual}"
+                        AutomationProperties.Name="Close"
                         Click="OnCloseClicked">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
@@ -90,6 +110,7 @@
                     </Button.Template>
                 </Button>
             </Grid>
+            </AdornerDecorator>
         </Border>
     </Grid>
 </Window>

@@ -177,6 +177,11 @@ namespace ContrastChecker
                 ExitApp();
                 e.Handled = true;
             }
+            else if (e.Key == Key.Enter && Keyboard.FocusedElement is Button focusedBtn)
+            {
+                focusedBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                e.Handled = true;
+            }
         }
 
         private void OnCopyContrastRatioClicked(object sender, RoutedEventArgs e)

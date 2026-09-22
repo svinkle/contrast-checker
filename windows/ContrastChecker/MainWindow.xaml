@@ -13,11 +13,41 @@
         KeyDown="OnKeyDown">
 
     <Window.Resources>
+        <!-- High-Contrast Focus Visuals for Keyboard Navigation (Tab / Shift+Tab) -->
+        <Style x:Key="CircleFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Grid Margin="-4">
+                            <Ellipse Stroke="#000000" StrokeThickness="3.5" SnapsToDevicePixels="True" Opacity="0.6" />
+                            <Ellipse Stroke="#4CC2FF" StrokeThickness="2" SnapsToDevicePixels="True" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RectFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Grid Margin="-4,-2">
+                            <Border BorderBrush="#000000" BorderThickness="3.5" CornerRadius="5" SnapsToDevicePixels="True" Opacity="0.6" />
+                            <Border BorderBrush="#4CC2FF" BorderThickness="2" CornerRadius="4" SnapsToDevicePixels="True" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Eyedropper Scope Icon Path Style -->
         <Style x:Key="ScopeButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="30" />
             <Setter Property="Height" Value="30" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="IsTabStop" Value="True" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource CircleFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -54,6 +84,9 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="0" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="IsTabStop" Value="True" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource RectFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -76,169 +109,186 @@
                 <DropShadowEffect BlurRadius="16" ShadowDepth="4" Opacity="0.4" Color="#000000" />
             </Border.Effect>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="130" />
-                    <RowDefinition Height="130" />
-                </Grid.RowDefinitions>
+            <AdornerDecorator>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="130" />
+                        <RowDefinition Height="130" />
+                    </Grid.RowDefinitions>
 
-                <!-- TOP CARD AREA: Background Color preview with Foreground Text -->
-                <Grid Grid.Row="0" Background="{Binding BackgroundBrush}" ClipToBounds="True">
-                    <!-- Corner Close Button -->
-                    <Button Width="22" Height="22"
-                            HorizontalAlignment="Right" VerticalAlignment="Top"
-                            Margin="0,12,12,0"
-                            Cursor="Hand"
-                            Click="OnCloseClicked"
-                            ToolTip="Close window (Esc / Ctrl+W)">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="closeBg" Width="22" Height="22" CornerRadius="11" Background="#26000000">
-                                    <TextBlock Text="✕"
-                                               FontSize="10" FontWeight="Bold"
-                                               Foreground="{Binding ForegroundBrush}"
-                                               Opacity="0.7"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="closeBg" Property="Background" Value="#4D000000" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-
-                    <!-- Large Contrast Ratio Text and Subtitle -->
-                    <StackPanel VerticalAlignment="Center" Margin="22,0,22,0">
-                        <Button Style="{StaticResource PlainButtonStyle}"
-                                Click="OnCopyContrastRatioClicked"
-                                ToolTip="Click to copy contrast ratio">
-                            <TextBlock Text="{Binding ContrastRatioString}"
-                                       FontSize="38" FontWeight="Bold"
-                                       Foreground="{Binding ForegroundBrush}" />
+                    <!-- TOP CARD AREA: Background Color preview with Foreground Text -->
+                    <Grid Grid.Row="0" Background="{Binding BackgroundBrush}" ClipToBounds="True">
+                        <!-- Corner Close Button -->
+                        <Button Width="22" Height="22"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Margin="0,12,12,0"
+                                Cursor="Hand"
+                                Focusable="True"
+                                IsTabStop="True"
+                                TabIndex="0"
+                                FocusVisualStyle="{StaticResource CircleFocusVisual}"
+                                AutomationProperties.Name="Close"
+                                Click="OnCloseClicked"
+                                ToolTip="Close window (Esc / Ctrl+W)">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="closeBg" Width="22" Height="22" CornerRadius="11" Background="#26000000">
+                                        <TextBlock Text="✕"
+                                                   FontSize="10" FontWeight="Bold"
+                                                   Foreground="{Binding ForegroundBrush}"
+                                                   Opacity="0.7"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="closeBg" Property="Background" Value="#4D000000" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
                         </Button>
 
-                        <TextBlock Text="Contrast Ratio"
-                                   FontSize="12" FontWeight="Medium"
-                                   Foreground="{Binding ForegroundBrush}"
-                                   Opacity="0.75" Margin="2,4,0,0" />
-                    </StackPanel>
-                </Grid>
-
-                <!-- BOTTOM CARD AREA: Color Pickers and HEX Readouts -->
-                <Grid Grid.Row="1" Background="#1D1D20" Margin="0">
-                    <StackPanel VerticalAlignment="Center" Margin="22,0,22,0">
-                        <!-- Background Color Row -->
-                        <Grid Margin="0,4,0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Eyedropper Button -->
-                            <Button Grid.Column="0"
-                                    Style="{StaticResource ScopeButtonStyle}"
-                                    Click="OnPickBackgroundClicked"
-                                    ToolTip="Pick background color from anywhere on screen (Ctrl+Alt+B)" />
-
-                            <!-- Color Swatch Circle -->
-                            <Ellipse Grid.Column="2" Width="22" Height="22"
-                                     Fill="{Binding BackgroundBrush}"
-                                     Stroke="#55FFFFFF" StrokeThickness="1" />
-
-                            <!-- Clickable HEX Code -->
-                            <Button Grid.Column="4"
-                                    Style="{StaticResource PlainButtonStyle}"
-                                    Click="OnCopyBackgroundHexClicked"
-                                    ToolTip="Click to copy background HEX">
-                                <TextBlock Text="{Binding BgHex}"
-                                           FontFamily="Consolas, monospace"
-                                           FontSize="16" FontWeight="Bold"
-                                           Foreground="#FFFFFF" VerticalAlignment="Center" />
+                        <!-- Large Contrast Ratio Text and Subtitle -->
+                        <StackPanel VerticalAlignment="Center" Margin="22,0,22,0">
+                            <Button Style="{StaticResource PlainButtonStyle}"
+                                    TabIndex="1"
+                                    AutomationProperties.Name="Copy contrast ratio"
+                                    Click="OnCopyContrastRatioClicked"
+                                    ToolTip="Click to copy contrast ratio">
+                                <TextBlock Text="{Binding ContrastRatioString}"
+                                           FontSize="38" FontWeight="Bold"
+                                           Foreground="{Binding ForegroundBrush}" />
                             </Button>
 
-                            <!-- Row Label -->
-                            <TextBlock Grid.Column="6" Text="Background"
-                                       FontSize="12" Foreground="#8E8E93"
-                                       VerticalAlignment="Center" />
-                        </Grid>
+                            <TextBlock Text="Contrast Ratio"
+                                       FontSize="12" FontWeight="Medium"
+                                       Foreground="{Binding ForegroundBrush}"
+                                       Opacity="0.75" Margin="2,4,0,0" />
+                        </StackPanel>
+                    </Grid>
 
-                        <!-- Subtle Divider Line -->
-                        <Rectangle Height="1" Fill="#2A2A2E" Margin="0,8,0,8" />
+                    <!-- BOTTOM CARD AREA: Color Pickers and HEX Readouts -->
+                    <Grid Grid.Row="1" Background="#1D1D20" Margin="0">
+                        <StackPanel VerticalAlignment="Center" Margin="22,0,22,0">
+                            <!-- Background Color Row -->
+                            <Grid Margin="0,4,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
 
-                        <!-- Foreground Color Row -->
-                        <Grid Margin="0,4,0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                                <!-- Eyedropper Button -->
+                                <Button Grid.Column="0"
+                                        Style="{StaticResource ScopeButtonStyle}"
+                                        TabIndex="2"
+                                        AutomationProperties.Name="Pick background color from screen"
+                                        Click="OnPickBackgroundClicked"
+                                        ToolTip="Pick background color from anywhere on screen (Ctrl+Alt+B)" />
 
-                            <!-- Eyedropper Button -->
-                            <Button Grid.Column="0"
-                                    Style="{StaticResource ScopeButtonStyle}"
-                                    Click="OnPickForegroundClicked"
-                                    ToolTip="Pick foreground color from anywhere on screen (Ctrl+Alt+F)" />
+                                <!-- Color Swatch Circle -->
+                                <Ellipse Grid.Column="2" Width="22" Height="22"
+                                         Fill="{Binding BackgroundBrush}"
+                                         Stroke="#55FFFFFF" StrokeThickness="1" />
 
-                            <!-- Color Swatch Circle -->
-                            <Ellipse Grid.Column="2" Width="22" Height="22"
-                                     Fill="{Binding ForegroundBrush}"
-                                     Stroke="#55FFFFFF" StrokeThickness="1" />
+                                <!-- Clickable HEX Code -->
+                                <Button Grid.Column="4"
+                                        Style="{StaticResource PlainButtonStyle}"
+                                        TabIndex="3"
+                                        AutomationProperties.Name="Copy background HEX"
+                                        Click="OnCopyBackgroundHexClicked"
+                                        ToolTip="Click to copy background HEX">
+                                    <TextBlock Text="{Binding BgHex}"
+                                               FontFamily="Consolas, monospace"
+                                               FontSize="16" FontWeight="Bold"
+                                               Foreground="#FFFFFF" VerticalAlignment="Center" />
+                                </Button>
 
-                            <!-- Clickable HEX Code -->
-                            <Button Grid.Column="4"
-                                    Style="{StaticResource PlainButtonStyle}"
-                                    Click="OnCopyForegroundHexClicked"
-                                    ToolTip="Click to copy foreground HEX">
-                                <TextBlock Text="{Binding FgHex}"
-                                           FontFamily="Consolas, monospace"
-                                           FontSize="16" FontWeight="Bold"
-                                           Foreground="#FFFFFF" VerticalAlignment="Center" />
-                            </Button>
+                                <!-- Row Label -->
+                                <TextBlock Grid.Column="6" Text="Background"
+                                           FontSize="12" Foreground="#8E8E93"
+                                           VerticalAlignment="Center" />
+                            </Grid>
 
-                            <!-- Row Label -->
-                            <TextBlock Grid.Column="6" Text="Foreground"
-                                       FontSize="12" Foreground="#8E8E93"
-                                       VerticalAlignment="Center" />
-                        </Grid>
-                    </StackPanel>
+                            <!-- Subtle Divider Line -->
+                            <Rectangle Height="1" Fill="#2A2A2E" Margin="0,8,0,8" />
+
+                            <!-- Foreground Color Row -->
+                            <Grid Margin="0,4,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Eyedropper Button -->
+                                <Button Grid.Column="0"
+                                        Style="{StaticResource ScopeButtonStyle}"
+                                        TabIndex="4"
+                                        AutomationProperties.Name="Pick foreground color from screen"
+                                        Click="OnPickForegroundClicked"
+                                        ToolTip="Pick foreground color from anywhere on screen (Ctrl+Alt+F)" />
+
+                                <!-- Color Swatch Circle -->
+                                <Ellipse Grid.Column="2" Width="22" Height="22"
+                                         Fill="{Binding ForegroundBrush}"
+                                         Stroke="#55FFFFFF" StrokeThickness="1" />
+
+                                <!-- Clickable HEX Code -->
+                                <Button Grid.Column="4"
+                                        Style="{StaticResource PlainButtonStyle}"
+                                        TabIndex="5"
+                                        AutomationProperties.Name="Copy foreground HEX"
+                                        Click="OnCopyForegroundHexClicked"
+                                        ToolTip="Click to copy foreground HEX">
+                                    <TextBlock Text="{Binding FgHex}"
+                                               FontFamily="Consolas, monospace"
+                                               FontSize="16" FontWeight="Bold"
+                                               Foreground="#FFFFFF" VerticalAlignment="Center" />
+                                </Button>
+
+                                <!-- Row Label -->
+                                <TextBlock Grid.Column="6" Text="Foreground"
+                                           FontSize="12" Foreground="#8E8E93"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- TOAST NOTIFICATION OVERLAY -->
+                    <Border x:Name="ToastBorder"
+                            HorizontalAlignment="Center" VerticalAlignment="Top"
+                            Margin="0,14,0,0"
+                            CornerRadius="14"
+                            Background="#D92C2C30"
+                            BorderBrush="#4DFFFFFF"
+                            BorderThickness="0.8"
+                            Padding="14,6"
+                            Visibility="Collapsed">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.3" Color="#000000" />
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="✓" Foreground="#34C759" FontWeight="Bold" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center" Focusable="False" />
+                            <TextBlock x:Name="ToastText"
+                                       Text="Copied to clipboard"
+                                       Foreground="#FFFFFF"
+                                       FontWeight="SemiBold"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       AutomationProperties.LiveSetting="Assertive" />
+                        </StackPanel>
+                    </Border>
                 </Grid>
-
-                <!-- TOAST NOTIFICATION OVERLAY -->
-                <Border x:Name="ToastBorder"
-                        HorizontalAlignment="Center" VerticalAlignment="Top"
-                        Margin="0,14,0,0"
-                        CornerRadius="14"
-                        Background="#D92C2C30"
-                        BorderBrush="#4DFFFFFF"
-                        BorderThickness="0.8"
-                        Padding="14,6"
-                        Visibility="Collapsed">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.3" Color="#000000" />
-                    </Border.Effect>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="✓" Foreground="#34C759" FontWeight="Bold" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center" Focusable="False" />
-                        <TextBlock x:Name="ToastText"
-                                   Text="Copied to clipboard"
-                                   Foreground="#FFFFFF"
-                                   FontWeight="SemiBold"
-                                   FontSize="12"
-                                   VerticalAlignment="Center"
-                                   AutomationProperties.LiveSetting="Assertive" />
-                    </StackPanel>
-                </Border>
-            </Grid>
+            </AdornerDecorator>
         </Border>
     </Grid>
 </Window>
