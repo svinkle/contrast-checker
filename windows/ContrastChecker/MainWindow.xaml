@@ -229,8 +229,14 @@
                         <DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.3" Color="#000000" />
                     </Border.Effect>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="✓" Foreground="#34C759" FontWeight="Bold" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center" />
-                        <TextBlock x:Name="ToastText" Text="Copied to clipboard" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
+                        <TextBlock Text="✓" Foreground="#34C759" FontWeight="Bold" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center" Focusable="False" />
+                        <TextBlock x:Name="ToastText"
+                                   Text="Copied to clipboard"
+                                   Foreground="#FFFFFF"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"
+                                   AutomationProperties.LiveSetting="Assertive" />
                     </StackPanel>
                 </Border>
             </Grid>

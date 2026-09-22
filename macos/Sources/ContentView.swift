@@ -119,6 +119,8 @@ public struct ContentView: View {
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(.primary)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(message)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
                     .background(.ultraThinMaterial, in: Capsule())

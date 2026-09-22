@@ -1,5 +1,7 @@
 using System;
 using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Automation.Peers;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using ContrastChecker.Models;
@@ -134,7 +136,12 @@ namespace ContrastChecker
             if (!string.IsNullOrEmpty(_model.CopiedMessage))
             {
                 ToastText.Text = _model.CopiedMessage;
+                AutomationProperties.SetName(ToastText, _model.CopiedMessage);
                 ToastBorder.Visibility = Visibility.Visible;
+
+                // Raise UIA LiveRegionChanged event to announce out loud in Narrator, NVDA, JAWS
+                var peer = UIElementAutomationPeer.FromElement(ToastText) ?? UIElementAutomationPeer.CreatePeerForElement(ToastText);
+                peer?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
             }
             else
             {

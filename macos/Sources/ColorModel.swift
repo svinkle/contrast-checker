@@ -130,13 +130,28 @@ public final class ColorModel: ObservableObject {
 
     public func copyValue(_ text: String, label: String) {
         ColorModel.copyToClipboard(text)
-        copiedMessage = "Copied \(label)"
+        let announcement = "Copied \(label)"
+        copiedMessage = announcement
+        ColorModel.postAccessibilityAnnouncement(announcement)
         copiedTimer?.invalidate()
         copiedTimer = Timer.scheduledTimer(withTimeInterval: 1.4, repeats: false) { [weak self] _ in
             DispatchQueue.main.async {
                 self?.copiedMessage = nil
             }
         }
+    }
+
+    public static func postAccessibilityAnnouncement(_ message: String) {
+        guard let app = NSApp else { return }
+        let userInfo: [NSAccessibility.NotificationUserInfoKey: Any] = [
+            .announcement: message,
+            .priority: NSAccessibilityPriorityLevel.high.rawValue
+        ]
+        NSAccessibility.post(
+            element: app,
+            notification: .announcementRequested,
+            userInfo: userInfo
+        )
     }
 
     public static func copyToClipboard(_ text: String) {
