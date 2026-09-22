@@ -17,6 +17,7 @@ Built for accessibility testing, design system audits, and fast WCAG 2.1 complia
 ## Quick Start
 
 ### macOS
+
 For full documentation, shortcuts, and permissions, see the **[macOS README](./macos/README.md)**.
 
 ```bash
@@ -31,6 +32,7 @@ cd macos && make dmg
 ```
 
 ### Windows
+
 For full documentation, shortcuts, and installer details, see the **[Windows README](./windows/README.md)**.
 
 ```powershell

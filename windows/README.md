@@ -24,27 +24,32 @@ Built for accessibility testing, design system audits, and fast WCAG 2.1 complia
 ## Quick Start (Building on Windows)
 
 ### Prerequisites
+
 - Windows 10 (version 1809+) or Windows 11
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ### 1. Build Standalone `.exe`
+
 ```powershell
 # Build self-contained single-file executable to windows\build\ContrastChecker.exe
 powershell -ExecutionPolicy Bypass -File build.ps1
 ```
 
 Or using batch:
+
 ```cmd
 build.bat
 ```
 
 ### 2. Build `.msi` Installer
+
 ```powershell
 # Publishes executable and packages ContrastChecker.msi via WiX Toolset
 powershell -ExecutionPolicy Bypass -File build.ps1 -BuildMsi
 ```
 
 ### 3. Run Unit Tests
+
 ```bash
 dotnet test ContrastChecker.Tests/ContrastChecker.Tests.csproj
 ```
@@ -54,6 +59,7 @@ dotnet test ContrastChecker.Tests/ContrastChecker.Tests.csproj
 ## Eyedropper Loupe Controls
 
 When the eyedropper is activated (via button or shortcut):
+
 - **Move Cursor**: The circular loupe displays a 9x magnified pixel grid around the cursor, highlighting the exact target pixel with reticle crosshairs and live HEX color.
 - **Left-Click**: Confirms and selects the color under the reticle.
 - **Right-Click** or **Esc**: Cancels without changing the color.

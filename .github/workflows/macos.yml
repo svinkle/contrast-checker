@@ -1,0 +1,43 @@
+name: Build macOS Application
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'macos/**'
+      - '.github/workflows/macos.yml'
+      - 'Makefile'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'macos/**'
+      - '.github/workflows/macos.yml'
+      - 'Makefile'
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run ColorModel Unit Tests
+        run: make test
+
+      - name: Build macOS App Bundle
+        run: make macos
+
+      - name: Build Installable DMG
+        run: |
+          cd macos
+          ./create_dmg.sh
+
+      - name: Upload macOS Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ContrastChecker-macOS
+          path: |
+            macos/build/ContrastChecker.dmg
+            macos/build/ContrastChecker.app

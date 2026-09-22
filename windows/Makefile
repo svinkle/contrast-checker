@@ -16,3 +16,4 @@ icon:
 
 clean:
 	@rm -rf build ContrastChecker/bin ContrastChecker/obj ContrastChecker.Tests/bin ContrastChecker.Tests/obj ContrastChecker.Installer/bin ContrastChecker.Installer/obj
+

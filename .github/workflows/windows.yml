@@ -2,15 +2,15 @@ name: Build Windows Application
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'windows/**'
-      - '.github/workflows/windows.yml'
+      - "windows/**"
+      - ".github/workflows/windows.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'windows/**'
-      - '.github/workflows/windows.yml'
+      - "windows/**"
+      - ".github/workflows/windows.yml"
   workflow_dispatch:
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
       - name: Run ColorModel Unit Tests
         run: dotnet test windows/ContrastChecker.Tests/ContrastChecker.Tests.csproj -c Release --verbosity normal

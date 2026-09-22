@@ -98,3 +98,4 @@ namespace ContrastChecker.Services
         }
     }
 }
+

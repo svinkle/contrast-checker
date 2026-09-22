@@ -63,3 +63,4 @@ if ($BuildMsi) {
 }
 
 Write-Host "==> Build complete! Output located at: $OutputDir" -ForegroundColor Green
+

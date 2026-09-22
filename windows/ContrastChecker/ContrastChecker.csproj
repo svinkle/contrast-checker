@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
-    
+
     <!-- Assembly Metadata -->
     <AssemblyName>ContrastChecker</AssemblyName>
     <RootNamespace>ContrastChecker</RootNamespace>
@@ -36,3 +36,4 @@
   </ItemGroup>
 
 </Project>
+

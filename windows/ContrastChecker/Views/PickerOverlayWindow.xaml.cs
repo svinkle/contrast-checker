@@ -145,3 +145,4 @@ namespace ContrastChecker.Views
         }
     }
 }
+

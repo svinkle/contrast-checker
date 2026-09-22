@@ -79,3 +79,4 @@ namespace ContrastChecker.Services
         }
     }
 }
+
