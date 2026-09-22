@@ -1,0 +1,170 @@
+/*
+ * Contrast Checker — GTK 4 Theme Stylesheet
+ * Replicates the clean floating card aesthetic of the macOS application.
+ */
+
+/* Main Card Window */
+window.contrast-card {
+    background-color: transparent;
+}
+
+.card-container {
+    background-color: #202023;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+/* TOP REGION: Live Background Color Preview */
+.top-region {
+    min-height: 130px;
+    padding: 16px 22px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+}
+
+/* Corner Close Button */
+.close-button {
+    min-width: 22px;
+    min-height: 22px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 11px;
+    background: rgba(0, 0, 0, 0.18);
+    color: inherit;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.close-button:hover {
+    background: rgba(0, 0, 0, 0.32);
+}
+
+/* Contrast Ratio Text */
+.contrast-ratio-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.contrast-ratio-text {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.contrast-ratio-subtitle {
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.75;
+    margin-top: 2px;
+}
+
+/* BOTTOM REGION: Pickers and Hex Readouts */
+.bottom-region {
+    background-color: #1D1D20;
+    padding: 16px 22px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+}
+
+/* Eyedropper Scope Button */
+.scope-button {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
+    margin: 0;
+    border-radius: 15px;
+    border: none;
+    background: rgba(255, 255, 255, 0.09);
+    color: #E0E0E0;
+}
+
+.scope-button:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.scope-button:active {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+/* Color Swatch Circle */
+.color-swatch {
+    min-width: 22px;
+    min-height: 22px;
+    border-radius: 11px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Clickable HEX Code Button */
+.hex-button {
+    background: transparent;
+    border: none;
+    padding: 2px 4px;
+    margin: 0;
+}
+
+.hex-text {
+    font-family: 'Consolas', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+/* Row Label ("Background" / "Foreground") */
+.row-label {
+    font-size: 12px;
+    color: #8E8E93;
+}
+
+/* Divider Line */
+.row-divider {
+    min-height: 1px;
+    background-color: #2A2A2E;
+    margin: 8px 0;
+}
+
+/* TOAST NOTIFICATION OVERLAY */
+.toast-overlay {
+    background-color: rgba(44, 44, 48, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 14px;
+    padding: 6px 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast-check {
+    color: #34C759;
+    font-weight: bold;
+    font-size: 13px;
+    margin-right: 6px;
+}
+
+.toast-text {
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ACCESSIBLE FOCUS RINGS (Visible strictly during keyboard navigation) */
+:focus-visible {
+    outline: none;
+}
+
+.circle-focus:focus-visible {
+    outline: 2px solid #4CC2FF;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.55);
+}
+
+.rect-focus:focus-visible {
+    outline: 2px solid #4CC2FF;
+    outline-offset: 3px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.55);
+}

@@ -1,0 +1,35 @@
+app-id: io.github.svinkle.ContrastChecker
+runtime: org.gnome.Platform
+runtime-version: '46'
+sdk: org.gnome.Sdk
+command: contrast-checker
+
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --talk-name=org.freedesktop.portal.Desktop
+  - --talk-name=org.freedesktop.Notifications
+
+modules:
+  - name: contrast-checker
+    buildsystem: simple
+    build-commands:
+      # Install executable and source files
+      - install -Dm755 src/contrast_checker.py /app/bin/contrast-checker
+      - install -Dm644 src/color_model.py /app/bin/color_model.py
+      - install -Dm644 src/color_sampler.py /app/bin/color_sampler.py
+      - install -Dm644 src/main_window.py /app/bin/main_window.py
+      - install -Dm644 src/style.css /app/bin/style.css
+
+      # Install Desktop integration
+      - install -Dm644 io.github.svinkle.ContrastChecker.desktop /app/share/applications/io.github.svinkle.ContrastChecker.desktop
+      - install -Dm644 io.github.svinkle.ContrastChecker.metainfo.xml /app/share/metainfo/io.github.svinkle.ContrastChecker.metainfo.xml
+
+      # Install Application Icons
+      - install -Dm644 icons/128x128/apps/io.github.svinkle.ContrastChecker.png /app/share/icons/hicolor/128x128/apps/io.github.svinkle.ContrastChecker.png
+      - install -Dm644 icons/256x256/apps/io.github.svinkle.ContrastChecker.png /app/share/icons/hicolor/256x256/apps/io.github.svinkle.ContrastChecker.png
+      - install -Dm644 icons/512x512/apps/io.github.svinkle.ContrastChecker.png /app/share/icons/hicolor/512x512/apps/io.github.svinkle.ContrastChecker.png
+    sources:
+      - type: dir
+        path: .

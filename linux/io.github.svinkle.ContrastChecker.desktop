@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Contrast Checker
+GenericName=Color Contrast Checker
+Comment=Measure color contrast anywhere across your operating system
+Exec=contrast-checker
+Icon=io.github.svinkle.ContrastChecker
+Terminal=false
+Type=Application
+Categories=Utility;Accessibility;Graphics;Development;
+Keywords=Color;Contrast;Accessibility;WCAG;Eyedropper;Design;
+StartupNotify=true
+StartupWMClass=io.github.svinkle.ContrastChecker
+X-Purism-FormFactor=Workstation;Mobile;

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.svinkle.ContrastChecker</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Contrast Checker</name>
+  <summary>Measure color contrast anywhere across your operating system</summary>
+  <description>
+    <p>
+      Contrast Checker is a minimalist, native utility for measuring color contrast anywhere across your operating system, including native windows, web browsers, virtual machines, and desktop wallpaper.
+    </p>
+    <p>Features include:</p>
+    <ul>
+      <li>WCAG 2.1 relative luminance calculation conforming to accessibility standards</li>
+      <li>System-wide screen color sampling via the FreeDesktop XDG Desktop Portal</li>
+      <li>Compact floating card interface with live background preview and sample text</li>
+      <li>Full keyboard navigation with high-contrast visible focus rings</li>
+      <li>Transient clipboard copy feedback and live region announcements</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.svinkle.ContrastChecker.desktop</launchable>
+  <url type="homepage">https://github.com/svinkle/contrast-checker</url>
+  <url type="bugtracker">https://github.com/svinkle/contrast-checker/issues</url>
+  <developer_name>Scott Vinkle</developer_name>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="1.0.0" date="2026-09-22">
+      <description>
+        <p>Initial release of Contrast Checker for Linux.</p>
+      </description>
+    </release>
+  </releases>
+</component>

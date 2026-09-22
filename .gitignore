@@ -5,3 +5,14 @@ macos/build/
 macos/.cache/
 *.o
 *.swp
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Flatpak / Linux
+build-dir/
+.flatpak-builder/
+repo/
+*.flatpak
