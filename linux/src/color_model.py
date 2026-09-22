@@ -139,3 +139,4 @@ class ColorModel:
         if self.copied_message is not None:
             self.copied_message = None
             self._notify()
+

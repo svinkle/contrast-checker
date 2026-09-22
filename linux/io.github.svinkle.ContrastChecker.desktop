@@ -11,3 +11,4 @@ Keywords=Color;Contrast;Accessibility;WCAG;Eyedropper;Design;
 StartupNotify=true
 StartupWMClass=io.github.svinkle.ContrastChecker
 X-Purism-FormFactor=Workstation;Mobile;
+

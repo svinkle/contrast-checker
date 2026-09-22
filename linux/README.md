@@ -8,7 +8,7 @@ Packaged as a universal **Flatpak** for seamless installation across all Linux d
 
 ## Features
 
-- **macOS Floating Card Parity**: Compact 340×260px floating card with 18px continuous rounded corners, live top Background swatch preview, large contrast ratio readout, and subtle corner close button (`✕`).
+- **Floating Card UI**: Compact 340×260px floating card with crisp squared corners, live top Background swatch preview with dynamic Foreground sample text, large contrast ratio readout, and subtle corner close button (`✕`).
 - **WCAG 2.1 Conformance**: Precise relative luminance and contrast ratio calculations identical to macOS and Windows versions.
 - **System-Wide Screen Color Sampling**: Uses the **XDG Desktop Portal** (`org.freedesktop.portal.Screenshot.PickColor`) over DBus to invoke the system's native magnification loupe on both **Wayland** (GNOME, KDE Plasma, Sway, Hyprland) and **X11**.
 - **Accessible Keyboard Navigation**:

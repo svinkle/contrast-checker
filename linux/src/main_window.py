@@ -79,11 +79,13 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         header_spacer.set_hexpand(True)
         header_box.append(header_spacer)
 
-        self.close_btn = Gtk.Button(label="✕")
+        self.close_btn = Gtk.Button()
         self.close_btn.add_css_class("close-button")
         self.close_btn.add_css_class("circle-focus")
         self.close_btn.set_tooltip_text("Close window (Esc / Ctrl+W)")
         self.close_btn.connect("clicked", lambda b: self.close())
+        self.close_label = Gtk.Label(label="✕")
+        self.close_btn.set_child(self.close_label)
         header_box.append(self.close_btn)
         self.top_region.append(header_box)
 
@@ -254,18 +256,40 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         if not HAS_GTK:
             return
 
-        # Update text labels
-        self.ratio_label.set_text(self.model.contrast_ratio_string)
-        self.bg_hex_label.set_text(self.model.bg_hex)
-        self.fg_hex_label.set_text(self.model.fg_hex)
-
-        # Update dynamic styles
+        ratio_str = self.model.contrast_ratio_string
         bg_hex = self.model.bg_hex
         fg_hex = self.model.fg_hex
 
+        # Update text labels with foreground color preview via Pango markup
+        escaped_ratio = GLib.markup_escape_text(ratio_str)
+        self.ratio_label.set_markup(f'<span foreground="{fg_hex}">{escaped_ratio}</span>')
+        self.subtitle_label.set_markup(f'<span foreground="{fg_hex}">Contrast Ratio</span>')
+        self.subtitle_label.set_opacity(0.75)
+        self.close_label.set_markup(f'<span foreground="{fg_hex}">✕</span>')
+        self.close_label.set_opacity(0.7)
+
+        self.bg_hex_label.set_text(bg_hex)
+        self.fg_hex_label.set_text(fg_hex)
+
+        # Update dynamic styles
         css = f"""
         .dynamic-top {{
             background-color: {bg_hex};
+        }}
+        .contrast-ratio-btn,
+        .contrast-ratio-btn:hover,
+        .contrast-ratio-btn:active,
+        .contrast-ratio-btn:focus,
+        .contrast-ratio-btn label,
+        .contrast-ratio-text {{
+            color: {fg_hex};
+        }}
+        .contrast-ratio-subtitle {{
+            color: {fg_hex};
+        }}
+        .close-button,
+        .close-button:hover,
+        .close-button label {{
             color: {fg_hex};
         }}
         .dynamic-bg-swatch {{
@@ -335,3 +359,4 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         self.model.set_foreground_color(r, g, b)
         self._copy_to_clipboard(self.model.fg_hex)
         self.model.copy_value(self.model.fg_hex, self.model.fg_hex)
+

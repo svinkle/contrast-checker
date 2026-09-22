@@ -124,3 +124,4 @@ class PortalColorSampler:
         except Exception as e:
             self._is_sampling = False
             print(f"[ColorSampler] PickColor finish error: {e}", file=sys.stderr)
+

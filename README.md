@@ -60,4 +60,3 @@ make -C linux bundle
 # Install the Flatpak bundle
 flatpak install --user ContrastChecker.flatpak
 ```
-
