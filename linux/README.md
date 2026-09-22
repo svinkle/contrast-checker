@@ -20,36 +20,80 @@ Packaged as a universal **Flatpak** for seamless installation across all Linux d
 
 ---
 
-## Flatpak Building & Packaging
+## Dependencies & Requirements
 
-### Prerequisites
+### Operating System & Environments
+- **Linux Distribution**: Any modern Linux distribution (Ubuntu 22.04+, Debian 12+, Fedora 38+, Arch Linux, openSUSE, SteamOS, etc.).
+- **Architecture**: `x86_64` (AMD/Intel) and `aarch64` (ARM64, including Linux inside Apple Silicon virtual machines).
+- **Display Server**: Native **Wayland** (GNOME Shell, KDE Plasma, Sway, Hyprland) and **X11**.
 
-Install `flatpak` and `flatpak-builder`:
+### System Services & Permissions
+- **XDG Desktop Portal (`xdg-desktop-portal`)**: Required for sandboxed, system-wide screen color sampling (`org.freedesktop.portal.Screenshot.PickColor` over DBus).
+  - Standard on modern Linux desktop environments.
+  - Backends: `xdg-desktop-portal-gnome` (GNOME), `xdg-desktop-portal-kde` (KDE), or `xdg-desktop-portal-wlr` / `xdg-desktop-portal-gtk` (Sway / Hyprland / wlroots).
+- **DBus Session Daemon**: Standard user session bus (`dbus-user-session`).
+
+---
+
+### Option A: Flatpak Build Dependencies (Recommended)
+
+Building and packaging the application as a standalone `.flatpak` bundle requires `flatpak`, `flatpak-builder`, and the official GNOME 46 runtime:
+
+#### 1. Install Flatpak Tools
 
 ```bash
 # Ubuntu / Debian
-sudo apt install flatpak flatpak-builder
+sudo apt update && sudo apt install -y flatpak flatpak-builder
 
 # Fedora
-sudo dnf install flatpak flatpak-builder
+sudo dnf install -y flatpak flatpak-builder
 
 # Arch Linux
-sudo pacman -S flatpak flatpak-builder
+sudo pacman -S --needed flatpak flatpak-builder
+
+# openSUSE
+sudo zypper install flatpak flatpak-builder
 ```
 
-Add the Flathub repository:
+#### 2. Configure Flathub & Install GNOME 46 Runtimes
 
 ```bash
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+# Add Flathub remote to your user configuration
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak --user update --appstream
+
+# Install GNOME 46 Platform and SDK
+flatpak install -y flathub org.gnome.Platform//46 org.gnome.Sdk//46
 ```
 
-Install the GNOME 46 runtime and SDK:
+---
+
+### Option B: Native Host Execution Dependencies (Fast Local Testing)
+
+If you wish to run the app directly on your host machine without compiling a Flatpak container:
+
+- **Python 3.10+**: Standard library only (no external pip dependencies).
+- **GTK 4 & PyGObject**:
 
 ```bash
-flatpak install flathub org.gnome.Platform//46 org.gnome.Sdk//46
+# Ubuntu / Debian
+sudo apt update && sudo apt install -y python3 python3-gi python3-gi-cairo gir1.2-gtk-4.0
+
+# Fedora
+sudo dnf install -y python3 python3-gobject gtk4
+
+# Arch Linux
+sudo pacman -S --needed python python-gobject gtk4
+
+# openSUSE
+sudo zypper install python3 python3-gobject gtk4 typelib-1_0-Gtk-4_0
 ```
 
-### Build & Run Locally
+---
+
+## Building & Running
+
+### Option 1: Build & Run via Flatpak
 
 ```bash
 # Build the Flatpak in a local build directory
@@ -60,12 +104,17 @@ flatpak-builder --run build-dir io.github.svinkle.ContrastChecker.yml contrast-c
 
 # Or export a standalone single-file .flatpak bundle
 make bundle
+
+# Install the .flatpak bundle to your user account
+flatpak install --user ContrastChecker.flatpak
 ```
 
-### Install the .flatpak Bundle
+### Option 2: Run Directly on Host
+
+If you have installed the native GTK 4 & PyGObject dependencies (Option B above):
 
 ```bash
-flatpak install --user ContrastChecker.flatpak
+make run
 ```
 
 ---

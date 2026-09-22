@@ -10,7 +10,7 @@ Built for accessibility testing, design system audits, and fast WCAG 2.1 complia
 
 - **[macOS (`/macos`)](./macos)**: Native Swift, SwiftUI, and AppKit application. Features system-wide eyedropper (`NSColorSampler`), permanent menu bar companion, dynamic Dock icon hiding, and global system shortcuts (`⌃⌥C`, `⌃⌥B`, `⌃⌥F`).
 - **[Windows (`/windows`)](./windows)**: Native C#, .NET 8, and WPF application. Features fullscreen magnification loupe eyedropper, permanent system tray companion, standalone single-file `.exe`, WiX `.msi` installer, and global shortcuts (`Ctrl+Alt+C`, `Ctrl+Alt+B`, `Ctrl+Alt+F`).
-- **[Linux (`/linux`)](./linux)**: Native GTK 4 application packaged as a universal **Flatpak** bundle. Features macOS floating card experience, system-wide screen color sampling via FreeDesktop XDG Desktop Portal (`org.freedesktop.portal.Screenshot.PickColor` over DBus on Wayland & X11), and accessible `:focus-visible` keyboard navigation.
+- **[Linux (`/linux`)](./linux)**: Native GTK 4 application packaged as a universal **Flatpak** bundle. Features clean floating card experience with crisp squared corners, system-wide screen color sampling via FreeDesktop XDG Desktop Portal (`org.freedesktop.portal.Screenshot.PickColor` over DBus on Wayland & X11), and accessible `:focus-visible` keyboard navigation.
 
 ---
 

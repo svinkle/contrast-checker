@@ -24,12 +24,42 @@ Built for accessibility testing, design system audits, and fast WCAG 2.1 complia
 
 ---
 
+## Dependencies & Requirements
+
+### Operating System
+- **Windows 10 (version 1809 / Build 17763+)** or **Windows 11** (64-bit `win-x64`).
+
+### Build & Development Tools
+- **[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)** (v8.0.100 or later): Provides the C# compiler, MSBuild, and NuGet restore. Verify via:
+  ```powershell
+  dotnet --version
+  ```
+- **PowerShell**: PowerShell 5.1 (bundled with Windows 10/11) or PowerShell 7+ for running `build.ps1`.
+- **WiX Toolset v4 / v5** *(Optional, for packaging `.msi` installers)*:
+  ```powershell
+  dotnet tool install --global wix
+  wix extension add WixToolset.UI.wixext
+  ```
+- **Python 3 + Pillow** *(Optional, only needed if regenerating `app.ico` from scratch)*:
+  ```powershell
+  pip install Pillow
+  ```
+
+### Runtime Dependencies
+- **Zero Runtime Dependencies**: The default build script publishes a **self-contained, single-file executable** (`ContrastChecker.exe`). The .NET runtime and WPF libraries are embedded directly inside the binary. End users do **not** need the .NET runtime or any external frameworks installed.
+
+### Native Frameworks & Windows APIs
+- **WPF (`net8.0-windows`)**: Presentation framework for XAML UI, live data binding, and `:focus-visible` custom adorners.
+- **Win32 User32 APIs**:
+  - `RegisterHotKey` / `UnregisterHotKey`: Global shortcuts (`Ctrl+Alt+C`, `Ctrl+Alt+B`, `Ctrl+Alt+F`).
+  - `SetWindowsHookEx` (`WH_MOUSE_LL`): Low-level mouse hook for tracking cursor position across all windows and displays during color sampling.
+- **Win32 GDI32 APIs**:
+  - `GetDC(IntPtr.Zero)`, `GetPixel`, `ReleaseDC`: Real-time desktop pixel color sampling across all connected monitors.
+- **System Tray (`System.Windows.Forms.NotifyIcon`)**: Native notification area icon, right-click context menu, and background lifecycle management.
+
+---
+
 ## Quick Start (Building on Windows)
-
-### Prerequisites
-
-- Windows 10 (version 1809+) or Windows 11
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ### 1. Build Standalone `.exe`
 
