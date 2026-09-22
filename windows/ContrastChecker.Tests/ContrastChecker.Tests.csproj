@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <UseWPF>true</UseWPF>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,8 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ContrastChecker\ContrastChecker.csproj" />
+    <ProjectReference Include="..\ContrastChecker\ContrastChecker.csproj">
+      <Private>true</Private>
+      <CopyLocal>true</CopyLocal>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
-
