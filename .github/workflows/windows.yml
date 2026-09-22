@@ -1,0 +1,70 @@
+name: Build Windows Application
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'windows/**'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'windows/**'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run ColorModel Unit Tests
+        run: dotnet test windows/ContrastChecker.Tests/ContrastChecker.Tests.csproj -c Release --verbosity normal
+
+      - name: Publish Standalone Executable (win-x64)
+        run: |
+          dotnet publish windows/ContrastChecker/ContrastChecker.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -o windows/build/publish
+
+      - name: Copy Executable to Build Artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path windows/build/dist -Force | Out-Null
+          Copy-Item windows/build/publish/ContrastChecker.exe windows/build/dist/ContrastChecker.exe -Force
+
+      - name: Install WiX Toolset
+        run: dotnet tool install --global wix
+
+      - name: Build MSI Installer
+        run: |
+          dotnet build windows/ContrastChecker.Installer/ContrastChecker.Installer.wixproj -c Release -p:Platform=x64
+
+      - name: Copy MSI to Build Artifacts
+        shell: pwsh
+        run: |
+          $msiPath = "windows/ContrastChecker.Installer/bin/x64/Release/ContrastChecker.msi"
+          if (Test-Path $msiPath) {
+            Copy-Item $msiPath windows/build/dist/ContrastChecker.msi -Force
+          } else {
+            Write-Warning "MSI not found at $msiPath"
+          }
+
+      - name: Upload Windows Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ContrastChecker-Windows-x64
+          path: windows/build/dist/*

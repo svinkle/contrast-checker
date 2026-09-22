@@ -1,0 +1,95 @@
+<Window x:Class="ContrastChecker.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About Contrast Checker"
+        Width="380" Height="400"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        KeyDown="OnKeyDown"
+        MouseLeftButtonDown="OnWindowDrag">
+
+    <Grid Margin="15">
+        <Border CornerRadius="16"
+                Background="#202024"
+                BorderBrush="#33FFFFFF"
+                BorderThickness="1"
+                ClipToBounds="True">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="6" Opacity="0.5" Color="#000000" />
+            </Border.Effect>
+
+            <Grid Margin="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Header with App Title and Version -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,4,0,16">
+                    <TextBlock Text="Contrast Checker"
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="#FFFFFF"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="Version 1.0.0"
+                               FontSize="12"
+                               Foreground="#8E8E93"
+                               HorizontalAlignment="Center" Margin="0,2,0,0" />
+                </StackPanel>
+
+                <!-- Content Body -->
+                <StackPanel Grid.Row="1" VerticalAlignment="Top">
+                    <TextBlock Text="A native utility for measuring color contrast anywhere across the operating system."
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               FontSize="12" Foreground="#D1D1D6"
+                               Margin="0,0,0,14" LineHeight="18" />
+
+                    <Border Background="#161618" CornerRadius="10" Padding="14,10" Margin="0,0,0,14" BorderBrush="#26FFFFFF" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="Global System Shortcuts:" FontWeight="SemiBold" FontSize="11" Foreground="#A1A1A6" Margin="0,0,0,6" />
+                            <TextBlock Text="• Ctrl+Alt+C: Toggle Contrast Checker" FontSize="11" Foreground="#E5E5EA" Margin="0,2" FontFamily="Consolas, Segoe UI" />
+                            <TextBlock Text="• Ctrl+Alt+B: Pick Background Color" FontSize="11" Foreground="#E5E5EA" Margin="0,2" FontFamily="Consolas, Segoe UI" />
+                            <TextBlock Text="• Ctrl+Alt+F: Pick Foreground Color" FontSize="11" Foreground="#E5E5EA" Margin="0,2" FontFamily="Consolas, Segoe UI" />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="WCAG 2.1 relative luminance calculation."
+                               FontSize="11" Foreground="#8E8E93"
+                               TextAlignment="Center" Margin="0,0,0,10" />
+
+                    <!-- GitHub Link -->
+                    <TextBlock HorizontalAlignment="Center" Margin="0,0,0,10">
+                        <Hyperlink NavigateUri="https://github.com/svinkle/contrast-checker" RequestNavigate="OnHyperlinkRequestNavigate"
+                                   Foreground="#0A84FF" TextDecorations="None">
+                            github.com/svinkle/contrast-checker
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Close Button -->
+                <Button Grid.Row="2"
+                        Content="Close"
+                        Width="100" Height="30"
+                        HorizontalAlignment="Center"
+                        Cursor="Hand"
+                        Click="OnCloseClicked">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="b" Background="#33FFFFFF" CornerRadius="8">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="#FFFFFF" TextElement.FontWeight="SemiBold" TextElement.FontSize="12" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="Background" Value="#4DFFFFFF" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

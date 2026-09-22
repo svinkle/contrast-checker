@@ -1,0 +1,77 @@
+<Window x:Class="ContrastChecker.Views.PickerOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Color Picker Overlay"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        Cursor="Cross"
+        MouseMove="OnMouseMove"
+        MouseDown="OnMouseDown"
+        KeyDown="OnKeyDown">
+
+    <Canvas x:Name="OverlayCanvas" ClipToBounds="False">
+        <!-- Magnifier Loupe Container -->
+        <Border x:Name="LoupeContainer"
+                Width="140" Height="175"
+                CornerRadius="16"
+                Background="#EE1E1E24"
+                BorderBrush="#55FFFFFF"
+                BorderThickness="1.5"
+                IsHitTestVisible="False">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.45" Color="#000000" />
+            </Border.Effect>
+
+            <Grid Margin="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="124" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Zoomed Pixel Grid View -->
+                <Border Grid.Row="0" CornerRadius="10" ClipToBounds="True" Background="#000000" BorderBrush="#33FFFFFF" BorderThickness="1">
+                    <Grid>
+                        <!-- Magnified Image -->
+                        <Image x:Name="MagnifierImage"
+                               Stretch="Fill"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+
+                        <!-- Center Target Reticle -->
+                        <Border Width="14" Height="14"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                BorderBrush="#FFFFFF" BorderThickness="1.5"
+                                Background="Transparent" />
+                        <Border Width="16" Height="16"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                BorderBrush="#000000" BorderThickness="1"
+                                Background="Transparent" />
+                    </Grid>
+                </Border>
+
+                <!-- Hex / Swatch Info Bar -->
+                <Grid Grid.Row="1" Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" x:Name="ColorSwatch"
+                            Width="16" Height="16"
+                            CornerRadius="8"
+                            BorderBrush="#44FFFFFF" BorderThickness="1"
+                            HorizontalAlignment="Left" VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Column="1" x:Name="HexText"
+                               Text="#000000"
+                               FontFamily="Consolas, monospace"
+                               FontSize="12" FontWeight="SemiBold"
+                               Foreground="#FFFFFF"
+                               VerticalAlignment="Center" Margin="4,0,0,0" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Canvas>
+</Window>
