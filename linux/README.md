@@ -25,20 +25,22 @@ Packaged as a universal **Flatpak** for seamless installation across all Linux d
 
 ## Keyboard Shortcuts
 
-| Shortcut | Scope | Action |
-| :--- | :--- | :--- |
-| **`Ctrl + Alt + B`** (or `Alt + B`) | In-app / Global* | **Pick Background color** (triggers screen eyedropper) |
-| **`Ctrl + Alt + F`** (or `Alt + F`) | In-app / Global* | **Pick Foreground color** (triggers screen eyedropper) |
-| **`Ctrl + Alt + C`** | In-app / Global* | **Copy Contrast Ratio** (or toggle window) |
-| **`Ctrl + W`** / **`Esc`** | In-app | Close / hide window |
-| **`Ctrl + Q`** | In-app | Quit Contrast Checker completely |
+| Shortcut                            | Scope             | Action                                                                         |
+| :---------------------------------- | :---------------- | :----------------------------------------------------------------------------- |
+| **`Ctrl + Alt + C`**                | In-app / Global\* | **Toggle show/hide window** (hides from main app launcher / dock to background) |
+| **`Ctrl + Alt + B`** (or `Alt + B`) | In-app / Global\* | **Pick Background color** (triggers screen eyedropper)                         |
+| **`Ctrl + Alt + F`** (or `Alt + F`) | In-app / Global\* | **Pick Foreground color** (triggers screen eyedropper)                         |
+| **`Ctrl + C`**                      | In-app            | **Copy Contrast Ratio** (`21.00:1`)                                            |
+| **`Ctrl + W`** / **`Esc`**          | In-app            | Hide window to background                                                      |
+| **`Ctrl + Q`**                      | In-app            | Quit Contrast Checker completely                                               |
 
 > [!TIP]
 > **System-Wide Global Shortcuts**:
-> The Linux application supports DBus command-line actions (`--pick-bg`, `--pick-fg`, `--toggle`). To trigger them from anywhere across your system even when the window is in the background, add custom shortcuts in **Ubuntu Settings > Keyboard > Keyboard Shortcuts > View and Customize Shortcuts > Custom Shortcuts**:
+> The Linux application supports DBus command-line actions (`--toggle`, `--pick-bg`, `--pick-fg`). To trigger them from anywhere across your system even when the window is hidden, add custom shortcuts in **Ubuntu Settings > Keyboard > Keyboard Shortcuts > View and Customize Shortcuts > Custom Shortcuts**:
+>
+> - `Ctrl + Alt + C`: `contrast-checker --toggle` (or `flatpak run io.github.svinkle.ContrastChecker --toggle`)
 > - `Ctrl + Alt + B`: `contrast-checker --pick-bg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-bg`)
 > - `Ctrl + Alt + F`: `contrast-checker --pick-fg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-fg`)
-> - `Ctrl + Alt + C`: `contrast-checker --toggle` (or `flatpak run io.github.svinkle.ContrastChecker --toggle`)
 
 ---
 

@@ -168,12 +168,35 @@ namespace ContrastChecker
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape || (e.Key == Key.W && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
+            var ctrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+            var alt = (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
+
+            if (ctrl && alt && e.Key == Key.C)
+            {
+                ToggleAppVisibility();
+                e.Handled = true;
+            }
+            else if (ctrl && !alt && e.Key == Key.C)
+            {
+                OnCopyContrastRatioClicked(this, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            else if (ctrl && alt && e.Key == Key.B)
+            {
+                PickBackground();
+                e.Handled = true;
+            }
+            else if (ctrl && alt && e.Key == Key.F)
+            {
+                PickForeground();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape || (ctrl && e.Key == Key.W))
             {
                 HideApp();
                 e.Handled = true;
             }
-            else if (e.Key == Key.Q && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            else if (ctrl && e.Key == Key.Q)
             {
                 ExitApp();
                 e.Handled = true;

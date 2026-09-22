@@ -42,6 +42,7 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
+        self.hold()  # Keeps application running in background when window is hidden
         self._load_styles()
         self._setup_icons()
         self._ensure_user_desktop_integration()
@@ -49,11 +50,11 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
     def do_activate(self):
         if not self.window:
             self.window = MainWindow(app=self)
+        self.window.set_visible(True)
         self.window.present()
 
     def do_command_line(self, command_line):
         args = command_line.get_arguments()
-        self.activate()
 
         if "--pick-bg" in args:
             GLib.idle_add(self._trigger_pick_bg)
@@ -61,25 +62,37 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
             GLib.idle_add(self._trigger_pick_fg)
         elif "--toggle" in args:
             GLib.idle_add(self._toggle_window)
+        else:
+            self.activate()
 
         return 0
 
     def _trigger_pick_bg(self):
+        if not self.window:
+            self.activate()
         if self.window:
+            self.window.set_visible(True)
             self.window.present()
             self.window._on_pick_background()
 
     def _trigger_pick_fg(self):
+        if not self.window:
+            self.activate()
         if self.window:
+            self.window.set_visible(True)
             self.window.present()
             self.window._on_pick_foreground()
 
     def _toggle_window(self):
-        if self.window:
-            if self.window.is_visible():
-                self.window.set_visible(False)
-            else:
-                self.window.present()
+        if not self.window:
+            self.activate()
+            return
+
+        if self.window.is_visible():
+            self.window.set_visible(False)
+        else:
+            self.window.set_visible(True)
+            self.window.present()
 
     def _load_styles(self):
         css_provider = Gtk.CssProvider()

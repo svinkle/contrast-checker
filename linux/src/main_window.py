@@ -46,10 +46,15 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
 
         self._build_ui()
         self._setup_key_controller()
+        self.connect("close-request", self._on_close_request)
 
         # Connect model listener
         self.model.add_listener(self._on_model_changed)
         self._update_display()
+
+    def _on_close_request(self, window) -> bool:
+        self.set_visible(False)
+        return True
 
     def _build_ui(self) -> None:
         # Window handle makes the entire card draggable
@@ -82,8 +87,8 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         self.close_btn = Gtk.Button()
         self.close_btn.add_css_class("close-button")
         self.close_btn.add_css_class("circle-focus")
-        self.close_btn.set_tooltip_text("Close window (Esc / Ctrl+W)")
-        self.close_btn.connect("clicked", lambda b: self.close())
+        self.close_btn.set_tooltip_text("Close window (Esc / Ctrl+W / Ctrl+Alt+C)")
+        self.close_btn.connect("clicked", lambda b: self.set_visible(False))
         self.close_label = Gtk.Label(label="✕")
         self.close_btn.set_child(self.close_label)
         header_box.append(self.close_btn)
@@ -98,7 +103,7 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         self.ratio_btn = Gtk.Button()
         self.ratio_btn.add_css_class("contrast-ratio-btn")
         self.ratio_btn.add_css_class("rect-focus")
-        self.ratio_btn.set_tooltip_text("Click to copy contrast ratio (Ctrl+Alt+C)")
+        self.ratio_btn.set_tooltip_text("Click or press Ctrl+C to copy contrast ratio")
         self.ratio_btn.connect("clicked", self._on_copy_ratio_clicked)
 
         self.ratio_label = Gtk.Label(label="21.00:1")
@@ -239,9 +244,14 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
         alt = bool(state & Gdk.ModifierType.ALT_MASK)
 
-        # Esc or Ctrl+W: Close window
+        # Ctrl+Alt+C: Toggle / hide window to background
+        if ctrl and alt and keyval in (Gdk.KEY_c, Gdk.KEY_C):
+            self.set_visible(False)
+            return True
+
+        # Esc or Ctrl+W: Hide window
         if keyval == Gdk.KEY_Escape or (ctrl and keyval in (Gdk.KEY_w, Gdk.KEY_W)):
-            self.close()
+            self.set_visible(False)
             return True
 
         # Ctrl+Q: Quit application completely
@@ -250,7 +260,7 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
             if app:
                 app.quit()
             else:
-                self.close()
+                self.destroy()
             return True
 
         # Pick Background color: Ctrl+Alt+B, Alt+B, or Ctrl+B
@@ -265,11 +275,10 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
                 self._on_pick_foreground()
                 return True
 
-        # Copy Contrast Ratio: Ctrl+Alt+C or Ctrl+C
-        if keyval in (Gdk.KEY_c, Gdk.KEY_C):
-            if (ctrl and alt) or ctrl:
-                self._on_copy_ratio_clicked(None)
-                return True
+        # Copy Contrast Ratio: Ctrl+C (when Alt is not held)
+        if ctrl and not alt and keyval in (Gdk.KEY_c, Gdk.KEY_C):
+            self._on_copy_ratio_clicked(None)
+            return True
 
         return False
 
