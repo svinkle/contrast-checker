@@ -19,6 +19,12 @@ namespace ContrastChecker.Services
         private const int WM_KEYDOWN = 0x0100;
         private const int VK_ESCAPE = 0x1B;
 
+        private const uint SPI_SETCURSORS = 0x0057;
+        private const uint OCR_NORMAL = 32512;
+        private const uint OCR_IBEAM = 32513;
+        private const uint OCR_HAND = 32649;
+        private const int IDC_CROSS = 32515;
+
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
         {
@@ -63,12 +69,25 @@ namespace ContrastChecker.Services
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out POINT lpPoint);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetSystemCursor(IntPtr hcur, uint id);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr CopyIcon(IntPtr hIcon);
+
         private IntPtr _mouseHook = IntPtr.Zero;
         private IntPtr _keyboardHook = IntPtr.Zero;
         private LowLevelProc? _mouseProc;
         private LowLevelProc? _keyboardProc;
 
         private bool _isPicking;
+        private bool _systemCursorReplaced;
         private Color _currentHoverColor;
         private Action<Color>? _onHover;
         private Action<Color>? _onSelected;
@@ -78,6 +97,57 @@ namespace ContrastChecker.Services
 
         public event Action<string>? StatusPromptChanged;
         public event Action? StatusPromptCleared;
+
+        public ScreenColorSampler()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => RestoreGlobalCursor();
+        }
+
+        private void EnableGlobalCrosshair()
+        {
+            try
+            {
+                IntPtr hCross = LoadCursor(IntPtr.Zero, IDC_CROSS);
+                if (hCross != IntPtr.Zero)
+                {
+                    // SetSystemCursor takes ownership and destroys the cursor passed to it,
+                    // so we must pass a copy via CopyIcon for each cursor slot.
+                    SetSystemCursor(CopyIcon(hCross), OCR_NORMAL);
+                    SetSystemCursor(CopyIcon(hCross), OCR_IBEAM);
+                    SetSystemCursor(CopyIcon(hCross), OCR_HAND);
+                    _systemCursorReplaced = true;
+                }
+            }
+            catch
+            {
+                // Fallback to WPF OverrideCursor
+            }
+
+            Application.Current?.Dispatcher?.Invoke(() =>
+            {
+                Mouse.OverrideCursor = Cursors.Cross;
+            });
+        }
+
+        private void RestoreGlobalCursor()
+        {
+            if (_systemCursorReplaced)
+            {
+                _systemCursorReplaced = false;
+                try
+                {
+                    SystemParametersInfo(SPI_SETCURSORS, 0, IntPtr.Zero, 0);
+                }
+                catch
+                {
+                }
+            }
+
+            Application.Current?.Dispatcher?.Invoke(() =>
+            {
+                Mouse.OverrideCursor = null;
+            });
+        }
 
         public void PickBackgroundColor(ColorModel model)
         {
@@ -143,8 +213,8 @@ namespace ContrastChecker.Services
             _onSelected = onSelected;
             _onCancelled = onCancelled;
 
-            // Change cursor to Crosshair across the application
-            Mouse.OverrideCursor = Cursors.Cross;
+            // Change cursor to Crosshair globally across the operating system
+            EnableGlobalCrosshair();
 
             // Sample initial pixel under cursor
             if (GetCursorPos(out POINT initialPt))
@@ -186,10 +256,7 @@ namespace ContrastChecker.Services
             _mouseProc = null;
             _keyboardProc = null;
 
-            Application.Current?.Dispatcher?.Invoke(() =>
-            {
-                Mouse.OverrideCursor = null;
-            });
+            RestoreGlobalCursor();
         }
 
         private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
