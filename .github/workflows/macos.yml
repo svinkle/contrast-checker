@@ -2,17 +2,17 @@ name: Build macOS Application
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'macos/**'
-      - '.github/workflows/macos.yml'
-      - 'Makefile'
+      - "macos/**"
+      - ".github/workflows/macos.yml"
+      - "Makefile"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'macos/**'
-      - '.github/workflows/macos.yml'
-      - 'Makefile'
+      - "macos/**"
+      - ".github/workflows/macos.yml"
+      - "Makefile"
   workflow_dispatch:
 
 jobs:

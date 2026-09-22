@@ -3,6 +3,7 @@
     <OutputName>ContrastChecker</OutputName>
     <OutputType>Package</OutputType>
     <Platform>x64</Platform>
+    <PublishDir Condition="'$(PublishDir)' == ''">..\ContrastChecker\bin\Release\net8.0-windows\win-x64\publish</PublishDir>
+    <DefineConstants>PublishDir=$(PublishDir)</DefineConstants>
   </PropertyGroup>
 </Project>
-

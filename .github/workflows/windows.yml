@@ -37,14 +37,13 @@ jobs:
             --self-contained true `
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
-            -p:EnableCompressionInSingleFile=true `
-            -o windows/build/publish
+            -p:EnableCompressionInSingleFile=true
 
       - name: Copy Executable to Build Artifacts
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path windows/build/dist -Force | Out-Null
-          Copy-Item windows/build/publish/ContrastChecker.exe windows/build/dist/ContrastChecker.exe -Force
+          Copy-Item windows/ContrastChecker/bin/Release/net8.0-windows/win-x64/publish/ContrastChecker.exe windows/build/dist/ContrastChecker.exe -Force
 
       - name: Install WiX Toolset
         run: dotnet tool install --global wix
@@ -56,11 +55,12 @@ jobs:
       - name: Copy MSI to Build Artifacts
         shell: pwsh
         run: |
-          $msiPath = "windows/ContrastChecker.Installer/bin/x64/Release/ContrastChecker.msi"
-          if (Test-Path $msiPath) {
-            Copy-Item $msiPath windows/build/dist/ContrastChecker.msi -Force
+          $msi = Get-ChildItem -Path "windows/ContrastChecker.Installer/bin" -Filter "*.msi" -Recurse | Select-Object -First 1
+          if ($msi) {
+            Copy-Item $msi.FullName windows/build/dist/ContrastChecker.msi -Force
+            Write-Host "Found and copied MSI: $($msi.FullName)"
           } else {
-            Write-Warning "MSI not found at $msiPath"
+            Write-Error "MSI not found in windows/ContrastChecker.Installer/bin"
           }
 
       - name: Upload Windows Build Artifacts

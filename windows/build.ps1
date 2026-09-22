@@ -52,13 +52,13 @@ if ($BuildMsi) {
     $WixProj = Join-Path $ScriptDir "ContrastChecker.Installer\ContrastChecker.Installer.wixproj"
     dotnet build $WixProj -c $Configuration -p:Platform=x64 --nologo
 
-    $MsiSource = Join-Path $ScriptDir "ContrastChecker.Installer\bin\x64\$Configuration\ContrastChecker.msi"
-    if (Test-Path $MsiSource) {
+    $MsiFile = Get-ChildItem -Path (Join-Path $ScriptDir "ContrastChecker.Installer\bin") -Filter "*.msi" -Recurse | Select-Object -First 1
+    if ($MsiFile) {
         $MsiDest = Join-Path $OutputDir "ContrastChecker.msi"
-        Copy-Item $MsiSource $MsiDest -Force
+        Copy-Item $MsiFile.FullName $MsiDest -Force
         Write-Host "==> MSI Installer created: $MsiDest" -ForegroundColor Green
     } else {
-        Write-Host "Warning: MSI file not found at expected path: $MsiSource" -ForegroundColor Yellow
+        Write-Host "Warning: MSI file not found in ContrastChecker.Installer\bin" -ForegroundColor Yellow
     }
 }
 

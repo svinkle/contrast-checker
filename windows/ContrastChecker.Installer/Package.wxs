@@ -16,7 +16,7 @@
       <Directory Id="INSTALLFOLDER" Name="ContrastChecker">
         <Component Id="MainExecutable" Guid="a1b2c3d4-1111-2222-3333-444455556666">
           <File Id="ContrastCheckerExe"
-                Source="..\ContrastChecker\bin\Release\net8.0-windows\win-x64\publish\ContrastChecker.exe"
+                Source="$(var.PublishDir)\ContrastChecker.exe"
                 KeyPath="yes" />
         </Component>
 
