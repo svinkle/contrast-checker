@@ -1,4 +1,4 @@
-.PHONY: all test run check-tools setup-flathub flatpak bundle clean
+.PHONY: all test run install-user check-tools setup-flathub flatpak bundle clean
 
 PYTHON ?= python3
 
@@ -9,7 +9,21 @@ test:
 	@$(PYTHON) -m unittest discover -s tests -p "test_*.py" -v
 	@echo "==> All Linux ColorModel tests PASSED successfully!"
 
-run:
+install-user:
+	@echo "==> Registering desktop launcher and icons in ~/.local/share..."
+	@mkdir -p $(HOME)/.local/share/applications
+	@mkdir -p $(HOME)/.local/share/icons/hicolor/128x128/apps
+	@mkdir -p $(HOME)/.local/share/icons/hicolor/256x256/apps
+	@mkdir -p $(HOME)/.local/share/icons/hicolor/512x512/apps
+	@sed 's|Exec=contrast-checker|Exec=$(CURDIR)/src/contrast_checker.py|g' io.github.svinkle.ContrastChecker.desktop > $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
+	@chmod +x $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
+	@cp icons/128x128/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/128x128/apps/
+	@cp icons/256x256/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/256x256/apps/
+	@cp icons/512x512/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/512x512/apps/
+	@update-desktop-database $(HOME)/.local/share/applications 2>/dev/null || true
+	@gtk-update-icon-cache $(HOME)/.local/share/icons/hicolor 2>/dev/null || true
+
+run: install-user
 	@PYTHONPATH=src $(PYTHON) src/contrast_checker.py
 
 check-tools:

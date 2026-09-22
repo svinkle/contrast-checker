@@ -11,23 +11,47 @@ Packaged as a universal **Flatpak** for seamless installation across all Linux d
 - **Floating Card UI**: Compact 340×260px floating card with crisp squared corners, live top Background swatch preview with dynamic Foreground sample text, large contrast ratio readout, and subtle corner close button (`✕`).
 - **WCAG 2.1 Conformance**: Precise relative luminance and contrast ratio calculations identical to macOS and Windows versions.
 - **System-Wide Screen Color Sampling**: Uses the **XDG Desktop Portal** (`org.freedesktop.portal.Screenshot.PickColor`) over DBus to invoke the system's native magnification loupe on both **Wayland** (GNOME, KDE Plasma, Sway, Hyprland) and **X11**.
-- **Accessible Keyboard Navigation**:
-  - `Tab` / `Shift+Tab` moves focus across controls.
-  - Buttons feature high-contrast visible focus rings strictly when navigating via keyboard (`:focus-visible`).
-  - `Enter` and `Space` activate focused buttons.
-  - `Esc` or `Ctrl+W` closes/hides the window; `Ctrl+Q` quits the application.
+- **Full Keyboard Parity with Windows**:
+  - `Ctrl + Alt + B` (or `Alt + B` / `Ctrl + B`): Pick Background color.
+  - `Ctrl + Alt + F` (or `Alt + F` / `Ctrl + F`): Pick Foreground color.
+  - `Ctrl + Alt + C`: Copy contrast ratio.
+  - `Ctrl + W` / `Esc`: Close window.
+  - `Ctrl + Q`: Quit application completely.
+  - `Tab` / `Shift + Tab`: Accessible dual-layer `:focus-visible` outline.
+- **Ubuntu Desktop & Dock Integration**: FreeDesktop desktop launcher, high-resolution app icons (`128x128`, `256x256`, `512x512`), and dock right-click context menu actions ("Pick Background Color", "Pick Foreground Color", "Toggle Window").
 - **Clipboard & Transient Toast**: One-click copying of HEX values and contrast ratio with a floating checkmark toast banner.
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Scope | Action |
+| :--- | :--- | :--- |
+| **`Ctrl + Alt + B`** (or `Alt + B`) | In-app / Global* | **Pick Background color** (triggers screen eyedropper) |
+| **`Ctrl + Alt + F`** (or `Alt + F`) | In-app / Global* | **Pick Foreground color** (triggers screen eyedropper) |
+| **`Ctrl + Alt + C`** | In-app / Global* | **Copy Contrast Ratio** (or toggle window) |
+| **`Ctrl + W`** / **`Esc`** | In-app | Close / hide window |
+| **`Ctrl + Q`** | In-app | Quit Contrast Checker completely |
+
+> [!TIP]
+> **System-Wide Global Shortcuts**:
+> The Linux application supports DBus command-line actions (`--pick-bg`, `--pick-fg`, `--toggle`). To trigger them from anywhere across your system even when the window is in the background, add custom shortcuts in **Ubuntu Settings > Keyboard > Keyboard Shortcuts > View and Customize Shortcuts > Custom Shortcuts**:
+> - `Ctrl + Alt + B`: `contrast-checker --pick-bg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-bg`)
+> - `Ctrl + Alt + F`: `contrast-checker --pick-fg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-fg`)
+> - `Ctrl + Alt + C`: `contrast-checker --toggle` (or `flatpak run io.github.svinkle.ContrastChecker --toggle`)
 
 ---
 
 ## Dependencies & Requirements
 
 ### Operating System & Environments
+
 - **Linux Distribution**: Any modern Linux distribution (Ubuntu 22.04+, Debian 12+, Fedora 38+, Arch Linux, openSUSE, SteamOS, etc.).
 - **Architecture**: `x86_64` (AMD/Intel) and `aarch64` (ARM64, including Linux inside Apple Silicon virtual machines).
 - **Display Server**: Native **Wayland** (GNOME Shell, KDE Plasma, Sway, Hyprland) and **X11**.
 
 ### System Services & Permissions
+
 - **XDG Desktop Portal (`xdg-desktop-portal`)**: Required for sandboxed, system-wide screen color sampling (`org.freedesktop.portal.Screenshot.PickColor` over DBus).
   - Standard on modern Linux desktop environments.
   - Backends: `xdg-desktop-portal-gnome` (GNOME), `xdg-desktop-portal-kde` (KDE), or `xdg-desktop-portal-wlr` / `xdg-desktop-portal-gtk` (Sway / Hyprland / wlroots).

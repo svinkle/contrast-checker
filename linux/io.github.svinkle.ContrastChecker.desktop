@@ -11,4 +11,17 @@ Keywords=Color;Contrast;Accessibility;WCAG;Eyedropper;Design;
 StartupNotify=true
 StartupWMClass=io.github.svinkle.ContrastChecker
 X-Purism-FormFactor=Workstation;Mobile;
+Actions=PickBg;PickFg;Toggle;
+
+[Desktop Action PickBg]
+Name=Pick Background Color (Ctrl+Alt+B)
+Exec=contrast-checker --pick-bg
+
+[Desktop Action PickFg]
+Name=Pick Foreground Color (Ctrl+Alt+F)
+Exec=contrast-checker --pick-fg
+
+[Desktop Action Toggle]
+Name=Toggle Window (Ctrl+Alt+C)
+Exec=contrast-checker --toggle
 

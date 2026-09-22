@@ -98,7 +98,7 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         self.ratio_btn = Gtk.Button()
         self.ratio_btn.add_css_class("contrast-ratio-btn")
         self.ratio_btn.add_css_class("rect-focus")
-        self.ratio_btn.set_tooltip_text("Click to copy contrast ratio")
+        self.ratio_btn.set_tooltip_text("Click to copy contrast ratio (Ctrl+Alt+C)")
         self.ratio_btn.connect("clicked", self._on_copy_ratio_clicked)
 
         self.ratio_label = Gtk.Label(label="21.00:1")
@@ -180,7 +180,8 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         scope_btn = Gtk.Button()
         scope_btn.add_css_class("scope-button")
         scope_btn.add_css_class("circle-focus")
-        scope_btn.set_tooltip_text(f"Pick {title.lower()} color from anywhere on screen")
+        hint = "Ctrl+Alt+B" if is_background else "Ctrl+Alt+F"
+        scope_btn.set_tooltip_text(f"Pick {title.lower()} color ({hint})")
         scope_btn.connect("clicked", lambda b: on_pick())
 
         # Scope Symbol
@@ -236,17 +237,40 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
 
     def _on_key_pressed(self, controller, keyval, keycode, state) -> bool:
         ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
+        alt = bool(state & Gdk.ModifierType.ALT_MASK)
 
+        # Esc or Ctrl+W: Close window
         if keyval == Gdk.KEY_Escape or (ctrl and keyval in (Gdk.KEY_w, Gdk.KEY_W)):
             self.close()
             return True
-        elif ctrl and keyval in (Gdk.KEY_q, Gdk.KEY_Q):
+
+        # Ctrl+Q: Quit application completely
+        if ctrl and keyval in (Gdk.KEY_q, Gdk.KEY_Q):
             app = self.get_application()
             if app:
                 app.quit()
             else:
                 self.close()
             return True
+
+        # Pick Background color: Ctrl+Alt+B, Alt+B, or Ctrl+B
+        if keyval in (Gdk.KEY_b, Gdk.KEY_B):
+            if (ctrl and alt) or alt or ctrl:
+                self._on_pick_background()
+                return True
+
+        # Pick Foreground color: Ctrl+Alt+F, Alt+F, or Ctrl+F
+        if keyval in (Gdk.KEY_f, Gdk.KEY_F):
+            if (ctrl and alt) or alt or ctrl:
+                self._on_pick_foreground()
+                return True
+
+        # Copy Contrast Ratio: Ctrl+Alt+C or Ctrl+C
+        if keyval in (Gdk.KEY_c, Gdk.KEY_C):
+            if (ctrl and alt) or ctrl:
+                self._on_copy_ratio_clicked(None)
+                return True
+
         return False
 
     def _on_model_changed(self) -> None:

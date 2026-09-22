@@ -65,9 +65,11 @@ Designed to be lightweight, unobtrusive, and simple:
 ## Dependencies & Requirements
 
 ### Operating System
+
 - **macOS 13.0 (Ventura)** or later (Supports both Apple Silicon `arm64` and Intel `x86_64`).
 
 ### Build & Development Tools
+
 - **Apple Command Line Tools**: Provides the Swift compiler and build tools. Install via:
   ```bash
   xcode-select --install
@@ -77,6 +79,7 @@ Designed to be lightweight, unobtrusive, and simple:
 - **`hdiutil`**: Built-in macOS command-line utility used by `make dmg` to package compressed DMG disk images.
 
 ### Runtime Dependencies
+
 - **Zero Third-Party Dependencies**: Contrast Checker uses exclusively native macOS system frameworks with no external packages, pods, or dynamic library dependencies:
   - **`AppKit`**: Core window management (`NSPanel`), menu bar status item (`NSStatusItem`), application lifecycle (`NSApplication`), and system-wide eyedropper loupe (`NSColorSampler`).
   - **`SwiftUI`**: Declarative UI layout, dynamic color binding, and focus ring modifiers.
