@@ -23,6 +23,11 @@ namespace ContrastChecker.Views
             {
                 Close();
             }
+            else if (e.Key == Key.Q && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                Close();
+                (Owner as MainWindow)?.ExitApp();
+            }
         }
 
         private void OnWindowDrag(object sender, MouseButtonEventArgs e)

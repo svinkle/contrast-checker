@@ -15,6 +15,9 @@ Built for accessibility testing, design system audits, and fast WCAG 2.1 complia
   - **`Ctrl + Alt + C`**: Toggle show/hide the Contrast Checker window from anywhere.
   - **`Ctrl + Alt + B`**: Immediately activate the Background color eyedropper loupe.
   - **`Ctrl + Alt + F`**: Immediately activate the Foreground color eyedropper loupe.
+- **Window & App Shortcuts**:
+  - **`Ctrl + W`** / **`Esc`**: Hide window to system tray (removes from taskbar, continues running in background).
+  - **`Ctrl + Q`**: Quit application and terminate the process completely.
 - **Permanent System Tray Companion**: Runs in the Windows Notification Area (System Tray) with right-click menu and single-click toggle. Hiding the window cleanly removes it from the taskbar while keeping it ready in the tray.
 - **Single-File Self-Contained Executable**: Builds to a single portable `ContrastChecker.exe` with zero runtime dependencies.
 - **MSI Installer**: Authoring via WiX Toolset v4/v5 (`ContrastChecker.msi`) with Start Menu and Desktop shortcuts.

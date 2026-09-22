@@ -52,6 +52,7 @@
                             <TextBlock Text="• Ctrl+Alt+C: Toggle Contrast Checker" FontSize="11" Foreground="#E5E5EA" Margin="0,2" FontFamily="Consolas, Segoe UI" />
                             <TextBlock Text="• Ctrl+Alt+B: Pick Background Color" FontSize="11" Foreground="#E5E5EA" Margin="0,2" FontFamily="Consolas, Segoe UI" />
                             <TextBlock Text="• Ctrl+Alt+F: Pick Foreground Color" FontSize="11" Foreground="#E5E5EA" Margin="0,2" FontFamily="Consolas, Segoe UI" />
+                            <TextBlock Text="• Ctrl+Q: Quit Contrast Checker" FontSize="11" Foreground="#E5E5EA" Margin="0,2" FontFamily="Consolas, Segoe UI" />
                         </StackPanel>
                     </Border>
 

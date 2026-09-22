@@ -195,6 +195,11 @@ namespace ContrastChecker
                 HideApp();
                 e.Handled = true;
             }
+            else if (e.Key == Key.Q && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                ExitApp();
+                e.Handled = true;
+            }
         }
 
         private void OnCopyContrastRatioClicked(object sender, RoutedEventArgs e)

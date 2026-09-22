@@ -37,7 +37,10 @@ namespace ContrastChecker.Services
             };
 
             var aboutItem = new ToolStripMenuItem("About Contrast Checker", null, (s, e) => AboutRequested?.Invoke());
-            var exitItem = new ToolStripMenuItem("Exit", null, (s, e) => ExitRequested?.Invoke());
+            var exitItem = new ToolStripMenuItem("Exit", null, (s, e) => ExitRequested?.Invoke())
+            {
+                ShortcutKeyDisplayString = "Ctrl+Q"
+            };
 
             contextMenu.Items.Add(toggleItem);
             contextMenu.Items.Add(new ToolStripSeparator());
