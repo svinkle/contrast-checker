@@ -27,9 +27,7 @@ modules:
       - install -Dm644 io.github.svinkle.ContrastChecker.metainfo.xml /app/share/metainfo/io.github.svinkle.ContrastChecker.metainfo.xml
 
       # Install Application Icons
-      - install -Dm644 icons/128x128/apps/io.github.svinkle.ContrastChecker.png /app/share/icons/hicolor/128x128/apps/io.github.svinkle.ContrastChecker.png
-      - install -Dm644 icons/256x256/apps/io.github.svinkle.ContrastChecker.png /app/share/icons/hicolor/256x256/apps/io.github.svinkle.ContrastChecker.png
-      - install -Dm644 icons/512x512/apps/io.github.svinkle.ContrastChecker.png /app/share/icons/hicolor/512x512/apps/io.github.svinkle.ContrastChecker.png
+      - for size in 16 24 32 48 64 96 128 256 512; do install -Dm644 icons/${size}x${size}/apps/io.github.svinkle.ContrastChecker.png /app/share/icons/hicolor/${size}x${size}/apps/io.github.svinkle.ContrastChecker.png; done
     sources:
       - type: dir
         path: .

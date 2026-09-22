@@ -18,27 +18,24 @@ Packaged as a universal **Flatpak** for seamless installation across all Linux d
   - `Ctrl + W` / `Esc`: Close window.
   - `Ctrl + Q`: Quit application completely.
   - `Tab` / `Shift + Tab`: Accessible dual-layer `:focus-visible` outline.
-- **Ubuntu Desktop & Dock Integration**: FreeDesktop desktop launcher, high-resolution app icons (`128x128`, `256x256`, `512x512`), and dock right-click context menu actions ("Pick Background Color", "Pick Foreground Color", "Toggle Window").
+- **Ubuntu Desktop & Dock Integration**: FreeDesktop desktop launcher, high-resolution app icons across all standard sizes (`16x16` up to `512x512`), and dock right-click context menu actions ("Pick Background Color", "Pick Foreground Color").
 - **Clipboard & Transient Toast**: One-click copying of HEX values and contrast ratio with a floating checkmark toast banner.
 
 ---
 
 ## Keyboard Shortcuts
 
-| Shortcut                            | Scope             | Action                                                                         |
-| :---------------------------------- | :---------------- | :----------------------------------------------------------------------------- |
-| **`Ctrl + Alt + C`**                | In-app / Global\* | **Toggle show/hide window** (hides from main app launcher / dock to background) |
-| **`Ctrl + Alt + B`** (or `Alt + B`) | In-app / Global\* | **Pick Background color** (triggers screen eyedropper)                         |
-| **`Ctrl + Alt + F`** (or `Alt + F`) | In-app / Global\* | **Pick Foreground color** (triggers screen eyedropper)                         |
-| **`Ctrl + C`**                      | In-app            | **Copy Contrast Ratio** (`21.00:1`)                                            |
-| **`Ctrl + W`** / **`Esc`**          | In-app            | Hide window to background                                                      |
-| **`Ctrl + Q`**                      | In-app            | Quit Contrast Checker completely                                               |
+| Shortcut                            | Scope             | Action                                                 |
+| :---------------------------------- | :---------------- | :----------------------------------------------------- |
+| **`Ctrl + Alt + B`** (or `Alt + B`) | In-app / Global\* | **Pick Background color** (triggers screen eyedropper) |
+| **`Ctrl + Alt + F`** (or `Alt + F`) | In-app / Global\* | **Pick Foreground color** (triggers screen eyedropper) |
+| **`Ctrl + W`** / **`Esc`**          | In-app            | Close / hide window                                    |
+| **`Ctrl + Q`**                      | In-app            | Quit Contrast Checker completely                       |
 
 > [!TIP]
 > **System-Wide Global Shortcuts**:
-> The Linux application supports DBus command-line actions (`--toggle`, `--pick-bg`, `--pick-fg`). To trigger them from anywhere across your system even when the window is hidden, add custom shortcuts in **Ubuntu Settings > Keyboard > Keyboard Shortcuts > View and Customize Shortcuts > Custom Shortcuts**:
+> The Linux application supports DBus command-line actions (`--pick-bg`, `--pick-fg`). To trigger color picking from anywhere across your system even when the window is hidden, add custom shortcuts in **Ubuntu Settings > Keyboard > Keyboard Shortcuts > View and Customize Shortcuts > Custom Shortcuts**:
 >
-> - `Ctrl + Alt + C`: `contrast-checker --toggle` (or `flatpak run io.github.svinkle.ContrastChecker --toggle`)
 > - `Ctrl + Alt + B`: `contrast-checker --pick-bg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-bg`)
 > - `Ctrl + Alt + F`: `contrast-checker --pick-fg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-fg`)
 

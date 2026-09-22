@@ -12,16 +12,19 @@ test:
 install-user:
 	@echo "==> Registering desktop launcher and icons in ~/.local/share..."
 	@mkdir -p $(HOME)/.local/share/applications
-	@mkdir -p $(HOME)/.local/share/icons/hicolor/128x128/apps
-	@mkdir -p $(HOME)/.local/share/icons/hicolor/256x256/apps
-	@mkdir -p $(HOME)/.local/share/icons/hicolor/512x512/apps
-	@sed 's|Exec=contrast-checker|Exec=$(CURDIR)/src/contrast_checker.py|g' io.github.svinkle.ContrastChecker.desktop > $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
+	@mkdir -p $(HOME)/.local/share/pixmaps
+	@for size in 16 24 32 48 64 96 128 256 512; do \
+		mkdir -p $(HOME)/.local/share/icons/hicolor/$${size}x$${size}/apps; \
+		cp icons/$${size}x$${size}/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/$${size}x$${size}/apps/io.github.svinkle.ContrastChecker.png 2>/dev/null || true; \
+	done
+	@cp icons/256x256/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/pixmaps/io.github.svinkle.ContrastChecker.png 2>/dev/null || true
+	@sed -e 's|Exec=contrast-checker|Exec=$(CURDIR)/src/contrast_checker.py|g' \
+	     -e 's|Icon=io.github.svinkle.ContrastChecker|Icon=$(HOME)/.local/share/icons/hicolor/256x256/apps/io.github.svinkle.ContrastChecker.png|g' \
+	     io.github.svinkle.ContrastChecker.desktop > $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
 	@chmod +x $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
-	@cp icons/128x128/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/128x128/apps/
-	@cp icons/256x256/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/256x256/apps/
-	@cp icons/512x512/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/512x512/apps/
 	@update-desktop-database $(HOME)/.local/share/applications 2>/dev/null || true
-	@gtk-update-icon-cache $(HOME)/.local/share/icons/hicolor 2>/dev/null || true
+	@gtk-update-icon-cache -f -t $(HOME)/.local/share/icons/hicolor 2>/dev/null || true
+	@echo "==> Desktop integration complete."
 
 run: install-user
 	@PYTHONPATH=src $(PYTHON) src/contrast_checker.py

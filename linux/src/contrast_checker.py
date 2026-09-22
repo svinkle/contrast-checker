@@ -60,8 +60,6 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
             GLib.idle_add(self._trigger_pick_bg)
         elif "--pick-fg" in args:
             GLib.idle_add(self._trigger_pick_fg)
-        elif "--toggle" in args:
-            GLib.idle_add(self._toggle_window)
         else:
             self.activate()
 
@@ -82,17 +80,6 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
             self.window.set_visible(True)
             self.window.present()
             self.window._on_pick_foreground()
-
-    def _toggle_window(self):
-        if not self.window:
-            self.activate()
-            return
-
-        if self.window.is_visible():
-            self.window.set_visible(False)
-        else:
-            self.window.set_visible(True)
-            self.window.present()
 
     def _load_styles(self):
         css_provider = Gtk.CssProvider()
@@ -117,13 +104,13 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
         icons_dir = os.path.join(base_dir, "icons")
         if os.path.exists(icons_dir):
             icon_theme.add_search_path(icons_dir)
-            for res in ["128x128", "256x256", "512x512"]:
+            for res in ["16x16", "24x24", "32x32", "48x48", "64x64", "96x96", "128x128", "256x256", "512x512"]:
                 res_path = os.path.join(icons_dir, res, "apps")
                 if os.path.exists(res_path):
                     icon_theme.add_search_path(res_path)
 
     def _ensure_user_desktop_integration(self):
-        """Copies desktop launcher and icons to ~/.local/share on native host runs so the Ubuntu dock displays the icon."""
+        """Installs/updates desktop launcher and icons to ~/.local/share so Ubuntu dock shows the icon."""
         if os.path.exists("/.flatpak-info"):
             return
 
@@ -132,26 +119,40 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             home = os.path.expanduser("~")
             apps_dir = os.path.join(home, ".local", "share", "applications")
+            pixmaps_dir = os.path.join(home, ".local", "share", "pixmaps")
             os.makedirs(apps_dir, exist_ok=True)
+            os.makedirs(pixmaps_dir, exist_ok=True)
+
             desktop_src = os.path.join(base_dir, "io.github.svinkle.ContrastChecker.desktop")
             desktop_dst = os.path.join(apps_dir, "io.github.svinkle.ContrastChecker.desktop")
 
-            if os.path.exists(desktop_src) and not os.path.exists(desktop_dst):
-                with open(desktop_src, "r") as f:
-                    content = f.read()
-                launcher_script = os.path.join(base_dir, "src", "contrast_checker.py")
-                content = content.replace("Exec=contrast-checker", f"Exec={launcher_script}")
-                with open(desktop_dst, "w") as f:
-                    f.write(content)
-
-            # Copy multi-resolution icons to user icons folder
-            for res in ["128x128", "256x256", "512x512"]:
+            # Copy all resolution icons into hicolor icon theme
+            for res in ["16x16", "24x24", "32x32", "48x48", "64x64", "96x96", "128x128", "256x256", "512x512"]:
                 icon_src = os.path.join(base_dir, "icons", res, "apps", f"{APP_ID}.png")
                 icon_dst_dir = os.path.join(home, ".local", "share", "icons", "hicolor", res, "apps")
                 icon_dst = os.path.join(icon_dst_dir, f"{APP_ID}.png")
-                if os.path.exists(icon_src) and not os.path.exists(icon_dst):
+                if os.path.exists(icon_src):
                     os.makedirs(icon_dst_dir, exist_ok=True)
                     shutil.copy2(icon_src, icon_dst)
+
+            # Copy to pixmaps fallback as well
+            master_icon = os.path.join(base_dir, "icons", "256x256", "apps", f"{APP_ID}.png")
+            if os.path.exists(master_icon):
+                shutil.copy2(master_icon, os.path.join(pixmaps_dir, f"{APP_ID}.png"))
+
+            # Write/update desktop file with absolute paths so Ubuntu dock always loads the icon
+            if os.path.exists(desktop_src):
+                with open(desktop_src, "r") as f:
+                    content = f.read()
+                launcher_script = os.path.join(base_dir, "src", "contrast_checker.py")
+                icon_path = os.path.join(home, ".local", "share", "icons", "hicolor", "256x256", "apps", f"{APP_ID}.png")
+                content = content.replace("Exec=contrast-checker", f"Exec={launcher_script}")
+                content = content.replace(f"Icon={APP_ID}", f"Icon={icon_path}")
+                with open(desktop_dst, "w") as f:
+                    f.write(content)
+
+            os.system(f"update-desktop-database {apps_dir} 2>/dev/null")
+            os.system(f"gtk-update-icon-cache -f -t {os.path.join(home, '.local', 'share', 'icons', 'hicolor')} 2>/dev/null")
         except Exception:
             pass
 
