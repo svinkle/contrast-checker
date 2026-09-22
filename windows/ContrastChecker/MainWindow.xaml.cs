@@ -55,6 +55,29 @@ namespace ContrastChecker
             _trayManager.PickForegroundRequested += PickForeground;
             _trayManager.AboutRequested += ShowAbout;
             _trayManager.ExitRequested += ExitApp;
+
+            _sampler.StatusPromptChanged += prompt =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    ToastText.Text = prompt;
+                    AutomationProperties.SetName(ToastText, prompt);
+                    ToastBorder.Visibility = Visibility.Visible;
+                    var peer = UIElementAutomationPeer.FromElement(ToastText) ?? UIElementAutomationPeer.CreatePeerForElement(ToastText);
+                    peer?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+                });
+            };
+
+            _sampler.StatusPromptCleared += () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (string.IsNullOrEmpty(_model.CopiedMessage))
+                    {
+                        ToastBorder.Visibility = Visibility.Collapsed;
+                    }
+                });
+            };
         }
 
         private void OnWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -67,6 +90,7 @@ namespace ContrastChecker
             }
             else
             {
+                _sampler.Dispose();
                 _hotKeyManager.Dispose();
                 _trayManager.Dispose();
             }

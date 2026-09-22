@@ -56,13 +56,13 @@ dotnet test ContrastChecker.Tests/ContrastChecker.Tests.csproj
 
 ---
 
-## Eyedropper Loupe Controls
+## Eyedropper Screen Sampling
 
 When the eyedropper is activated (via button or shortcut):
 
-- **Move Cursor**: The circular loupe displays a 9x magnified pixel grid around the cursor, highlighting the exact target pixel with reticle crosshairs and live HEX color.
-- **Left-Click**: Confirms and selects the color under the reticle.
-- **Right-Click** or **Esc**: Cancels without changing the color.
+- **Move Cursor**: The cursor becomes a precision crosshair across the entire OS. As you move your mouse over any app, website, or desktop wallpaper, the Contrast Checker swatch and HEX code update in real-time.
+- **Left-Click**: Confirms and selects the color directly under the cursor.
+- **Right-Click** or **Esc**: Cancels and restores previous color.
 
 ---
 
@@ -83,10 +83,9 @@ windows/
 │   │   └── ColorModel.cs                # WCAG 2.1 math & clipboard
 │   ├── Services/
 │   │   ├── HotKeyManager.cs             # Global Win32 shortcuts
-│   │   ├── ScreenColorSampler.cs        # Screen capture & overlay launcher
+│   │   ├── ScreenColorSampler.cs        # Global mouse hook & pixel sampling
 │   │   └── TrayIconManager.cs           # System tray NotifyIcon & menu
 │   ├── Views/
-│   │   ├── PickerOverlayWindow.xaml     # Fullscreen loupe overlay
 │   │   └── AboutWindow.xaml             # About dialog & shortcuts
 │   └── Resources/
 │       ├── app.ico                      # Multi-size Windows icon

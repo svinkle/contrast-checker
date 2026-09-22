@@ -1,82 +1,299 @@
 using System;
-using System.Drawing;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using ContrastChecker.Models;
-using ContrastChecker.Views;
-using Color = System.Windows.Media.Color;
-using Size = System.Drawing.Size;
 
 namespace ContrastChecker.Services
 {
-    public class ScreenColorSampler
+    public class ScreenColorSampler : IDisposable
     {
+        private const int WH_MOUSE_LL = 14;
+        private const int WH_KEYBOARD_LL = 13;
+
+        private const int WM_MOUSEMOVE = 0x0200;
+        private const int WM_LBUTTONDOWN = 0x0201;
+        private const int WM_RBUTTONDOWN = 0x0204;
+        private const int WM_KEYDOWN = 0x0100;
+        private const int VK_ESCAPE = 0x1B;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int x;
+            public int y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MSLLHOOKSTRUCT
+        {
+            public POINT pt;
+            public uint mouseData;
+            public uint flags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        private delegate IntPtr LowLevelProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string? lpModuleName);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetDC(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        [DllImport("gdi32.dll")]
+        private static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out POINT lpPoint);
+
+        private IntPtr _mouseHook = IntPtr.Zero;
+        private IntPtr _keyboardHook = IntPtr.Zero;
+        private LowLevelProc? _mouseProc;
+        private LowLevelProc? _keyboardProc;
+
         private bool _isPicking;
+        private Color _currentHoverColor;
+        private Action<Color>? _onHover;
+        private Action<Color>? _onSelected;
+        private Action? _onCancelled;
 
         public bool IsPicking => _isPicking;
 
+        public event Action<string>? StatusPromptChanged;
+        public event Action? StatusPromptCleared;
+
         public void PickBackgroundColor(ColorModel model)
-        {
-            PickColor(color =>
-            {
-                model.SetBackgroundColor(color);
-            });
-        }
-
-        public void PickForegroundColor(ColorModel model)
-        {
-            PickColor(color =>
-            {
-                model.SetForegroundColor(color);
-            });
-        }
-
-        public void PickColor(Action<Color> onSelected)
         {
             if (_isPicking)
                 return;
 
+            Color originalColor = model.BackgroundColor;
+            StatusPromptChanged?.Invoke("Sampling background color... Click to pick, Esc to cancel");
+
+            StartPicking(
+                onHover: color =>
+                {
+                    model.SetBackgroundColor(color);
+                },
+                onSelected: color =>
+                {
+                    model.SetBackgroundColor(color);
+                    StatusPromptCleared?.Invoke();
+                    model.CopyValue(model.BgHex, model.BgHex);
+                },
+                onCancelled: () =>
+                {
+                    model.SetBackgroundColor(originalColor);
+                    StatusPromptCleared?.Invoke();
+                }
+            );
+        }
+
+        public void PickForegroundColor(ColorModel model)
+        {
+            if (_isPicking)
+                return;
+
+            Color originalColor = model.ForegroundColor;
+            StatusPromptChanged?.Invoke("Sampling foreground color... Click to pick, Esc to cancel");
+
+            StartPicking(
+                onHover: color =>
+                {
+                    model.SetForegroundColor(color);
+                },
+                onSelected: color =>
+                {
+                    model.SetForegroundColor(color);
+                    StatusPromptCleared?.Invoke();
+                    model.CopyValue(model.FgHex, model.FgHex);
+                },
+                onCancelled: () =>
+                {
+                    model.SetForegroundColor(originalColor);
+                    StatusPromptCleared?.Invoke();
+                }
+            );
+        }
+
+        public void StartPicking(Action<Color> onHover, Action<Color> onSelected, Action onCancelled)
+        {
+            if (_isPicking)
+                StopPicking();
+
             _isPicking = true;
+            _onHover = onHover;
+            _onSelected = onSelected;
+            _onCancelled = onCancelled;
 
-            try
+            // Change cursor to Crosshair across the application
+            Mouse.OverrideCursor = Cursors.Cross;
+
+            // Sample initial pixel under cursor
+            if (GetCursorPos(out POINT initialPt))
             {
-                int left = (int)SystemParameters.VirtualScreenLeft;
-                int top = (int)SystemParameters.VirtualScreenTop;
-                int width = (int)SystemParameters.VirtualScreenWidth;
-                int height = (int)SystemParameters.VirtualScreenHeight;
-
-                if (width <= 0 || height <= 0)
-                {
-                    width = 1920;
-                    height = 1080;
-                }
-
-                // Capture virtual desktop bitmap
-                var screenBitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                using (var g = Graphics.FromImage(screenBitmap))
-                {
-                    g.CopyFromScreen(left, top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
-                }
-
-                var overlay = new PickerOverlayWindow(screenBitmap, left, top, color =>
-                {
-                    onSelected?.Invoke(color);
-                });
-
-                overlay.Closed += (s, e) =>
-                {
-                    _isPicking = false;
-                };
-
-                overlay.Show();
-                overlay.Activate();
+                SamplePixelAt(initialPt.x, initialPt.y);
             }
-            catch (Exception ex)
+
+            _mouseProc = MouseHookCallback;
+            _keyboardProc = KeyboardHookCallback;
+
+            using (var curProcess = Process.GetCurrentProcess())
+            using (var curModule = curProcess.MainModule)
             {
-                _isPicking = false;
-                MessageBox.Show($"Failed to sample screen: {ex.Message}", "Contrast Checker", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IntPtr hMod = GetModuleHandle(curModule?.ModuleName);
+                _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, hMod, 0);
+                _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, hMod, 0);
             }
+        }
+
+        public void StopPicking()
+        {
+            if (!_isPicking)
+                return;
+
+            _isPicking = false;
+
+            if (_mouseHook != IntPtr.Zero)
+            {
+                UnhookWindowsHookEx(_mouseHook);
+                _mouseHook = IntPtr.Zero;
+            }
+
+            if (_keyboardHook != IntPtr.Zero)
+            {
+                UnhookWindowsHookEx(_keyboardHook);
+                _keyboardHook = IntPtr.Zero;
+            }
+
+            _mouseProc = null;
+            _keyboardProc = null;
+
+            Application.Current?.Dispatcher?.Invoke(() =>
+            {
+                Mouse.OverrideCursor = null;
+            });
+        }
+
+        private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && _isPicking)
+            {
+                int msg = wParam.ToInt32();
+
+                if (msg == WM_MOUSEMOVE)
+                {
+                    var hookStruct = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam);
+                    SamplePixelAt(hookStruct.pt.x, hookStruct.pt.y);
+                }
+                else if (msg == WM_LBUTTONDOWN)
+                {
+                    // Selection confirmed!
+                    var selected = _currentHoverColor;
+                    var onSelected = _onSelected;
+
+                    StopPicking();
+
+                    Application.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        onSelected?.Invoke(selected);
+                    });
+
+                    // Swallow click event so other apps don't receive it
+                    return (IntPtr)1;
+                }
+                else if (msg == WM_RBUTTONDOWN)
+                {
+                    // Cancelled via right click
+                    var onCancelled = _onCancelled;
+
+                    StopPicking();
+
+                    Application.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        onCancelled?.Invoke();
+                    });
+
+                    return (IntPtr)1;
+                }
+            }
+
+            return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+        }
+
+        private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && _isPicking)
+            {
+                int msg = wParam.ToInt32();
+                if (msg == WM_KEYDOWN)
+                {
+                    int vkCode = Marshal.ReadInt32(lParam);
+                    if (vkCode == VK_ESCAPE)
+                    {
+                        // Cancelled via Escape key
+                        var onCancelled = _onCancelled;
+
+                        StopPicking();
+
+                        Application.Current?.Dispatcher?.Invoke(() =>
+                        {
+                            onCancelled?.Invoke();
+                        });
+
+                        return (IntPtr)1;
+                    }
+                }
+            }
+
+            return CallNextHookEx(_keyboardHook, nCode, wParam, lParam);
+        }
+
+        private void SamplePixelAt(int x, int y)
+        {
+            IntPtr hdc = GetDC(IntPtr.Zero);
+            if (hdc != IntPtr.Zero)
+            {
+                uint pixel = GetPixel(hdc, x, y);
+                ReleaseDC(IntPtr.Zero, hdc);
+
+                if (pixel != 0xFFFFFFFF) // CLR_INVALID
+                {
+                    byte r = (byte)(pixel & 0xFF);
+                    byte g = (byte)((pixel >> 8) & 0xFF);
+                    byte b = (byte)((pixel >> 16) & 0xFF);
+
+                    var color = Color.FromRgb(r, g, b);
+                    _currentHoverColor = color;
+
+                    Application.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        _onHover?.Invoke(color);
+                    });
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            StopPicking();
         }
     }
 }
-
