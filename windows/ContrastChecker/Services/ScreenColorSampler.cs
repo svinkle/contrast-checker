@@ -95,9 +95,6 @@ namespace ContrastChecker.Services
 
         public bool IsPicking => _isPicking;
 
-        public event Action<string>? StatusPromptChanged;
-        public event Action? StatusPromptCleared;
-
         public ScreenColorSampler()
         {
             AppDomain.CurrentDomain.ProcessExit += (s, e) => RestoreGlobalCursor();
@@ -155,7 +152,6 @@ namespace ContrastChecker.Services
                 return;
 
             Color originalColor = model.BackgroundColor;
-            StatusPromptChanged?.Invoke("Sampling background color... Click to pick, Esc to cancel");
 
             StartPicking(
                 onHover: color =>
@@ -165,13 +161,11 @@ namespace ContrastChecker.Services
                 onSelected: color =>
                 {
                     model.SetBackgroundColor(color);
-                    StatusPromptCleared?.Invoke();
                     model.CopyValue(model.BgHex, model.BgHex);
                 },
                 onCancelled: () =>
                 {
                     model.SetBackgroundColor(originalColor);
-                    StatusPromptCleared?.Invoke();
                 }
             );
         }
@@ -182,7 +176,6 @@ namespace ContrastChecker.Services
                 return;
 
             Color originalColor = model.ForegroundColor;
-            StatusPromptChanged?.Invoke("Sampling foreground color... Click to pick, Esc to cancel");
 
             StartPicking(
                 onHover: color =>
@@ -192,13 +185,11 @@ namespace ContrastChecker.Services
                 onSelected: color =>
                 {
                     model.SetForegroundColor(color);
-                    StatusPromptCleared?.Invoke();
                     model.CopyValue(model.FgHex, model.FgHex);
                 },
                 onCancelled: () =>
                 {
                     model.SetForegroundColor(originalColor);
-                    StatusPromptCleared?.Invoke();
                 }
             );
         }
