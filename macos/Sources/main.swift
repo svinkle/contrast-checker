@@ -95,10 +95,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         pickFgItem.target = self
         statusMenu.addItem(pickFgItem)
 
-        let copyRatioItem = NSMenuItem(title: "Copy Contrast Ratio", action: #selector(copyContrast), keyEquivalent: "")
-        copyRatioItem.target = self
-        statusMenu.addItem(copyRatioItem)
-
         statusMenu.addItem(NSMenuItem.separator())
 
         let aboutItem = NSMenuItem(title: "About Contrast Checker", action: #selector(showAbout), keyEquivalent: "")
@@ -208,27 +204,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         pickFgItem.target = self
         appMenu.addItem(pickFgItem)
 
-        let copyRatioItem = NSMenuItem(title: "Copy Contrast Ratio", action: #selector(copyContrast), keyEquivalent: "")
-        copyRatioItem.target = self
-        appMenu.addItem(copyRatioItem)
-
         appMenu.addItem(NSMenuItem.separator())
 
         let quitItem = NSMenuItem(title: "Quit Contrast Checker", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         quitItem.target = NSApp
         appMenu.addItem(quitItem)
 
-        // 2. Edit Menu
-        let editMenuItem = NSMenuItem()
-        let editMenu = NSMenu(title: "Edit")
-        editMenuItem.submenu = editMenu
-        mainMenu.addItem(editMenuItem)
-
-        let copyItem = NSMenuItem(title: "Copy Contrast Ratio", action: #selector(copyContrast), keyEquivalent: "")
-        copyItem.target = self
-        editMenu.addItem(copyItem)
-
-        // 3. Window Menu
+        // 2. Window Menu
         let windowMenuItem = NSMenuItem()
         let windowMenu = NSMenu(title: "Window")
         windowMenuItem.submenu = windowMenu
@@ -247,7 +229,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
 
-        let text = """
+        let credits = NSMutableAttributedString()
+
+        let bodyText = """
         A native macOS utility for measuring color contrast anywhere across the operating system.
 
         Global Shortcuts:
@@ -256,16 +240,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         • ⌃⌥F: Pick Foreground Color
 
         WCAG 2.1 relative luminance calculation.
-        """
 
-        let credits = NSAttributedString(
-            string: text,
+
+        """
+        credits.append(NSAttributedString(
+            string: bodyText,
             attributes: [
                 .font: NSFont.systemFont(ofSize: 11),
                 .foregroundColor: NSColor.secondaryLabelColor,
                 .paragraphStyle: paragraph
             ]
+        ))
+
+        let url = URL(string: "https://github.com/svinkle/contrast-checker")!
+        let linkAttr = NSAttributedString(
+            string: "github.com/svinkle/contrast-checker",
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 11),
+                .foregroundColor: NSColor.linkColor,
+                .link: url,
+                .paragraphStyle: paragraph
+            ]
         )
+        credits.append(linkAttr)
 
         let options: [NSApplication.AboutPanelOptionKey: Any] = [
             .applicationName: "Contrast Checker",
