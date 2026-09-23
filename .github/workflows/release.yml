@@ -1,0 +1,134 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g. v1.0.0)"
+        required: true
+        default: "v1.0.0"
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS DMG
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run ColorModel Unit Tests
+        run: make test-macos
+
+      - name: Build macOS App Bundle
+        run: make macos
+
+      - name: Build Installable DMG
+        run: |
+          cd macos
+          chmod +x create_dmg.sh
+          ./create_dmg.sh
+
+      - name: Upload DMG Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: macos/build/ContrastChecker.dmg
+
+  build-windows:
+    name: Build Windows EXE & MSI
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Run Windows Unit Tests
+        run: dotnet test windows/ContrastChecker.Tests/ContrastChecker.Tests.csproj -c Release --verbosity normal
+
+      - name: Install WiX CLI
+        run: dotnet tool install --global wix
+
+      - name: Build Standalone EXE and MSI Installer
+        shell: pwsh
+        run: |
+          powershell -ExecutionPolicy Bypass -File windows/build.ps1 -BuildMsi
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-binaries
+          path: |
+            windows/build/ContrastChecker.exe
+            windows/build/ContrastChecker.msi
+
+  build-linux:
+    name: Build Linux Flatpak
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-46
+      options: --privileged
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Flatpak Bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: ContrastChecker.flatpak
+          manifest-path: linux/io.github.svinkle.ContrastChecker.yml
+          run-tests: false
+
+      - name: Upload Flatpak Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-flatpak
+          path: ContrastChecker.flatpak
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download all release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Determine Release Tag
+        id: get_tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            echo "tag=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          name: Release ${{ steps.get_tag.outputs.tag }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release-assets/ContrastChecker.dmg
+            release-assets/ContrastChecker.exe
+            release-assets/ContrastChecker.msi
+            release-assets/ContrastChecker.flatpak

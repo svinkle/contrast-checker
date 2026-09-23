@@ -1,15 +1,27 @@
-.PHONY: all macos windows linux test test-macos test-linux clean
+.PHONY: all macos windows linux test test-macos test-linux clean dmg msi flatpak bundle
 
 all: macos
 
 macos:
 	@$(MAKE) -C macos build
 
+dmg:
+	@$(MAKE) -C macos dmg
+
 windows:
 	@$(MAKE) -C windows build
 
+msi:
+	@$(MAKE) -C windows msi
+
 linux:
-	@$(MAKE) -C linux flatpak
+	@$(MAKE) -C linux run
+
+flatpak:
+	@$(MAKE) -C linux bundle
+
+bundle:
+	@$(MAKE) -C linux bundle
 
 test:
 	@$(MAKE) -C macos test
