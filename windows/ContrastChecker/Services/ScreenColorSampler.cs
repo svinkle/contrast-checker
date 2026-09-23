@@ -163,7 +163,6 @@ namespace ContrastChecker.Services
                 onSelected: color =>
                 {
                     model.SetBackgroundColor(color);
-                    model.CopyValue(model.BgHex, model.BgHex);
                 },
                 onCancelled: () =>
                 {
@@ -187,7 +186,6 @@ namespace ContrastChecker.Services
                 onSelected: color =>
                 {
                     model.SetForegroundColor(color);
-                    model.CopyValue(model.FgHex, model.FgHex);
                 },
                 onCancelled: () =>
                 {
