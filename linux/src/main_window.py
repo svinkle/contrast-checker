@@ -407,11 +407,7 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
 
     def _apply_bg_color(self, r: int, g: int, b: int) -> None:
         self.model.set_background_color(r, g, b)
-        self._copy_to_clipboard(self.model.bg_hex)
-        self.model.copy_value(self.model.bg_hex, self.model.bg_hex)
 
     def _apply_fg_color(self, r: int, g: int, b: int) -> None:
         self.model.set_foreground_color(r, g, b)
-        self._copy_to_clipboard(self.model.fg_hex)
-        self.model.copy_value(self.model.fg_hex, self.model.fg_hex)
 
