@@ -1,100 +1,92 @@
 #!/usr/bin/env python3
 """
-Generates multi-resolution Windows icon (app.ico) for Contrast Checker.
-The icon features a split squircle (top black, bottom white) with an inverted target reticle.
+Generates multi-resolution Windows icon (app.ico) and assets for Contrast Checker.
+Features a high-contrast target reticle with a black border around the top-half white portion
+and a white border around the bottom-half black portion.
 """
 
 import os
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
-def create_icon_image(size: int = 1024) -> Image.Image:
-    # Render at high resolution for antialiasing
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-
+def create_icon_image(target_size: int = 1024, scale: int = 2) -> Image.Image:
+    # Render with 2x supersampling for crisp antialiasing
+    size = target_size * scale
     s = float(size)
-    corner_radius = int(s * 0.2237)
-    inset = int(s * 0.04)
+    cx = s / 2.0
+    cy = s / 2.0
+    outer_radius = s * 0.23
+    tick_inner = outer_radius * 0.65
+    tick_outer = outer_radius * 1.35
+    center_arm = outer_radius * 0.28
 
-    # 1. Mask for rounded squircle
-    mask = Image.new("L", (size, size), 0)
-    mask_draw = ImageDraw.Draw(mask)
-    mask_draw.rounded_rectangle(
-        [inset, inset, size - inset, size - inset],
-        radius=corner_radius,
-        fill=255
-    )
+    stroke = int(38 * scale)
+    c_stroke = int(34 * scale)
+    border_radius = int(8 * scale)
 
-    # 2. Background image: Top black, bottom white
-    bg = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    bg_draw = ImageDraw.Draw(bg)
-    mid_y = size // 2
-    # Top half (black #0D0D10)
-    bg_draw.rectangle([0, 0, size, mid_y], fill=(13, 13, 16, 255))
-    # Bottom half (white)
-    bg_draw.rectangle([0, mid_y, size, size], fill=(255, 255, 255, 255))
-
-    # Apply squircle mask to background
-    squircle_bg = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    squircle_bg.paste(bg, (0, 0), mask=mask)
-
-    # 3. Draw Target Reticle
-    # We will draw a white target and a black target, then mask each to their respective halves
-    def draw_reticle(color):
+    def draw_target(color):
         layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-        ldraw = ImageDraw.Draw(layer)
-        cx = s / 2.0
-        cy = s / 2.0
-        outer_radius = s * 0.23
-        stroke_w = max(2, int(s * 0.032))
-
+        d = ImageDraw.Draw(layer)
         # Outer ring
-        ldraw.ellipse(
-            [cx - outer_radius, cy - outer_radius, cx + outer_radius, cy + outer_radius],
-            outline=color,
-            width=stroke_w
-        )
-
-        # Crosshair tick arms
-        tick_inner = outer_radius * 0.65
-        tick_outer = outer_radius * 1.35
-
-        # Top tick
-        ldraw.line([(cx, cy - tick_outer), (cx, cy - tick_inner)], fill=color, width=stroke_w)
-        # Bottom tick
-        ldraw.line([(cx, cy + tick_inner), (cx, cy + tick_outer)], fill=color, width=stroke_w)
-        # Left tick
-        ldraw.line([(cx - tick_outer, cy), (cx - tick_inner, cy)], fill=color, width=stroke_w)
-        # Right tick
-        ldraw.line([(cx + tick_inner, cy), (cx + tick_outer, cy)], fill=color, width=stroke_w)
-
+        d.ellipse([cx - outer_radius, cy - outer_radius, cx + outer_radius, cy + outer_radius], outline=color, width=stroke)
+        # Ticks
+        d.line([(cx, cy - tick_outer), (cx, cy - tick_inner)], fill=color, width=stroke)
+        d.line([(cx, cy + tick_inner), (cx, cy + tick_outer)], fill=color, width=stroke)
+        d.line([(cx - tick_outer, cy), (cx - tick_inner, cy)], fill=color, width=stroke)
+        d.line([(cx + tick_inner, cy), (cx + tick_outer, cy)], fill=color, width=stroke)
         # Center crosshair
-        center_arm = outer_radius * 0.28
-        center_w = max(2, int(stroke_w * 0.9))
-        ldraw.line([(cx - center_arm, cy), (cx + center_arm, cy)], fill=color, width=center_w)
-        ldraw.line([(cx, cy - center_arm), (cx, cy + center_arm)], fill=color, width=center_w)
-
+        d.line([(cx - center_arm, cy), (cx + center_arm, cy)], fill=color, width=c_stroke)
+        d.line([(cx, cy - center_arm), (cx, cy + center_arm)], fill=color, width=c_stroke)
+        
+        # Rounded caps for all stroke ends
+        r = stroke / 2.0
+        c_r = c_stroke / 2.0
+        d.ellipse([cx - r, cy - tick_outer - r, cx + r, cy - tick_outer + r], fill=color)
+        d.ellipse([cx - r, cy + tick_outer - r, cx + r, cy + tick_outer + r], fill=color)
+        d.ellipse([cx - tick_outer - r, cy - r, cx - tick_outer + r, cy + r], fill=color)
+        d.ellipse([cx + tick_outer - r, cy - r, cx + tick_outer + r, cy + r], fill=color)
+        d.ellipse([cx - r, cy - tick_inner - r, cx + r, cy - tick_inner + r], fill=color)
+        d.ellipse([cx - r, cy + tick_inner - r, cx + r, cy + tick_inner + r], fill=color)
+        d.ellipse([cx - tick_inner - r, cy - r, cx - tick_inner + r, cy + r], fill=color)
+        d.ellipse([cx + tick_inner - r, cy - r, cx + tick_inner + r, cy + r], fill=color)
+        d.ellipse([cx - center_arm - c_r, cy - c_r, cx - center_arm + c_r, cy + c_r], fill=color)
+        d.ellipse([cx + center_arm - c_r, cy - c_r, cx + center_arm + c_r, cy + c_r], fill=color)
+        d.ellipse([cx - c_r, cy - center_arm - c_r, cx + c_r, cy - center_arm + c_r], fill=color)
+        d.ellipse([cx - c_r, cy + center_arm - c_r, cx + c_r, cy + center_arm + c_r], fill=color)
         return layer
 
-    white_target = draw_reticle((255, 255, 255, 255))
-    black_target = draw_reticle((13, 13, 16, 255))
-
-    # Top half mask for white target
+    base = draw_target((255, 255, 255, 255))
     top_mask = Image.new("L", (size, size), 0)
-    top_draw = ImageDraw.Draw(top_mask)
-    top_draw.rectangle([0, 0, size, mid_y], fill=255)
+    ImageDraw.Draw(top_mask).rectangle([0, 0, size, int(cy)], fill=255)
+    bot_mask = Image.new("L", (size, size), 0)
+    ImageDraw.Draw(bot_mask).rectangle([0, int(cy), size, size], fill=255)
 
-    # Bottom half mask for black target
-    bottom_mask = Image.new("L", (size, size), 0)
-    bottom_draw = ImageDraw.Draw(bottom_mask)
-    bottom_draw.rectangle([0, mid_y, size, size], fill=255)
+    top_white = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    top_white.paste(base, (0, 0), mask=top_mask)
 
-    # Composite together
-    final_img = squircle_bg.copy()
-    final_img.paste(white_target, (0, 0), mask=top_mask)
-    final_img.paste(black_target, (0, 0), mask=bottom_mask)
+    bot_black = Image.new("RGBA", (size, size), (13, 13, 16, 255))
+    bot_black.putalpha(base.split()[3])
+    bot_black_split = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    bot_black_split.paste(bot_black, (0, 0), mask=bot_mask)
 
-    return final_img
+    top_alpha = top_white.split()[3]
+    bot_alpha = bot_black_split.split()[3]
+
+    top_dilated = top_alpha.filter(ImageFilter.MaxFilter(2 * border_radius + 1))
+    bot_dilated = bot_alpha.filter(ImageFilter.MaxFilter(2 * border_radius + 1))
+
+    top_comp = Image.new("RGBA", (size, size), (13, 13, 16, 255))
+    top_comp.putalpha(top_dilated)
+    top_comp.paste(top_white, (0, 0), mask=top_alpha)
+
+    bot_comp = Image.new("RGBA", (size, size), (255, 255, 255, 255))
+    bot_comp.putalpha(bot_dilated)
+    bot_comp.paste(bot_black_split, (0, 0), mask=bot_alpha)
+
+    final = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    final.paste(bot_comp, (0, 0), mask=bot_comp.split()[3])
+    final.paste(top_comp, (0, 0), mask=top_comp.split()[3])
+
+    return final.resize((target_size, target_size), Image.Resampling.LANCZOS)
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -104,7 +96,7 @@ def main():
     png_path = os.path.join(res_dir, "app.png")
 
     print("Generating high-res master icon...")
-    master = create_icon_image(1024)
+    master = create_icon_image(1024, scale=2)
     master.save(png_path, "PNG")
     print(f"Saved master PNG to {png_path}")
 
