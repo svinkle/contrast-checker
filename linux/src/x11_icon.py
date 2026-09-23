@@ -8,7 +8,7 @@ the proper application icon instead of a generic fallback.
 import ctypes
 import os
 import sys
-from typing import Optional, List
+from typing import Optional
 
 from color_sampler import X11ColorSampler
 from icon_data import get_net_wm_icon_data
@@ -18,8 +18,13 @@ def set_x11_window_icon(xid: int) -> bool:
     """
     Sets the _NET_WM_ICON property on the specified X11 window ID.
     Returns True if successfully set, False otherwise.
+    Never raises an exception or crashes.
     """
-    if not xid:
+    if not xid or xid <= 0:
+        return False
+
+    # If running on pure Wayland without an X11 display, return immediately
+    if os.environ.get("WAYLAND_DISPLAY") and not os.environ.get("DISPLAY"):
         return False
 
     x11 = X11ColorSampler.get_libx11()
@@ -76,93 +81,8 @@ def set_x11_window_icon(xid: int) -> bool:
         return False
 
 
-def find_windows_by_pid(pid: int) -> List[int]:
-    """Finds top-level X11 windows belonging to the given process ID."""
-    x11 = X11ColorSampler.get_libx11()
-    if not x11 or not pid:
-        return []
-
-    try:
-        x11.XQueryTree.argtypes = [
-            ctypes.c_void_p, ctypes.c_ulong,
-            ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_ulong),
-            ctypes.POINTER(ctypes.POINTER(ctypes.c_ulong)), ctypes.POINTER(ctypes.c_uint)
-        ]
-        x11.XQueryTree.restype = ctypes.c_int
-
-        x11.XGetWindowProperty.argtypes = [
-            ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong,
-            ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_ulong,
-            ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_int),
-            ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_ulong),
-            ctypes.POINTER(ctypes.c_void_p)
-        ]
-        x11.XGetWindowProperty.restype = ctypes.c_int
-
-        x11.XFree.argtypes = [ctypes.c_void_p]
-        x11.XFree.restype = ctypes.c_int
-
-        display = x11.XOpenDisplay(None)
-        if not display:
-            return []
-
-        matched_windows = []
-        try:
-            root = x11.XDefaultRootWindow(display)
-            atom_net_wm_pid = x11.XInternAtom(display, b"_NET_WM_PID", 0)
-            atom_cardinal = x11.XInternAtom(display, b"CARDINAL", 0) or 6
-
-            root_ret = ctypes.c_ulong()
-            parent_ret = ctypes.c_ulong()
-            children = ctypes.POINTER(ctypes.c_ulong)()
-            nchildren = ctypes.c_uint()
-
-            if x11.XQueryTree(display, root, ctypes.byref(root_ret), ctypes.byref(parent_ret), ctypes.byref(children), ctypes.byref(nchildren)) != 0:
-                if children:
-                    for i in range(nchildren.value):
-                        win = children[i]
-                        actual_type = ctypes.c_ulong()
-                        actual_format = ctypes.c_int()
-                        nitems = ctypes.c_ulong()
-                        bytes_after = ctypes.c_ulong()
-                        prop = ctypes.c_void_p()
-
-                        ret = x11.XGetWindowProperty(
-                            display, win, atom_net_wm_pid, 0, 1, False,
-                            atom_cardinal, ctypes.byref(actual_type),
-                            ctypes.byref(actual_format), ctypes.byref(nitems),
-                            ctypes.byref(bytes_after), ctypes.byref(prop)
-                        )
-                        if ret == 0 and prop.value:
-                            win_pid = ctypes.cast(prop, ctypes.POINTER(ctypes.c_ulong)).contents.value
-                            x11.XFree(prop)
-                            if win_pid == pid:
-                                matched_windows.append(win)
-
-                    x11.XFree(children)
-        finally:
-            x11.XCloseDisplay(display)
-
-        return matched_windows
-    except Exception:
-        return []
-
-
 def apply_window_icon(xid: Optional[int] = None) -> bool:
-    """
-    Applies the icon to the given X11 window ID or discovers windows by current process PID.
-    """
-    if xid:
+    """Safely applies the icon to the given X11 window ID."""
+    if xid and xid > 0:
         return set_x11_window_icon(xid)
-
-    # Fallback: discover windows by current process ID
-    windows = find_windows_by_pid(os.getpid())
-    if windows:
-        success = False
-        for win in windows:
-            if set_x11_window_icon(win):
-                success = True
-        if success:
-            return True
-
     return False

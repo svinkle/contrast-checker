@@ -60,11 +60,12 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
     def _on_map(self, widget) -> None:
         GLib.idle_add(self._apply_x11_window_icon)
 
-    def _apply_x11_window_icon(self) -> None:
+    def _apply_x11_window_icon(self) -> bool:
         """Applies _NET_WM_ICON to native X11 window surface for MATE/XFCE taskbars."""
         try:
             xid = 0
-            surface = self.get_surface()
+            native = self.get_native()
+            surface = native.get_surface() if native else None
             if surface:
                 try:
                     import gi
@@ -75,10 +76,12 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
                 except Exception:
                     pass
 
-            from x11_icon import apply_window_icon
-            apply_window_icon(xid)
+            if xid and xid > 0:
+                from x11_icon import set_x11_window_icon
+                set_x11_window_icon(xid)
         except Exception:
             pass
+        return False
 
     def _close_application(self) -> None:
         app = self.get_application()

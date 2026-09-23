@@ -9,7 +9,7 @@ import unittest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
 from icon_data import get_net_wm_icon_data
-from x11_icon import set_x11_window_icon, apply_window_icon, find_windows_by_pid
+from x11_icon import set_x11_window_icon, apply_window_icon
 
 
 class TestX11Icon(unittest.TestCase):
@@ -31,19 +31,14 @@ class TestX11Icon(unittest.TestCase):
         self.assertEqual(found_sizes, [16, 24, 32, 48, 64])
 
     def test_set_x11_window_icon_invalid_xid(self):
-        # Should gracefully return False when xid is 0 or invalid without crashing
-        result = set_x11_window_icon(0)
-        self.assertFalse(result)
+        # Should gracefully return False when xid is 0 or negative without crashing
+        self.assertFalse(set_x11_window_icon(0))
+        self.assertFalse(set_x11_window_icon(-1))
 
     def test_apply_window_icon_graceful_headless(self):
-        # In a headless test environment without an X display, should return False gracefully
-        result = apply_window_icon(0)
-        self.assertIsInstance(result, bool)
-
-    def test_find_windows_by_pid_graceful_headless(self):
-        # Without an X display, should return an empty list gracefully
-        windows = find_windows_by_pid(os.getpid())
-        self.assertIsInstance(windows, list)
+        # In a headless test environment, should return False gracefully
+        self.assertFalse(apply_window_icon(0))
+        self.assertFalse(apply_window_icon(None))
 
 
 if __name__ == "__main__":
