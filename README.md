@@ -22,13 +22,13 @@ Built for accessibility testing, design system audits, and fast WCAG 2.2 complia
 
 Download the latest pre-compiled binaries from the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page:
 
-| Operating System    | Package Format | Download                                                                                       | Description                                                                                    |
-| :------------------ | :------------- | :--------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| **macOS**           | `.dmg`         | [ContrastChecker.dmg](https://github.com/svinkle/contrast-checker/releases/latest)             | Apple disk image with drag-and-drop `/Applications` install (Universal: Apple Silicon & Intel) |
-| **Windows**         | `.exe`         | [ContrastChecker.exe](https://github.com/svinkle/contrast-checker/releases/latest)             | Standalone single-file portable executable (x64, zero runtime dependencies)                    |
-| **Windows**         | `.msi`         | [ContrastChecker.msi](https://github.com/svinkle/contrast-checker/releases/latest)             | Windows Installer package with Start Menu and Desktop shortcuts                                |
-| **Linux (x86_64)**  | `.flatpak`     | [ContrastChecker-x86_64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest)  | Standalone Flatpak bundle for 64-bit Intel & AMD Linux PCs                                     |
-| **Linux (ARM64)**   | `.flatpak`     | [ContrastChecker-aarch64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Standalone Flatpak bundle for 64-bit ARM systems (including Apple Silicon virtual machines)    |
+| Operating System   | Package Format | Download                                                                                       | Description                                                                                    |
+| :----------------- | :------------- | :--------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| **macOS**          | `.dmg`         | [ContrastChecker.dmg](https://github.com/svinkle/contrast-checker/releases/latest)             | Apple disk image with drag-and-drop `/Applications` install (Universal: Apple Silicon & Intel) |
+| **Windows**        | `.exe`         | [ContrastChecker.exe](https://github.com/svinkle/contrast-checker/releases/latest)             | Standalone single-file portable executable (x64, zero runtime dependencies)                    |
+| **Windows**        | `.msi`         | [ContrastChecker.msi](https://github.com/svinkle/contrast-checker/releases/latest)             | Windows Installer package with Start Menu and Desktop shortcuts                                |
+| **Linux (x86_64)** | `.flatpak`     | [ContrastChecker-x86_64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest)  | Standalone Flatpak bundle for 64-bit Intel & AMD Linux PCs                                     |
+| **Linux (ARM64)**  | `.flatpak`     | [ContrastChecker-aarch64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Standalone Flatpak bundle for 64-bit ARM systems (including Apple Silicon virtual machines)    |
 
 > [!NOTE]
 > **Windows Installation Note (SmartScreen / Unknown Publisher)**:

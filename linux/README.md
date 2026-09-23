@@ -5,6 +5,7 @@ A native Linux utility for measuring color contrast anywhere across your operati
 Packaged as a universal **Flatpak** for seamless installation across all Linux distributions (Ubuntu, Fedora, Arch, Debian, openSUSE, SteamOS, etc.).
 
 Pre-compiled Flatpak bundles are automatically built and published on the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page for both architectures:
+
 - **`ContrastChecker-x86_64.flatpak`**: For 64-bit Intel and AMD systems.
 - **`ContrastChecker-aarch64.flatpak`**: For 64-bit ARM systems (including Linux inside Apple Silicon virtual machines).
 
@@ -162,8 +163,9 @@ make uninstall-user
 ```
 
 > [!TIP]
-> **Switching from Source Development to Flatpak**:  
+> **Switching from Source Development to Flatpak**:
 > If you previously ran from source or ran `make install-user`, your user directory may contain a local desktop launcher in `~/.local/share/applications/`. To ensure your desktop environment (XFCE, GNOME, KDE) launches the official Flatpak rather than the development source path, run:
+>
 > ```bash
 > rm -f ~/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
 > update-desktop-database ~/.local/share/applications
@@ -182,4 +184,3 @@ make test
 ## License
 
 This project is licensed under the [MIT License](../LICENSE).
-
