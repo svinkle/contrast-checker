@@ -17,17 +17,24 @@ mkdir -p "${MACOS_DIR}"
 mkdir -p "${RESOURCES_DIR}"
 mkdir -p "${CACHE_DIR}"
 
-echo "==> Compiling Swift sources..."
-swiftc \
-    -O \
-    -parse-as-library \
-    -module-cache-path "${CACHE_DIR}" \
-    Sources/ColorModel.swift \
-    Sources/ColorSamplerManager.swift \
-    Sources/HotKeyManager.swift \
-    Sources/ContentView.swift \
-    Sources/main.swift \
-    -o "${MACOS_DIR}/${APP_NAME}"
+SOURCES=(
+    "Sources/ColorModel.swift"
+    "Sources/ColorSamplerManager.swift"
+    "Sources/HotKeyManager.swift"
+    "Sources/ContentView.swift"
+    "Sources/main.swift"
+)
+
+echo "==> Compiling Swift sources for Universal 2 (arm64 & x86_64)..."
+if swiftc -O -parse-as-library -target arm64-apple-macos13.0 -module-cache-path "${CACHE_DIR}" "${SOURCES[@]}" -o "${BUILD_DIR}/${APP_NAME}-arm64" && \
+   swiftc -O -parse-as-library -target x86_64-apple-macos13.0 -module-cache-path "${CACHE_DIR}" "${SOURCES[@]}" -o "${BUILD_DIR}/${APP_NAME}-x86_64" && \
+   lipo -create -output "${MACOS_DIR}/${APP_NAME}" "${BUILD_DIR}/${APP_NAME}-arm64" "${BUILD_DIR}/${APP_NAME}-x86_64"; then
+    echo "==> Successfully created Universal 2 binary (arm64 + x86_64)"
+    rm -f "${BUILD_DIR}/${APP_NAME}-arm64" "${BUILD_DIR}/${APP_NAME}-x86_64"
+else
+    echo "==> Universal build failed; falling back to host architecture..."
+    swiftc -O -parse-as-library -module-cache-path "${CACHE_DIR}" "${SOURCES[@]}" -o "${MACOS_DIR}/${APP_NAME}"
+fi
 
 echo "==> Installing bundle resources..."
 cp "Resources/Info.plist" "${CONTENTS_DIR}/Info.plist"
