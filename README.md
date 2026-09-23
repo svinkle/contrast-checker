@@ -16,10 +16,6 @@ A minimalist, native utility for measuring color contrast anywhere across your o
 
 Built for accessibility testing, design system audits, and fast WCAG 2.2 compliance verification.
 
-<p align="center">
-  <img src="assets/screenshot.png" width="450" alt="Contrast Checker application preview" />
-</p>
-
 ---
 
 ## Downloads
@@ -32,6 +28,14 @@ Download the latest pre-compiled binaries from the **[GitHub Releases](https://g
 | **Windows**      | `.exe`         | [ContrastChecker.exe](https://github.com/svinkle/contrast-checker/releases/latest)     | Standalone single-file portable executable (x64, zero runtime dependencies)                    |
 | **Windows**      | `.msi`         | [ContrastChecker.msi](https://github.com/svinkle/contrast-checker/releases/latest)     | Windows Installer package with Start Menu and Desktop shortcuts                                |
 | **Linux**        | `.flatpak`     | [ContrastChecker.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Universal Flatpak bundle for Ubuntu, Fedora, Arch, Cinnamon, KDE, GNOME, etc.                  |
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="assets/screenshot.png" width="450" alt="Contrast Checker application preview" />
+</p>
 
 ---
 
