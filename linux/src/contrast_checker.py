@@ -103,7 +103,7 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
                     icon_theme.add_search_path(res_path)
 
     def _ensure_user_desktop_integration(self):
-        """Installs/updates desktop launcher and icons to ~/.local/share asynchronously."""
+        """Ensures desktop icons and file permissions are properly configured."""
         if os.path.exists("/.flatpak-info"):
             return
 
@@ -120,8 +120,12 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
             os.makedirs(apps_dir, exist_ok=True)
             os.makedirs(pixmaps_dir, exist_ok=True)
 
-            desktop_src = os.path.join(base_dir, "io.github.svinkle.ContrastChecker.desktop")
-            desktop_dst = os.path.join(apps_dir, "io.github.svinkle.ContrastChecker.desktop")
+            launcher_script = os.path.join(base_dir, "src", "contrast_checker.py")
+            if os.path.exists(launcher_script):
+                try:
+                    os.chmod(launcher_script, 0o755)
+                except OSError:
+                    pass
 
             # Copy all resolution icons into hicolor icon theme
             for res in ["16x16", "24x24", "32x32", "48x48", "64x64", "96x96", "128x128", "256x256", "512x512"]:
@@ -137,16 +141,36 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
             if os.path.exists(master_icon):
                 shutil.copy2(master_icon, os.path.join(pixmaps_dir, f"{APP_ID}.png"))
 
-            # Write/update desktop file with local Exec path while preserving themed Icon=
-            if os.path.exists(desktop_src):
-                with open(desktop_src, "r") as f:
-                    content = f.read()
-                launcher_script = os.path.join(base_dir, "src", "contrast_checker.py")
-                content = content.replace("Exec=contrast-checker", f"Exec={launcher_script}")
-                with open(desktop_dst, "w") as f:
-                    f.write(content)
+            desktop_dst = os.path.join(apps_dir, f"{APP_ID}.desktop")
 
-            os.system(f"update-desktop-database {apps_dir} 2>/dev/null")
+            # Check if a Flatpak version of this app is installed on the system
+            flatpak_installed = (
+                os.path.exists(os.path.join(home, ".local", "share", "flatpak", "app", APP_ID))
+                or os.path.exists(f"/var/lib/flatpak/app/{APP_ID}")
+            )
+
+            if flatpak_installed and os.path.exists(desktop_dst):
+                # If a stale local script desktop entry is shadowing the Flatpak, remove it
+                try:
+                    with open(desktop_dst, "r") as f:
+                        if "contrast_checker.py" in f.read():
+                            os.remove(desktop_dst)
+                            os.system(f"update-desktop-database {apps_dir} 2>/dev/null")
+                except OSError:
+                    pass
+            elif os.path.exists(desktop_dst):
+                # Ensure existing desktop entry uses explicit python interpreter and is executable
+                try:
+                    with open(desktop_dst, "r") as f:
+                        content = f.read()
+                    if "contrast_checker.py" in content and f"Exec={sys.executable}" not in content:
+                        content = content.replace(f"Exec={launcher_script}", f"Exec={sys.executable} {launcher_script}")
+                        with open(desktop_dst, "w") as f:
+                            f.write(content)
+                    os.chmod(desktop_dst, 0o755)
+                except OSError:
+                    pass
+
             os.system(f"gtk-update-icon-cache -f -t {os.path.join(home, '.local', 'share', 'icons', 'hicolor')} 2>/dev/null")
         except Exception:
             pass

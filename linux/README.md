@@ -139,8 +139,23 @@ flatpak install --user ContrastChecker.flatpak
 If you have installed the native GTK 4 & PyGObject dependencies (Option B above):
 
 ```bash
+# Run application directly from source
 make run
+
+# Optional: Register desktop menu launcher and icons in ~/.local/share
+make install-user
+
+# Cleanly remove local user desktop launcher and icons
+make uninstall-user
 ```
+
+> [!TIP]
+> **Switching from Source Development to Flatpak**:  
+> If you previously ran from source or ran `make install-user`, your user directory may contain a local desktop launcher in `~/.local/share/applications/`. To ensure your desktop environment (XFCE, GNOME, KDE) launches the official Flatpak rather than the development source path, run:
+> ```bash
+> rm -f ~/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
+> update-desktop-database ~/.local/share/applications
+> ```
 
 ---
 

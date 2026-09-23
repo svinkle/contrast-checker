@@ -27,14 +27,16 @@ Built for accessibility testing, design system audits, and fast WCAG 2.2 complia
 ## Installation
 
 Pre-compiled downloads are available from the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page:
+
 - **`ContrastChecker.msi`**: Complete Windows installer with Start Menu and Desktop shortcuts.
 - **`ContrastChecker.exe`**: Standalone portable executable with zero runtime dependencies.
 
 > [!NOTE]
-> **SmartScreen / Unknown Publisher Prompt**:  
-> Because Contrast Checker is a free open-source project and is not signed with a commercial code-signing certificate, Windows Defender SmartScreen or User Account Control (UAC) may show a *"Windows protected your PC"* or *"Unknown Publisher"* prompt when launching the downloaded file.  
-> - In SmartScreen: click **More info** &rarr; click **Run anyway**.  
-> - In UAC: click **Yes** to proceed with installation.  
+> **SmartScreen / Unknown Publisher Prompt**:
+> Because Contrast Checker is a free open-source project and is not signed with a commercial code-signing certificate, Windows Defender SmartScreen or User Account Control (UAC) may show a _"Windows protected your PC"_ or _"Unknown Publisher"_ prompt when launching the downloaded file.
+>
+> - In SmartScreen: click **More info** &rarr; click **Run anyway**.
+> - In UAC: click **Yes** to proceed with installation.
 > - Alternatively, right-click the file &rarr; **Properties** &rarr; check **Unblock** at the bottom &rarr; click **OK**.
 
 ---

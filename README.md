@@ -30,10 +30,11 @@ Download the latest pre-compiled binaries from the **[GitHub Releases](https://g
 | **Linux**        | `.flatpak`     | [ContrastChecker.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Universal Flatpak bundle for Ubuntu, Fedora, Arch, Cinnamon, KDE, GNOME, etc.                  |
 
 > [!NOTE]
-> **Windows Installation Note (SmartScreen / Unknown Publisher)**:  
-> Because Contrast Checker is a free, open-source project and is not signed with an expensive commercial code-signing certificate, Windows Defender SmartScreen or User Account Control (UAC) may display a *"Windows protected your PC"* or *"Unknown Publisher"* prompt when opening the `.msi` or `.exe`.
+> **Windows Installation Note (SmartScreen / Unknown Publisher)**:
+> Because Contrast Checker is a free, open-source project and is not signed with an expensive commercial code-signing certificate, Windows Defender SmartScreen or User Account Control (UAC) may display a _"Windows protected your PC"_ or _"Unknown Publisher"_ prompt when opening the `.msi` or `.exe`.
 >
 > To install:
+>
 > 1. In SmartScreen: click **More info** &rarr; click **Run anyway**.
 > 2. In UAC: click **Yes** to confirm installation.
 > 3. Alternatively, right-click the downloaded `.msi` or `.exe`, choose **Properties**, check **Unblock** at the bottom, and click **Apply** / **OK**.

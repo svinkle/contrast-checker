@@ -1,4 +1,4 @@
-.PHONY: all test run install-user check-tools setup-flathub flatpak bundle clean
+.PHONY: all test run install-user uninstall-user check-tools setup-flathub flatpak bundle clean
 
 PYTHON ?= python3
 
@@ -18,14 +18,26 @@ install-user:
 		cp icons/$${size}x$${size}/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/icons/hicolor/$${size}x$${size}/apps/io.github.svinkle.ContrastChecker.png 2>/dev/null || true; \
 	done
 	@cp icons/256x256/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/pixmaps/io.github.svinkle.ContrastChecker.png 2>/dev/null || true
-	@sed -e 's|Exec=contrast-checker|Exec=$(CURDIR)/src/contrast_checker.py|g' \
+	@chmod +x $(CURDIR)/src/contrast_checker.py
+	@sed -e 's|Exec=contrast-checker|Exec=$(PYTHON) $(CURDIR)/src/contrast_checker.py|g' \
 	     io.github.svinkle.ContrastChecker.desktop > $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
 	@chmod +x $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
 	@update-desktop-database $(HOME)/.local/share/applications 2>/dev/null || true
 	@gtk-update-icon-cache -f -t $(HOME)/.local/share/icons/hicolor 2>/dev/null || true
 	@echo "==> Desktop integration complete."
 
-run: install-user
+uninstall-user:
+	@echo "==> Removing user desktop launcher and icons..."
+	@rm -f $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
+	@rm -f $(HOME)/.local/share/pixmaps/io.github.svinkle.ContrastChecker.png
+	@for size in 16 24 32 48 64 96 128 256 512; do \
+		rm -f $(HOME)/.local/share/icons/hicolor/$${size}x$${size}/apps/io.github.svinkle.ContrastChecker.png 2>/dev/null || true; \
+	done
+	@update-desktop-database $(HOME)/.local/share/applications 2>/dev/null || true
+	@gtk-update-icon-cache -f -t $(HOME)/.local/share/icons/hicolor 2>/dev/null || true
+	@echo "==> User desktop integration removed."
+
+run:
 	@PYTHONPATH=src $(PYTHON) src/contrast_checker.py
 
 check-tools:
