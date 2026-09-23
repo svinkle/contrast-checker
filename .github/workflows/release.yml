@@ -72,8 +72,16 @@ jobs:
             windows/build/ContrastChecker.msi
 
   build-linux:
-    name: Build Linux Flatpak
-    runs-on: ubuntu-latest
+    name: Build Linux Flatpak (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            os: ubuntu-latest
+          - arch: aarch64
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
     container:
       image: bilelmoussaoui/flatpak-github-actions:gnome-46
       options: --privileged
@@ -84,15 +92,16 @@ jobs:
       - name: Build Flatpak Bundle
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: ContrastChecker.flatpak
+          bundle: ContrastChecker-${{ matrix.arch }}.flatpak
           manifest-path: linux/io.github.svinkle.ContrastChecker.yml
           run-tests: false
+          arch: ${{ matrix.arch }}
 
       - name: Upload Flatpak Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-flatpak
-          path: ContrastChecker.flatpak
+          name: linux-flatpak-${{ matrix.arch }}
+          path: ContrastChecker-${{ matrix.arch }}.flatpak
 
   publish-release:
     name: Publish GitHub Release
@@ -109,6 +118,10 @@ jobs:
         with:
           path: release-assets
           merge-multiple: true
+
+      - name: Prepare Flatpak Aliases
+        run: |
+          cp release-assets/ContrastChecker-x86_64.flatpak release-assets/ContrastChecker.flatpak
 
       - name: Determine Release Tag
         id: get_tag
@@ -132,3 +145,5 @@ jobs:
             release-assets/ContrastChecker.exe
             release-assets/ContrastChecker.msi
             release-assets/ContrastChecker.flatpak
+            release-assets/ContrastChecker-x86_64.flatpak
+            release-assets/ContrastChecker-aarch64.flatpak

@@ -33,8 +33,16 @@ jobs:
           make test-linux
 
   flatpak:
-    name: Build Flatpak Bundle
-    runs-on: ubuntu-latest
+    name: Build Flatpak Bundle (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            os: ubuntu-latest
+          - arch: aarch64
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
     needs: test
     container:
       image: bilelmoussaoui/flatpak-github-actions:gnome-46
@@ -46,12 +54,13 @@ jobs:
       - name: Build Flatpak Bundle
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: ContrastChecker.flatpak
+          bundle: ContrastChecker-${{ matrix.arch }}.flatpak
           manifest-path: linux/io.github.svinkle.ContrastChecker.yml
           run-tests: false
+          arch: ${{ matrix.arch }}
 
       - name: Upload Flatpak Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ContrastChecker-Linux-Flatpak
-          path: ContrastChecker.flatpak
+          name: ContrastChecker-Linux-${{ matrix.arch }}-Flatpak
+          path: ContrastChecker-${{ matrix.arch }}.flatpak

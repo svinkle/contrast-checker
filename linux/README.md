@@ -4,6 +4,18 @@ A native Linux utility for measuring color contrast anywhere across your operati
 
 Packaged as a universal **Flatpak** for seamless installation across all Linux distributions (Ubuntu, Fedora, Arch, Debian, openSUSE, SteamOS, etc.).
 
+Pre-compiled Flatpak bundles are automatically built and published on the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page for both architectures:
+- **`ContrastChecker-x86_64.flatpak`**: For 64-bit Intel and AMD systems.
+- **`ContrastChecker-aarch64.flatpak`**: For 64-bit ARM systems (including Linux inside Apple Silicon virtual machines).
+
+```bash
+# Install x86_64:
+flatpak install --user ContrastChecker-x86_64.flatpak
+
+# Install ARM64 (Apple Silicon VM):
+flatpak install --user ContrastChecker-aarch64.flatpak
+```
+
 ---
 
 ## Features
