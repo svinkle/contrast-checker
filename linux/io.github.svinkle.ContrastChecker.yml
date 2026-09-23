@@ -19,6 +19,8 @@ modules:
       - install -Dm755 src/contrast_checker.py /app/bin/contrast-checker
       - install -Dm644 src/color_model.py /app/bin/color_model.py
       - install -Dm644 src/color_sampler.py /app/bin/color_sampler.py
+      - install -Dm644 src/icon_data.py /app/bin/icon_data.py
+      - install -Dm644 src/x11_icon.py /app/bin/x11_icon.py
       - install -Dm644 src/main_window.py /app/bin/main_window.py
       - install -Dm644 src/style.css /app/bin/style.css
 

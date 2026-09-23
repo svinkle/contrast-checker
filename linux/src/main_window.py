@@ -47,10 +47,38 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
         self._build_ui()
         self._setup_key_controller()
         self.connect("close-request", self._on_close_request)
+        self.connect("realize", self._on_realize)
+        self.connect("map", self._on_map)
 
         # Connect model listener
         self.model.add_listener(self._on_model_changed)
         self._update_display()
+
+    def _on_realize(self, widget) -> None:
+        GLib.idle_add(self._apply_x11_window_icon)
+
+    def _on_map(self, widget) -> None:
+        GLib.idle_add(self._apply_x11_window_icon)
+
+    def _apply_x11_window_icon(self) -> None:
+        """Applies _NET_WM_ICON to native X11 window surface for MATE/XFCE taskbars."""
+        try:
+            xid = 0
+            surface = self.get_surface()
+            if surface:
+                try:
+                    import gi
+                    gi.require_version("GdkX11", "4.0")
+                    from gi.repository import GdkX11
+                    if isinstance(surface, GdkX11.X11Surface):
+                        xid = GdkX11.X11Surface.get_xid(surface)
+                except Exception:
+                    pass
+
+            from x11_icon import apply_window_icon
+            apply_window_icon(xid)
+        except Exception:
+            pass
 
     def _close_application(self) -> None:
         app = self.get_application()
