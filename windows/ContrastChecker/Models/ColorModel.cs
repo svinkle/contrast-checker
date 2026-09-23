@@ -137,7 +137,7 @@ namespace ContrastChecker.Models
             return false;
         }
 
-        // MARK: - WCAG 2.1 Luminance and Contrast Ratio
+        // MARK: - WCAG 2.2 Luminance and Contrast Ratio
 
         public static double CalculateContrastRatio(Color c1, Color c2)
         {

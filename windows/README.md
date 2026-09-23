@@ -2,14 +2,14 @@
 
 A native Windows utility built with **C#**, **.NET 8**, and **WPF** for measuring color contrast anywhere across the operating system—including native windows, web browsers, and desktop wallpaper.
 
-Built for accessibility testing, design system audits, and fast WCAG 2.1 compliance verification.
+Built for accessibility testing, design system audits, and fast WCAG 2.2 compliance verification.
 
 ---
 
 ## Features
 
 - **System-Wide Screen Color Sampling**: High-fidelity fullscreen overlay with a precision magnification loupe (zooming the pixel grid under the cursor with reticle crosshairs and live HEX/RGB readout).
-- **Accurate WCAG 2.1 Contrast Calculation**: Computes sRGB relative luminance and contrast ratio ($1.00:1$ to $21.00:1$).
+- **Accurate WCAG 2.2 Contrast Calculation**: Computes sRGB relative luminance and contrast ratio ($1.00:1$ to $21.00:1$).
 - **Minimalist Floating Card UI**: Compact 340px card with top background color preview, large contrast ratio sample text, and separate Background and Foreground pickers.
 - **Global Shortcuts (Ctrl + Alt)**:
   - **`Ctrl + Alt + C`**: Toggle show/hide the Contrast Checker window from anywhere.
@@ -117,7 +117,7 @@ windows/
 │   ├── App.xaml / App.xaml.cs
 │   ├── MainWindow.xaml / MainWindow.xaml.cs
 │   ├── Models/
-│   │   └── ColorModel.cs                # WCAG 2.1 math & clipboard
+│   │   └── ColorModel.cs                # WCAG 2.2 math & clipboard
 │   ├── Services/
 │   │   ├── HotKeyManager.cs             # Global Win32 shortcuts
 │   │   ├── ScreenColorSampler.cs        # Global mouse hook & pixel sampling

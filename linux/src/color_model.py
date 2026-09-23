@@ -1,6 +1,6 @@
 """
 ColorModel for Linux Contrast Checker.
-Calculates WCAG 2.1 relative luminance and contrast ratios with full parity to macOS and Windows versions.
+Calculates WCAG 2.2 relative luminance and contrast ratios with full parity to macOS and Windows versions.
 """
 
 import math
@@ -69,7 +69,7 @@ class ColorModel:
             return True
         return False
 
-    # WCAG 2.1 Contrast Calculation
+    # WCAG 2.2 Contrast Calculation
     @property
     def contrast_ratio(self) -> float:
         lum1 = self.relative_luminance(self._bg_r, self._bg_g, self._bg_b)
@@ -97,7 +97,7 @@ class ColorModel:
 
     @classmethod
     def relative_luminance(cls, r: int, g: int, b: int) -> float:
-        """Computes relative luminance L in accordance with WCAG 2.1."""
+        """Computes relative luminance L in accordance with WCAG 2.2."""
         r_lin = cls.srgb_to_linear(r / 255.0)
         g_lin = cls.srgb_to_linear(g / 255.0)
         b_lin = cls.srgb_to_linear(b / 255.0)

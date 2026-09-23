@@ -50,7 +50,7 @@ public final class ColorModel: ObservableObject {
         }
     }
 
-    // MARK: - WCAG 2.1 Contrast Calculation
+    // MARK: - WCAG 2.2 Contrast Calculation
 
     public var contrastRatio: Double {
         let lum1 = ColorModel.relativeLuminance(of: backgroundColor)

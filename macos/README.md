@@ -9,7 +9,7 @@ Designed to be lightweight, unobtrusive, and simple:
 - **Permanent Menu Bar Companion**: Lives in the menu bar with a target crosshair icon (`⌖`). Left-click to instantly toggle; right-click for quick actions.
 - **Dynamic Dock Icon**: Appears in the Dock and `⌘Tab` app switcher when the window is visible, and completely disappears from the Dock when closed, running silently in the background.
 - **Floating Utility Window**: Stays floating above all native windows and virtual machines while testing colors.
-- **Instant WCAG 2.1 Calculation**: Computes exact contrast ratios from standardized sRGB relative luminance.
+- **Instant WCAG 2.2 Calculation**: Computes exact contrast ratios from standardized sRGB relative luminance.
 - **Contrast Ratio as Live Preview**: The contrast ratio text itself renders using the foreground color on the background color, providing an immediate real-world readability test.
 - **One-Click Clipboard Copy**: Click the contrast ratio or either HEX code to copy the value directly to your clipboard, accompanied by an animated visual toast.
 - **Installable DMG**: Pre-configured build script and Makefile to generate a compressed `.dmg` disk image with drag-and-drop `/Applications` installation.

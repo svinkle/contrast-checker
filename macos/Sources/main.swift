@@ -239,7 +239,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         • ⌃⌥B: Pick Background Color
         • ⌃⌥F: Pick Foreground Color
 
-        WCAG 2.1 relative luminance calculation.
+        WCAG 2.2 relative luminance calculation.
 
 
         """

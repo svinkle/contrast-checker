@@ -72,7 +72,7 @@
                         </StackPanel>
                     </Border>
 
-                    <TextBlock Text="WCAG 2.1 relative luminance calculation."
+                    <TextBlock Text="WCAG 2.2 relative luminance calculation."
                                FontSize="11" Foreground="#8E8E93"
                                TextAlignment="Center" Margin="0,0,0,10" />
 

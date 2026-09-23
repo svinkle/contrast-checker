@@ -13,7 +13,7 @@
 
 A minimalist, native utility for measuring color contrast anywhere across your operating system—including native windows, virtual machines, web browsers, and desktop wallpaper.
 
-Built for accessibility testing, design system audits, and fast WCAG 2.1 compliance verification.
+Built for accessibility testing, design system audits, and fast WCAG 2.2 compliance verification.
 
 ---
 
@@ -21,12 +21,12 @@ Built for accessibility testing, design system audits, and fast WCAG 2.1 complia
 
 Download the latest pre-compiled binaries from the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page:
 
-| Operating System | Package Format | Download | Description |
-| :--- | :--- | :--- | :--- |
-| **macOS** | `.dmg` | [ContrastChecker.dmg](https://github.com/svinkle/contrast-checker/releases/latest) | Apple disk image with drag-and-drop `/Applications` install (Universal: Apple Silicon & Intel) |
-| **Windows** | `.exe` | [ContrastChecker.exe](https://github.com/svinkle/contrast-checker/releases/latest) | Standalone single-file portable executable (x64, zero runtime dependencies) |
-| **Windows** | `.msi` | [ContrastChecker.msi](https://github.com/svinkle/contrast-checker/releases/latest) | Windows Installer package with Start Menu and Desktop shortcuts |
-| **Linux** | `.flatpak` | [ContrastChecker.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Universal Flatpak bundle for Ubuntu, Fedora, Arch, Cinnamon, KDE, GNOME, etc. |
+| Operating System | Package Format | Download                                                                               | Description                                                                                    |
+| :--------------- | :------------- | :------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| **macOS**        | `.dmg`         | [ContrastChecker.dmg](https://github.com/svinkle/contrast-checker/releases/latest)     | Apple disk image with drag-and-drop `/Applications` install (Universal: Apple Silicon & Intel) |
+| **Windows**      | `.exe`         | [ContrastChecker.exe](https://github.com/svinkle/contrast-checker/releases/latest)     | Standalone single-file portable executable (x64, zero runtime dependencies)                    |
+| **Windows**      | `.msi`         | [ContrastChecker.msi](https://github.com/svinkle/contrast-checker/releases/latest)     | Windows Installer package with Start Menu and Desktop shortcuts                                |
+| **Linux**        | `.flatpak`     | [ContrastChecker.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Universal Flatpak bundle for Ubuntu, Fedora, Arch, Cinnamon, KDE, GNOME, etc.                  |
 
 ---
 

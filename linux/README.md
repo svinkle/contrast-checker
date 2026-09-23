@@ -9,7 +9,7 @@ Packaged as a universal **Flatpak** for seamless installation across all Linux d
 ## Features
 
 - **Floating Card UI**: Compact 340×260px floating card with crisp squared corners, live top Background swatch preview with dynamic Foreground sample text, large contrast ratio readout, and subtle corner close button (`✕`).
-- **WCAG 2.1 Conformance**: Precise relative luminance and contrast ratio calculations identical to macOS and Windows versions.
+- **WCAG 2.2 Conformance**: Precise relative luminance and contrast ratio calculations identical to macOS and Windows versions.
 - **Universal Multi-Desktop Color Sampling**:
   - **Wayland (GNOME, KDE Plasma)**: Uses the FreeDesktop XDG Desktop Portal (`org.freedesktop.portal.Screenshot.PickColor`) to invoke the compositor's native loupe eyedropper.
   - **X11 (XFCE, MATE, Cinnamon)**: Direct native screen sampling with crosshair cursor via `libX11.so.6` (standard library `ctypes`, zero external pip dependencies).

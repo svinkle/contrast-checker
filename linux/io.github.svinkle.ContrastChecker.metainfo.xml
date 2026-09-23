@@ -11,7 +11,7 @@
     </p>
     <p>Features include:</p>
     <ul>
-      <li>WCAG 2.1 relative luminance calculation conforming to accessibility standards</li>
+      <li>WCAG 2.2 relative luminance calculation conforming to accessibility standards</li>
       <li>System-wide screen color sampling via the FreeDesktop XDG Desktop Portal</li>
       <li>Compact floating card interface with live background preview and sample text</li>
       <li>Full keyboard navigation with high-contrast visible focus rings</li>
