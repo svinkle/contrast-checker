@@ -5,16 +5,16 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/svinkle/contrast-checker/actions/workflows/macos.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/macos.yml/badge.svg" alt="macOS Build" /></a>
-  <a href="https://github.com/svinkle/contrast-checker/actions/workflows/windows.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/windows.yml/badge.svg" alt="Windows Build" /></a>
-  <a href="https://github.com/svinkle/contrast-checker/actions/workflows/linux.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/linux.yml/badge.svg" alt="Linux Build" /></a>
+  <a href="https://github.com/svinkle/contrast-checker/actions/workflows/macos.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/macos.yml/badge.svg" alt="🍎 macOS Build" /></a>
+  <a href="https://github.com/svinkle/contrast-checker/actions/workflows/windows.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/windows.yml/badge.svg" alt="🪟 Windows Build" /></a>
+  <a href="https://github.com/svinkle/contrast-checker/actions/workflows/linux.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/linux.yml/badge.svg" alt="🐧 Linux Build" /></a>
   <a href="https://github.com/svinkle/contrast-checker/releases"><img src="https://img.shields.io/github/v/release/svinkle/contrast-checker?include_prereleases&label=release&color=success" alt="Latest Release" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" /></a>
 </p>
 
 A minimalist, native utility for measuring color contrast anywhere across your operating system—including native windows, virtual machines, web browsers, and desktop wallpaper.
 
-Built for accessibility testing, design system audits, and fast WCAG 2.2 compliance verification.
+Built for accessibility testing, design system audits, and fast WCAG 2.2 compliance verification across 🍎 macOS, 🪟 Windows, and 🐧 Linux.
 
 ---
 
@@ -22,16 +22,16 @@ Built for accessibility testing, design system audits, and fast WCAG 2.2 complia
 
 Download the latest pre-compiled binaries from the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page:
 
-| Operating System   | Package Format | Download                                                                                       | Description                                                                                    |
-| :----------------- | :------------- | :--------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| **macOS**          | `.dmg`         | [ContrastChecker.dmg](https://github.com/svinkle/contrast-checker/releases/latest)             | Apple disk image with drag-and-drop `/Applications` install (Universal: Apple Silicon & Intel) |
-| **Windows**        | `.exe`         | [ContrastChecker.exe](https://github.com/svinkle/contrast-checker/releases/latest)             | Standalone single-file portable executable (x64, zero runtime dependencies)                    |
-| **Windows**        | `.msi`         | [ContrastChecker.msi](https://github.com/svinkle/contrast-checker/releases/latest)             | Windows Installer package with Start Menu and Desktop shortcuts                                |
-| **Linux (x86_64)** | `.flatpak`     | [ContrastChecker-x86_64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest)  | Standalone Flatpak bundle for 64-bit Intel & AMD Linux PCs                                     |
-| **Linux (ARM64)**  | `.flatpak`     | [ContrastChecker-aarch64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Standalone Flatpak bundle for 64-bit ARM systems (including Apple Silicon virtual machines)    |
+| Operating System       | Package Format | Download                                                                                       | Description                                                                                    |
+| :--------------------- | :------------- | :--------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| 🍎 **macOS**           | `.dmg`         | [ContrastChecker.dmg](https://github.com/svinkle/contrast-checker/releases/latest)             | Apple disk image with drag-and-drop `/Applications` install (Universal 2: Apple Silicon & Intel) |
+| 🪟 **Windows**         | `.exe`         | [ContrastChecker.exe](https://github.com/svinkle/contrast-checker/releases/latest)             | Standalone single-file portable executable (x64, zero runtime dependencies)                    |
+| 🪟 **Windows**         | `.msi`         | [ContrastChecker.msi](https://github.com/svinkle/contrast-checker/releases/latest)             | Windows Installer package with Start Menu and Desktop shortcuts                                |
+| 🐧 **Linux (x86_64)**  | `.flatpak`     | [ContrastChecker-x86_64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest)  | Standalone Flatpak bundle for 64-bit Intel & AMD Linux PCs                                     |
+| 🐧 **Linux (ARM64)**   | `.flatpak`     | [ContrastChecker-aarch64.flatpak](https://github.com/svinkle/contrast-checker/releases/latest) | Standalone Flatpak bundle for 64-bit ARM systems (including Apple Silicon virtual machines)    |
 
 > [!NOTE]
-> **Windows Installation Note (SmartScreen / Unknown Publisher)**:
+> **🪟 Windows Installation Note (SmartScreen / Unknown Publisher)**:
 > Because Contrast Checker is a free, open-source project and is not signed with an expensive commercial code-signing certificate, Windows Defender SmartScreen or User Account Control (UAC) may display a _"Windows protected your PC"_ or _"Unknown Publisher"_ prompt when opening the `.msi` or `.exe`.
 >
 > To install:
@@ -52,9 +52,9 @@ Download the latest pre-compiled binaries from the **[GitHub Releases](https://g
 
 ## Platforms
 
-- **[macOS (`/macos`)](./macos)**: Native Swift, SwiftUI, and AppKit application. Features system-wide eyedropper (`NSColorSampler`), permanent menu bar companion, dynamic Dock icon hiding, and global system shortcuts (`⌃⌥C`, `⌃⌥B`, `⌃⌥F`).
-- **[Windows (`/windows`)](./windows)**: Native C#, .NET 8, and WPF application. Features fullscreen magnification loupe eyedropper, permanent system tray companion, standalone single-file `.exe`, WiX `.msi` installer, and global shortcuts (`Ctrl+Alt+C`, `Ctrl+Alt+B`, `Ctrl+Alt+F`).
-- **[Linux (`/linux`)](./linux)**: Native GTK 4 application packaged as a universal **Flatpak** bundle. Features clean floating card experience with crisp squared corners, multi-desktop screen color sampling (via FreeDesktop XDG Desktop Portal on Wayland and native X11), and accessible keyboard navigation.
+- 🍎 **[macOS (`/macos`)](./macos)**: Native Swift, SwiftUI, and AppKit application packaged as a Universal 2 binary (Apple Silicon & Intel). Features system-wide eyedropper (`NSColorSampler`), permanent menu bar companion, dynamic Dock icon hiding, and global system shortcuts (`⌃⌥C`, `⌃⌥B`, `⌃⌥F`).
+- 🪟 **[Windows (`/windows`)](./windows)**: Native C#, .NET 8, and WPF application. Features fullscreen magnification loupe eyedropper, permanent system tray companion, standalone single-file `.exe`, WiX `.msi` installer, and global shortcuts (`Ctrl+Alt+C`, `Ctrl+Alt+B`, `Ctrl+Alt+F`). Runs natively on x64 and seamlessly on ARM64 Windows via Prism emulation.
+- 🐧 **[Linux (`/linux`)](./linux)**: Native GTK 4 application packaged as universal **Flatpak** bundles for both `x86_64` and `aarch64`. Features clean floating card experience with crisp squared corners, multi-desktop screen color sampling (via FreeDesktop XDG Desktop Portal on Wayland and native X11 with `libX11` and `_NET_WM_ICON` taskbar support), and accessible keyboard navigation.
 
 ---
 
@@ -62,7 +62,7 @@ Download the latest pre-compiled binaries from the **[GitHub Releases](https://g
 
 Each operating system provides dedicated build scripts to package release assets:
 
-### macOS
+### 🍎 macOS
 
 For full documentation, shortcuts, and permissions, see the **[macOS README](./macos/README.md)**.
 
@@ -78,7 +78,7 @@ make dmg
 make test-macos
 ```
 
-### Windows
+### 🪟 Windows
 
 For full documentation, shortcuts, and installer details, see the **[Windows README](./windows/README.md)**.
 
@@ -97,7 +97,7 @@ powershell -ExecutionPolicy Bypass -File windows/build.ps1
 powershell -ExecutionPolicy Bypass -File windows/build.ps1 -BuildMsi
 ```
 
-### Linux
+### 🐧 Linux
 
 For full documentation, dependencies, and desktop integration, see the **[Linux README](./linux/README.md)**.
 
@@ -109,8 +109,8 @@ make test-linux
 make flatpak
 # or run directly: ./linux/build_flatpak.sh
 
-# Install the Flatpak bundle
-flatpak install --user ContrastChecker.flatpak
+# Install the Flatpak bundle (x86_64 or aarch64)
+flatpak install --user ContrastChecker-x86_64.flatpak
 ```
 
 ---

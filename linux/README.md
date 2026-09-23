@@ -1,13 +1,13 @@
-# Contrast Checker for Linux
+# 🐧 Contrast Checker for Linux
 
-A native Linux utility for measuring color contrast anywhere across your operating system (including native windows, web browsers, and desktop wallpaper).
+A native 🐧 Linux utility for measuring color contrast anywhere across your operating system (including native windows, web browsers, and desktop wallpaper).
 
-Packaged as a universal **Flatpak** for seamless installation across all Linux distributions (Ubuntu, Fedora, Arch, Debian, openSUSE, SteamOS, etc.).
+Packaged as a universal **Flatpak** for seamless installation across all 🐧 Linux distributions (Ubuntu, Fedora, Arch, Debian, openSUSE, SteamOS, etc.).
 
 Pre-compiled Flatpak bundles are automatically built and published on the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page for both architectures:
 
-- **`ContrastChecker-x86_64.flatpak`**: For 64-bit Intel and AMD systems.
-- **`ContrastChecker-aarch64.flatpak`**: For 64-bit ARM systems (including Linux inside Apple Silicon virtual machines).
+- **[`ContrastChecker-x86_64.flatpak`](https://github.com/svinkle/contrast-checker/releases/latest)**: For 64-bit Intel and AMD systems.
+- **[`ContrastChecker-aarch64.flatpak`](https://github.com/svinkle/contrast-checker/releases/latest)**: For 64-bit ARM systems (including 🐧 Linux inside 🍎 Apple Silicon virtual machines).
 
 ```bash
 # Install x86_64:
@@ -22,10 +22,10 @@ flatpak install --user ContrastChecker-aarch64.flatpak
 ## Features
 
 - **Floating Card UI**: Compact 340×260px floating card with crisp squared corners, live top Background swatch preview with dynamic Foreground sample text, large contrast ratio readout, and subtle corner close button (`✕`).
-- **WCAG 2.2 Conformance**: Precise relative luminance and contrast ratio calculations identical to macOS and Windows versions.
+- **WCAG 2.2 Conformance**: Precise relative luminance and contrast ratio calculations identical to 🍎 macOS and 🪟 Windows versions.
 - **Universal Multi-Desktop Color Sampling**:
   - **Wayland (GNOME, KDE Plasma)**: Uses the FreeDesktop XDG Desktop Portal (`org.freedesktop.portal.Screenshot.PickColor`) to invoke the compositor's native loupe eyedropper.
-  - **X11 (XFCE, MATE, Cinnamon)**: Direct native screen sampling with crosshair cursor via `libX11.so.6` (standard library `ctypes`, zero external pip dependencies).
+  - **X11 (XFCE, MATE, Cinnamon)**: Direct native screen sampling with crosshair cursor via `libX11.so.6` (standard library `ctypes`, zero external pip dependencies) and `_NET_WM_ICON` taskbar window icons.
 - **Full Keyboard Navigation**:
   - `Ctrl + Alt + B` (or `Alt + B` / `Ctrl + B`): Pick Background color.
   - `Ctrl + Alt + F` (or `Alt + F` / `Ctrl + F`): Pick Foreground color.
@@ -49,7 +49,7 @@ flatpak install --user ContrastChecker-aarch64.flatpak
 
 > [!TIP]
 > **System-Wide Global Shortcuts**:
-> The Linux application supports DBus command-line actions (`--pick-bg`, `--pick-fg`). To trigger color picking from anywhere across your system even when the window is hidden, add custom shortcuts in **Ubuntu Settings > Keyboard > Keyboard Shortcuts > View and Customize Shortcuts > Custom Shortcuts**:
+> The 🐧 Linux application supports DBus command-line actions (`--pick-bg`, `--pick-fg`). To trigger color picking from anywhere across your system even when the window is hidden, add custom shortcuts in **Ubuntu Settings > Keyboard > Keyboard Shortcuts > View and Customize Shortcuts > Custom Shortcuts**:
 >
 > - `Ctrl + Alt + B`: `contrast-checker --pick-bg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-bg`)
 > - `Ctrl + Alt + F`: `contrast-checker --pick-fg` (or `flatpak run io.github.svinkle.ContrastChecker --pick-fg`)
@@ -58,10 +58,10 @@ flatpak install --user ContrastChecker-aarch64.flatpak
 
 ## Dependencies & Requirements
 
-### Operating System & Environments
+### 🐧 Operating System & Environments
 
-- **Linux Distribution**: Any modern Linux distribution (Ubuntu 22.04+, Debian 12+, Fedora 38+, Arch Linux, openSUSE, SteamOS, etc.).
-- **Architecture**: `x86_64` (AMD/Intel) and `aarch64` (ARM64, including Linux inside Apple Silicon virtual machines).
+- **Linux Distribution**: Any modern 🐧 Linux distribution (Ubuntu 22.04+, Debian 12+, Fedora 38+, Arch Linux, openSUSE, SteamOS, etc.).
+- **Architecture**: `x86_64` (AMD/Intel) and `aarch64` (ARM64, including 🐧 Linux inside 🍎 Apple Silicon virtual machines).
 - **Display Server**: Native **Wayland** (GNOME Shell, KDE Plasma, Sway, Hyprland) and **X11**.
 
 ### System Services & Permissions
@@ -143,8 +143,8 @@ flatpak-builder --run build-dir io.github.svinkle.ContrastChecker.yml contrast-c
 # Or export a standalone single-file .flatpak bundle
 make bundle
 
-# Install the .flatpak bundle to your user account
-flatpak install --user ContrastChecker.flatpak
+# Install the .flatpak bundle to your user account (x86_64 or aarch64)
+flatpak install --user ContrastChecker-x86_64.flatpak
 ```
 
 ### Option 2: Run Directly on Host

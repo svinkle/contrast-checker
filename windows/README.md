@@ -1,6 +1,6 @@
-# Contrast Checker for Windows
+# 🪟 Contrast Checker for Windows
 
-A native Windows utility built with **C#**, **.NET 8**, and **WPF** for measuring color contrast anywhere across the operating system—including native windows, web browsers, and desktop wallpaper.
+A native 🪟 Windows utility built with **C#**, **.NET 8**, and **WPF** for measuring color contrast anywhere across the operating system—including native windows, web browsers, and desktop wallpaper.
 
 Built for accessibility testing, design system audits, and fast WCAG 2.2 compliance verification.
 
@@ -18,7 +18,7 @@ Built for accessibility testing, design system audits, and fast WCAG 2.2 complia
 - **Window & App Shortcuts**:
   - **`Ctrl + W`** / **`Esc`**: Hide window to system tray (removes from taskbar, continues running in background).
   - **`Ctrl + Q`**: Quit application and terminate the process completely.
-- **Permanent System Tray Companion**: Runs in the Windows Notification Area (System Tray) with right-click menu and single-click toggle. Hiding the window cleanly removes it from the taskbar while keeping it ready in the tray.
+- **Permanent System Tray Companion**: Runs in the 🪟 Windows Notification Area (System Tray) with right-click menu and single-click toggle. Hiding the window cleanly removes it from the taskbar while keeping it ready in the tray.
 - **Single-File Self-Contained Executable**: Builds to a single portable `ContrastChecker.exe` with zero runtime dependencies.
 - **MSI Installer**: Authoring via WiX Toolset v4/v5 (`ContrastChecker.msi`) with Start Menu and Desktop shortcuts.
 
@@ -28,11 +28,11 @@ Built for accessibility testing, design system audits, and fast WCAG 2.2 complia
 
 Pre-compiled downloads are available from the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page:
 
-- **`ContrastChecker.msi`**: Complete Windows installer with Start Menu and Desktop shortcuts.
-- **`ContrastChecker.exe`**: Standalone portable executable with zero runtime dependencies.
+- **[`ContrastChecker.msi`](https://github.com/svinkle/contrast-checker/releases/latest)**: Complete 🪟 Windows installer with Start Menu and Desktop shortcuts.
+- **[`ContrastChecker.exe`](https://github.com/svinkle/contrast-checker/releases/latest)**: Standalone portable executable with zero runtime dependencies (runs on 64-bit Intel/AMD and on ARM64 🪟 Windows 11 devices via built-in Prism emulation).
 
 > [!NOTE]
-> **SmartScreen / Unknown Publisher Prompt**:
+> **🪟 Windows SmartScreen / Unknown Publisher Prompt**:
 > Because Contrast Checker is a free open-source project and is not signed with a commercial code-signing certificate, Windows Defender SmartScreen or User Account Control (UAC) may show a _"Windows protected your PC"_ or _"Unknown Publisher"_ prompt when launching the downloaded file.
 >
 > - In SmartScreen: click **More info** &rarr; click **Run anyway**.
@@ -45,7 +45,7 @@ Pre-compiled downloads are available from the **[GitHub Releases](https://github
 
 ### Operating System
 
-- **Windows 10 (version 1809 / Build 17763+)** or **Windows 11** (64-bit `win-x64`).
+- **🪟 Windows 10 (version 1809 / Build 17763+)** or **🪟 Windows 11** (64-bit `win-x64`; also runs on ARM64 🪟 Windows 11 via Prism emulation).
 
 ### Build & Development Tools
 
@@ -53,7 +53,7 @@ Pre-compiled downloads are available from the **[GitHub Releases](https://github
   ```powershell
   dotnet --version
   ```
-- **PowerShell**: PowerShell 5.1 (bundled with Windows 10/11) or PowerShell 7+ for running `build.ps1`.
+- **PowerShell**: PowerShell 5.1 (bundled with 🪟 Windows 10/11) or PowerShell 7+ for running `build.ps1`.
 - **WiX Toolset v4 / v5** _(Optional, for packaging `.msi` installers)_:
   ```powershell
   dotnet tool install --global wix
@@ -68,7 +68,7 @@ Pre-compiled downloads are available from the **[GitHub Releases](https://github
 
 - **Zero Runtime Dependencies**: The default build script publishes a **self-contained, single-file executable** (`ContrastChecker.exe`). The .NET runtime and WPF libraries are embedded directly inside the binary. End users do **not** need the .NET runtime or any external frameworks installed.
 
-### Native Frameworks & Windows APIs
+### Native Frameworks & 🪟 Windows APIs
 
 - **WPF (`net8.0-windows`)**: Presentation framework for XAML UI, live data binding, and `:focus-visible` custom adorners.
 - **Win32 User32 APIs**:
@@ -80,7 +80,7 @@ Pre-compiled downloads are available from the **[GitHub Releases](https://github
 
 ---
 
-## Quick Start (Building on Windows)
+## Quick Start (Building on 🪟 Windows)
 
 ### 1. Build Standalone `.exe`
 

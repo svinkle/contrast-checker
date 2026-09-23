@@ -1,11 +1,12 @@
-# macOS Contrast Checker
+# 🍎 Contrast Checker for macOS
 
-A native macOS utility for measuring color contrast anywhere across your operating system—in native windows, virtual machines, browsers, and the desktop.
+A native 🍎 macOS utility for measuring color contrast anywhere across your operating system—in native windows, virtual machines, browsers, and the desktop.
 
 Designed to be lightweight, unobtrusive, and simple:
 
+- **Universal 2 Binary**: Compiled natively for both Apple Silicon (`arm64`, M1–M4) and Intel (`x86_64`) Macs in a single application bundle.
 - **System-Wide Eyedropper**: Uses Apple's official `NSColorSampler` loupe to sample any pixel across your entire screen.
-- **Global `Ctrl + Opt` Shortcuts**: Trigger the eyedropper for background or foreground colors, or toggle the app window from anywhere across macOS with zero browser conflicts.
+- **Global `Ctrl + Opt` Shortcuts**: Trigger the eyedropper for background or foreground colors, or toggle the app window from anywhere across 🍎 macOS with zero browser conflicts.
 - **Permanent Menu Bar Companion**: Lives in the menu bar with a target crosshair icon (`⌖`). Left-click to instantly toggle; right-click for quick actions.
 - **Dynamic Dock Icon**: Appears in the Dock and `⌘Tab` app switcher when the window is visible, and completely disappears from the Dock when closed, running silently in the background.
 - **Floating Utility Window**: Stays floating above all native windows and virtual machines while testing colors.
@@ -13,6 +14,14 @@ Designed to be lightweight, unobtrusive, and simple:
 - **Contrast Ratio as Live Preview**: The contrast ratio text itself renders using the foreground color on the background color, providing an immediate real-world readability test.
 - **One-Click Clipboard Copy**: Click the contrast ratio or either HEX code to copy the value directly to your clipboard, accompanied by an animated visual toast.
 - **Installable DMG**: Pre-configured build script and Makefile to generate a compressed `.dmg` disk image with drag-and-drop `/Applications` installation.
+
+---
+
+## Downloads
+
+Download the latest pre-compiled disk image from the **[GitHub Releases](https://github.com/svinkle/contrast-checker/releases)** page:
+
+- **[`ContrastChecker.dmg`](https://github.com/svinkle/contrast-checker/releases/latest)**: Drag-and-drop `/Applications` installer (Universal 2: Apple Silicon & Intel).
 
 ---
 
@@ -33,14 +42,14 @@ Designed to be lightweight, unobtrusive, and simple:
 
 - **Top Card Area**: Rendered in your selected Background Color (defaults to `#000000`). The Contrast Ratio is displayed prominently in your selected Foreground Color (defaults to `#FFFFFF`) and acts as the live sample text. Clicking the ratio copies it to the clipboard.
 - **Background Row**:
-  - `⌖` Eyedropper button: Activates the macOS magnifying loupe to sample any background pixel on your screen.
+  - `⌖` Eyedropper button: Activates the 🍎 macOS magnifying loupe to sample any background pixel on your screen.
   - Circle swatch: Displays the current background color.
   - `#000000`: Click to copy the background HEX code.
 - **Foreground Row**:
-  - `⌖` Eyedropper button: Activates the macOS magnifying loupe to sample any foreground/text pixel on your screen.
+  - `⌖` Eyedropper button: Activates the 🍎 macOS magnifying loupe to sample any foreground/text pixel on your screen.
   - Circle swatch: Displays the current foreground color.
   - `#FFFFFF`: Click to copy the foreground HEX code.
-- **Menu Bar Status Item**: The target icon (`⌖`) remains in the macOS menu bar at all times:
+- **Menu Bar Status Item**: The target icon (`⌖`) remains in the 🍎 macOS menu bar at all times:
   - **Left Click**: Toggles the window visibility (shows if hidden, hides if visible).
   - **Right Click** (or Control-click): Opens the context menu with quick actions, About dialog, and Quit.
 - **Dynamic Dock Icon**: When the window is visible, the icon appears in the Dock and `⌘Tab` app switcher. When closed (`⌘W` or clicking `✕`), it completely disappears from the Dock while staying active in the menu bar.
@@ -66,7 +75,7 @@ Designed to be lightweight, unobtrusive, and simple:
 
 ### Operating System
 
-- **macOS 13.0 (Ventura)** or later (Supports both Apple Silicon `arm64` and Intel `x86_64`).
+- **🍎 macOS 13.0 (Ventura)** or later (Universal 2 binary: native support for both Apple Silicon `arm64` and Intel `x86_64`).
 
 ### Build & Development Tools
 
@@ -76,11 +85,11 @@ Designed to be lightweight, unobtrusive, and simple:
   ```
 - **Swift Compiler 5.9+**: Included with Xcode / Command Line Tools (`swift --version`).
 - **GNU Make**: Pre-installed with Xcode Command Line Tools.
-- **`hdiutil`**: Built-in macOS command-line utility used by `make dmg` to package compressed DMG disk images.
+- **`hdiutil`**: Built-in 🍎 macOS command-line utility used by `make dmg` to package compressed DMG disk images.
 
 ### Runtime Dependencies
 
-- **Zero Third-Party Dependencies**: Contrast Checker uses exclusively native macOS system frameworks with no external packages, pods, or dynamic library dependencies:
+- **Zero Third-Party Dependencies**: Contrast Checker uses exclusively native 🍎 macOS system frameworks with no external packages, pods, or dynamic library dependencies:
   - **`AppKit`**: Core window management (`NSPanel`), menu bar status item (`NSStatusItem`), application lifecycle (`NSApplication`), and system-wide eyedropper loupe (`NSColorSampler`).
   - **`SwiftUI`**: Declarative UI layout, dynamic color binding, and focus ring modifiers.
   - **`Carbon.HIToolbox`**: Low-level global hotkey registration (`RegisterEventHotKey`) for system-wide shortcuts (`⌃⌥C`, `⌃⌥B`, `⌃⌥F`).
@@ -111,11 +120,11 @@ make install
 
 ---
 
-## macOS Screen Recording Permission
+## 🍎 macOS Screen Recording Permission
 
-Because `ContrastChecker` uses Apple's native `NSColorSampler` to sample pixel colors from other applications and virtual machines, macOS may ask for Screen Recording permission on initial launch:
+Because `ContrastChecker` uses Apple's native `NSColorSampler` to sample pixel colors from other applications and virtual machines, 🍎 macOS may ask for Screen Recording permission on initial launch:
 
-1. When prompted by macOS, click **Open System Settings**.
+1. When prompted by 🍎 macOS, click **Open System Settings**.
 2. Alternatively, go to **System Settings > Privacy & Security > Screen & System Audio Recording** (or **Screen Recording** on earlier versions).
 3. Enable the toggle next to **Contrast Checker**.
 4. Relaunch the app.
