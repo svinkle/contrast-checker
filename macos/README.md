@@ -119,3 +119,10 @@ Because `ContrastChecker` uses Apple's native `NSColorSampler` to sample pixel c
 2. Alternatively, go to **System Settings > Privacy & Security > Screen & System Audio Recording** (or **Screen Recording** on earlier versions).
 3. Enable the toggle next to **Contrast Checker**.
 4. Relaunch the app.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](../LICENSE).
+

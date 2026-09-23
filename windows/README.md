@@ -136,3 +136,10 @@ windows/
 └── scripts/
     └── generate_ico.py                  # Icon generator (Python Pillow)
 ```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](../LICENSE).
+

@@ -9,6 +9,7 @@
   <a href="https://github.com/svinkle/contrast-checker/actions/workflows/windows.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/windows.yml/badge.svg" alt="Windows Build" /></a>
   <a href="https://github.com/svinkle/contrast-checker/actions/workflows/linux.yml"><img src="https://github.com/svinkle/contrast-checker/actions/workflows/linux.yml/badge.svg" alt="Linux Build" /></a>
   <a href="https://github.com/svinkle/contrast-checker/releases"><img src="https://img.shields.io/github/v/release/svinkle/contrast-checker?include_prereleases&label=release&color=success" alt="Latest Release" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" /></a>
 </p>
 
 A minimalist, native utility for measuring color contrast anywhere across your operating system—including native windows, virtual machines, web browsers, and desktop wallpaper.
@@ -92,3 +93,10 @@ make flatpak
 # Install the Flatpak bundle
 flatpak install --user ContrastChecker.flatpak
 ```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
