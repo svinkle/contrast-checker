@@ -125,4 +125,3 @@ Because `ContrastChecker` uses Apple's native `NSColorSampler` to sample pixel c
 ## License
 
 This project is licensed under the [MIT License](../LICENSE).
-

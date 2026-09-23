@@ -16,6 +16,10 @@ A minimalist, native utility for measuring color contrast anywhere across your o
 
 Built for accessibility testing, design system audits, and fast WCAG 2.2 compliance verification.
 
+<p align="center">
+  <img src="assets/screenshot.png" width="450" alt="Contrast Checker application preview" />
+</p>
+
 ---
 
 ## Downloads
@@ -99,4 +103,3 @@ flatpak install --user ContrastChecker.flatpak
 ## License
 
 This project is licensed under the [MIT License](./LICENSE).
-
