@@ -1,7 +1,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="Contrast Checker"
            Manufacturer="Scott Vinkle"
-           Version="1.0.0.0"
+           Version="1.0.1.0"
            UpgradeCode="d1e2f3a4-b5c6-7890-1234-567890abcdef"
            Scope="perMachine">
 

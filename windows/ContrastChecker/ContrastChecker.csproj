@@ -15,9 +15,9 @@
     <Product>Contrast Checker</Product>
     <Company>Scott Vinkle</Company>
     <Description>A native utility for measuring color contrast anywhere across the operating system.</Description>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
 
     <!-- Supported RIDs -->
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>

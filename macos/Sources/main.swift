@@ -264,10 +264,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         )
         credits.append(linkAttr)
 
+        let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.1"
         let options: [NSApplication.AboutPanelOptionKey: Any] = [
             .applicationName: "Contrast Checker",
-            .applicationVersion: "1.0.0",
-            .version: "1.0.0",
+            .applicationVersion: versionString,
+            .version: versionString,
             .credits: credits
         ]
 

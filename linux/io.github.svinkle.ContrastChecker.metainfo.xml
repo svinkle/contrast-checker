@@ -24,6 +24,11 @@
   <developer_name>Scott Vinkle</developer_name>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.0.1" date="2026-09-23">
+      <description>
+        <p>Color picker style icon updates, clipboard behavior fixes, and Linux Flatpak launcher integration improvements.</p>
+      </description>
+    </release>
     <release version="1.0.0" date="2026-09-22">
       <description>
         <p>Initial release of Contrast Checker for Linux.</p>
