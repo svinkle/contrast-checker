@@ -3,7 +3,7 @@ Screen color sampler for Linux.
 Provides hybrid support:
 - FreeDesktop XDG Desktop Portal (org.freedesktop.portal.Screenshot.PickColor) for Wayland (GNOME, KDE Plasma).
 - Native X11 screen sampling via libX11.so.6 and ctypes for X11 desktops (XFCE, MATE, Cinnamon)
-  where portal backends often lack PickColor.
+  featuring live hover color preview and dual grab/polling detection.
 Zero external pip dependencies required.
 """
 
@@ -28,7 +28,8 @@ except (ValueError, ImportError):
 class X11ColorSampler:
     """
     Direct screen color sampler for X11 sessions (XFCE, MATE, Cinnamon, etc.).
-    Uses libX11.so.6 via ctypes to display a crosshair cursor and sample screen pixels.
+    Uses libX11.so.6 via ctypes with crosshair cursor, live hover preview,
+    and automatic polling fallback if pointer grab is busy.
     """
     _x11 = None
     _x11_checked = False
@@ -62,12 +63,19 @@ class X11ColorSampler:
 
             if cls._x11 is not None:
                 cls._setup_prototypes(cls._x11)
+                try:
+                    cls._x11.XInitThreads()
+                except Exception:
+                    pass
 
         return cls._x11
 
     @classmethod
     def _setup_prototypes(cls, x11):
         try:
+            x11.XInitThreads.argtypes = []
+            x11.XInitThreads.restype = ctypes.c_int
+
             x11.XOpenDisplay.argtypes = [ctypes.c_char_p]
             x11.XOpenDisplay.restype = ctypes.c_void_p
 
@@ -142,49 +150,27 @@ class X11ColorSampler:
         cls,
         on_success: Callable[[int, int, int], None],
         on_cancel: Optional[Callable[[], None]] = None,
+        on_preview: Optional[Callable[[int, int, int], None]] = None,
     ) -> bool:
         x11 = cls.get_libx11()
         if not x11:
             return False
 
-        display = x11.XOpenDisplay(None)
-        if not display:
-            return False
-
         thread = threading.Thread(
             target=cls._worker,
-            args=(x11, display, on_success, on_cancel),
+            args=(x11, on_success, on_cancel, on_preview),
             daemon=True
         )
         thread.start()
         return True
 
     @classmethod
-    def _worker(cls, x11, display, on_success, on_cancel):
-        root = x11.XDefaultRootWindow(display)
-        XC_crosshair = 34
-        cursor = x11.XCreateFontCursor(display, XC_crosshair)
+    def _worker(cls, x11, on_success, on_cancel, on_preview):
+        # Brief sleep to let GTK release any active button-press pointer grab
+        time.sleep(0.15)
 
-        ButtonPressMask = 4
-        ButtonReleaseMask = 8
-        event_mask = ButtonPressMask | ButtonReleaseMask
-        GrabModeAsync = 1
-        CurrentTime = 0
-
-        grab_ok = False
-        for _ in range(5):
-            res = x11.XGrabPointer(
-                display, root, False, event_mask,
-                GrabModeAsync, GrabModeAsync, 0, cursor, CurrentTime
-            )
-            if res == 0:
-                grab_ok = True
-                break
-            time.sleep(0.05)
-
-        if not grab_ok:
-            x11.XFreeCursor(display, cursor)
-            x11.XCloseDisplay(display)
+        display = x11.XOpenDisplay(None)
+        if not display:
             if on_cancel:
                 if HAS_GI:
                     GLib.idle_add(on_cancel)
@@ -192,8 +178,32 @@ class X11ColorSampler:
                     on_cancel()
             return
 
-        x11.XGrabKeyboard(display, root, False, GrabModeAsync, GrabModeAsync, CurrentTime)
-        x11.XFlush(display)
+        root = x11.XDefaultRootWindow(display)
+        XC_crosshair = 34
+        cursor = x11.XCreateFontCursor(display, XC_crosshair)
+
+        ButtonPressMask = 4
+        ButtonReleaseMask = 8
+        PointerMotionMask = 64
+        event_mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask
+        GrabModeAsync = 1
+        CurrentTime = 0
+
+        # Attempt to grab pointer; retry up to 2 seconds if WM/seat is releasing grab
+        grab_ok = False
+        for _ in range(40):
+            res = x11.XGrabPointer(
+                display, root, False, event_mask,
+                GrabModeAsync, GrabModeAsync, root, cursor, CurrentTime
+            )
+            if res == 0:
+                grab_ok = True
+                break
+            time.sleep(0.05)
+
+        if grab_ok:
+            x11.XGrabKeyboard(display, root, False, GrabModeAsync, GrabModeAsync, CurrentTime)
+            x11.XFlush(display)
 
         class XRawEvent(ctypes.Structure):
             _fields_ = [
@@ -204,18 +214,80 @@ class X11ColorSampler:
         event = XRawEvent()
         picked_color = None
         cancelled = False
+        last_coord = (-1, -1)
 
-        while not cancelled and picked_color is None:
-            x11.XNextEvent(display, ctypes.byref(event))
+        root_ret = ctypes.c_ulong()
+        child_ret = ctypes.c_ulong()
+        rx = ctypes.c_int()
+        ry = ctypes.c_int()
+        wx = ctypes.c_int()
+        wy = ctypes.c_int()
+        mask = ctypes.c_uint()
+        ZPixmap = 2
+        AllPlanes = 0xFFFFFFFF
 
-            if event.type == 4:  # ButtonPress
-                root_ret = ctypes.c_ulong()
-                child_ret = ctypes.c_ulong()
-                rx = ctypes.c_int()
-                ry = ctypes.c_int()
-                wx = ctypes.c_int()
-                wy = ctypes.c_int()
-                mask = ctypes.c_uint()
+        def sample_pixel_at(px, py):
+            img = x11.XGetImage(display, root, px, py, 1, 1, AllPlanes, ZPixmap)
+            if img:
+                pixel = x11.XGetPixel(img, 0, 0)
+                r = (pixel >> 16) & 0xFF
+                g = (pixel >> 8) & 0xFF
+                b = pixel & 0xFF
+                x11.XDestroyImage(img)
+                return (r, g, b)
+            return None
+
+        if grab_ok:
+            # Mode A: Event-driven via exclusive pointer grab
+            while not cancelled and picked_color is None:
+                x11.XNextEvent(display, ctypes.byref(event))
+
+                if event.type == 6:  # MotionNotify -> live preview
+                    x11.XQueryPointer(
+                        display, root,
+                        ctypes.byref(root_ret), ctypes.byref(child_ret),
+                        ctypes.byref(rx), ctypes.byref(ry),
+                        ctypes.byref(wx), ctypes.byref(wy),
+                        ctypes.byref(mask)
+                    )
+                    curr = (rx.value, ry.value)
+                    if curr != last_coord:
+                        last_coord = curr
+                        col = sample_pixel_at(curr[0], curr[1])
+                        if col and on_preview:
+                            if HAS_GI:
+                                GLib.idle_add(on_preview, col[0], col[1], col[2])
+                            else:
+                                on_preview(col[0], col[1], col[2])
+
+                elif event.type == 4:  # ButtonPress -> lock color
+                    button_val = 1
+                    try:
+                        button_val = ctypes.c_uint.from_buffer_copy(event.pad[80:84]).value
+                    except Exception:
+                        button_val = 1
+
+                    if button_val == 1 or button_val == 0:
+                        x11.XQueryPointer(
+                            display, root,
+                            ctypes.byref(root_ret), ctypes.byref(child_ret),
+                            ctypes.byref(rx), ctypes.byref(ry),
+                            ctypes.byref(wx), ctypes.byref(wy),
+                            ctypes.byref(mask)
+                        )
+                        col = sample_pixel_at(rx.value, ry.value)
+                        if col:
+                            picked_color = col
+                        else:
+                            cancelled = True
+                    else:
+                        cancelled = True
+
+                elif event.type == 2:  # KeyPress (Escape)
+                    cancelled = True
+        else:
+            # Mode B: Polling fallback mode if pointer grab was blocked by compositor
+            while not cancelled and picked_color is None:
                 x11.XQueryPointer(
                     display, root,
                     ctypes.byref(root_ret), ctypes.byref(child_ret),
@@ -223,37 +295,34 @@ class X11ColorSampler:
                     ctypes.byref(wx), ctypes.byref(wy),
                     ctypes.byref(mask)
                 )
+                m = mask.value
+                curr = (rx.value, ry.value)
+                if curr != last_coord:
+                    last_coord = curr
+                    col = sample_pixel_at(curr[0], curr[1])
+                    if col and on_preview:
+                        if HAS_GI:
+                            GLib.idle_add(on_preview, col[0], col[1], col[2])
+                        else:
+                            on_preview(col[0], col[1], col[2])
 
-                # Read button number from XButtonEvent (offset 80-84 in pad on 64-bit Linux)
-                button_val = 1
-                try:
-                    button_val = ctypes.c_uint.from_buffer_copy(event.pad[80:84]).value
-                except Exception:
-                    button_val = 1
-
-                if button_val == 1 or button_val == 0:
-                    x = rx.value
-                    y = ry.value
-                    ZPixmap = 2
-                    AllPlanes = 0xFFFFFFFF
-                    img = x11.XGetImage(display, root, x, y, 1, 1, AllPlanes, ZPixmap)
-                    if img:
-                        pixel = x11.XGetPixel(img, 0, 0)
-                        r = (pixel >> 16) & 0xFF
-                        g = (pixel >> 8) & 0xFF
-                        b = pixel & 0xFF
-                        picked_color = (r, g, b)
-                        x11.XDestroyImage(img)
+                # Button1Mask = 256, Button3Mask = 1024
+                if m & 256:
+                    col = sample_pixel_at(curr[0], curr[1])
+                    if col:
+                        picked_color = col
                     else:
                         cancelled = True
-                else:
+                    break
+                elif m & 1024:
                     cancelled = True
+                    break
 
-            elif event.type == 2:  # KeyPress (e.g. Escape)
-                cancelled = True
+                time.sleep(0.02)
 
-        x11.XUngrabPointer(display, CurrentTime)
-        x11.XUngrabKeyboard(display, CurrentTime)
+        if grab_ok:
+            x11.XUngrabPointer(display, CurrentTime)
+            x11.XUngrabKeyboard(display, CurrentTime)
         x11.XFreeCursor(display, cursor)
         x11.XFlush(display)
         x11.XCloseDisplay(display)
@@ -294,8 +363,9 @@ class PortalColorSampler:
         self,
         on_success: Callable[[int, int, int], None],
         on_cancel: Optional[Callable[[], None]] = None,
+        on_preview: Optional[Callable[[int, int, int], None]] = None,
     ) -> None:
-        """Requests a color pick using Portal on Wayland or direct X11 on X11."""
+        """Requests a color pick using direct X11 on X11 or Desktop Portal on Wayland."""
         if self._is_sampling:
             return
 
@@ -310,21 +380,20 @@ class PortalColorSampler:
 
         self._is_sampling = True
 
-        # If running on X11 and X11ColorSampler is available, prefer X11 directly
-        # because xdg-desktop-portal-gtk on XFCE and MATE does not implement PickColor.
         is_wayland = bool(os.environ.get("WAYLAND_DISPLAY")) or os.environ.get("XDG_SESSION_TYPE") == "wayland"
 
         if not is_wayland and X11ColorSampler.is_available():
-            if X11ColorSampler.pick_color_async(wrapped_success, wrapped_cancel):
+            if X11ColorSampler.pick_color_async(wrapped_success, wrapped_cancel, on_preview):
                 return
 
         # Fallback to Desktop Portal (for Wayland sessions or when X11 is not available)
-        self._pick_color_portal(wrapped_success, wrapped_cancel)
+        self._pick_color_portal(wrapped_success, wrapped_cancel, on_preview)
 
     def _pick_color_portal(
         self,
         on_success: Callable[[int, int, int], None],
         on_cancel: Callable[[], None],
+        on_preview: Optional[Callable[[int, int, int], None]] = None,
     ) -> None:
         if not HAS_GI:
             on_cancel()
@@ -375,6 +444,7 @@ class PortalColorSampler:
             user_data = {
                 "on_success": on_success,
                 "on_cancel": on_cancel,
+                "on_preview": on_preview,
             }
 
             connection.call(
@@ -393,7 +463,7 @@ class PortalColorSampler:
 
         except Exception as e:
             print(f"[ColorSampler] Portal PickColor call failed ({e}), attempting X11 fallback...", file=sys.stderr)
-            if X11ColorSampler.is_available() and X11ColorSampler.pick_color_async(on_success, on_cancel):
+            if X11ColorSampler.is_available() and X11ColorSampler.pick_color_async(on_success, on_cancel, on_preview):
                 return
             on_cancel()
 
@@ -403,6 +473,6 @@ class PortalColorSampler:
         except Exception as e:
             print(f"[ColorSampler] Portal PickColor unavailable ({e}), trying X11 fallback...", file=sys.stderr)
             if X11ColorSampler.is_available():
-                if X11ColorSampler.pick_color_async(user_data["on_success"], user_data["on_cancel"]):
+                if X11ColorSampler.pick_color_async(user_data["on_success"], user_data["on_cancel"], user_data.get("on_preview")):
                     return
             user_data["on_cancel"]()

@@ -6,6 +6,7 @@ Entry point and application lifecycle manager using GTK 4.
 
 import os
 import sys
+import threading
 
 try:
     import gi
@@ -36,7 +37,7 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
 
         super().__init__(
             application_id=APP_ID,
-            flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE,
+            flags=Gio.ApplicationFlags.NON_UNIQUE,
         )
         self.window = None
 
@@ -52,17 +53,10 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
         self.window.set_visible(True)
         self.window.present()
 
-    def do_command_line(self, command_line):
-        args = command_line.get_arguments()
-
-        if "--pick-bg" in args:
+        if "--pick-bg" in sys.argv:
             GLib.idle_add(self._trigger_pick_bg)
-        elif "--pick-fg" in args:
+        elif "--pick-fg" in sys.argv:
             GLib.idle_add(self._trigger_pick_fg)
-        else:
-            self.activate()
-
-        return 0
 
     def _trigger_pick_bg(self):
         if not self.window:
@@ -109,10 +103,14 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
                     icon_theme.add_search_path(res_path)
 
     def _ensure_user_desktop_integration(self):
-        """Installs/updates desktop launcher and icons to ~/.local/share so Ubuntu dock shows the icon."""
+        """Installs/updates desktop launcher and icons to ~/.local/share asynchronously."""
         if os.path.exists("/.flatpak-info"):
             return
 
+        thread = threading.Thread(target=self._run_desktop_integration, daemon=True)
+        thread.start()
+
+    def _run_desktop_integration(self):
         try:
             import shutil
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

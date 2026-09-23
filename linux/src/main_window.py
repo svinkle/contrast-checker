@@ -86,11 +86,6 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
         self.top_region.add_css_class("dynamic-top")
         card_box.append(self.top_region)
 
-        # Drag gesture on top region ensuring smooth movement across all X11 and Wayland desktops
-        drag_gesture = Gtk.GestureClick()
-        drag_gesture.connect("pressed", self._on_drag_pressed)
-        self.top_region.add_controller(drag_gesture)
-
         # Top Header Bar (Close button in top-right)
         header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         header_spacer = Gtk.Box()
@@ -248,16 +243,6 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
 
         return row
 
-    def _on_drag_pressed(self, gesture, n_press, x, y) -> None:
-        if n_press == 1:
-            surface = self.get_surface()
-            if surface and hasattr(surface, "begin_move"):
-                device = gesture.get_current_device()
-                button = gesture.get_current_button()
-                event = gesture.get_last_event(button)
-                timestamp = event.get_time() if event else 0
-                surface.begin_move(device, button, x, y, timestamp)
-
     def _setup_key_controller(self) -> None:
         controller = Gtk.EventControllerKey()
         controller.connect("key-pressed", self._on_key_pressed)
@@ -383,14 +368,42 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
             clipboard.set(text)
 
     def _on_pick_background(self) -> None:
-        self.sampler.pick_color(
-            on_success=lambda r, g, b: self._apply_bg_color(r, g, b),
-        )
+        initial_color = self.model.background_color
+
+        def on_preview(r: int, g: int, b: int):
+            self.model.set_background_color(r, g, b)
+
+        def on_cancel():
+            self.model.set_background_color(*initial_color)
+
+        def start_pick():
+            self.sampler.pick_color(
+                on_success=lambda r, g, b: self._apply_bg_color(r, g, b),
+                on_cancel=on_cancel,
+                on_preview=on_preview,
+            )
+            return False
+
+        GLib.timeout_add(100, start_pick)
 
     def _on_pick_foreground(self) -> None:
-        self.sampler.pick_color(
-            on_success=lambda r, g, b: self._apply_fg_color(r, g, b),
-        )
+        initial_color = self.model.foreground_color
+
+        def on_preview(r: int, g: int, b: int):
+            self.model.set_foreground_color(r, g, b)
+
+        def on_cancel():
+            self.model.set_foreground_color(*initial_color)
+
+        def start_pick():
+            self.sampler.pick_color(
+                on_success=lambda r, g, b: self._apply_fg_color(r, g, b),
+                on_cancel=on_cancel,
+                on_preview=on_preview,
+            )
+            return False
+
+        GLib.timeout_add(100, start_pick)
 
     def _apply_bg_color(self, r: int, g: int, b: int) -> None:
         self.model.set_background_color(r, g, b)

@@ -26,6 +26,7 @@ install-user:
 	@echo "==> Desktop integration complete."
 
 run: install-user
+	@pkill -f "contrast_checker.py" 2>/dev/null || true
 	@PYTHONPATH=src $(PYTHON) src/contrast_checker.py
 
 check-tools:
