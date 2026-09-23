@@ -18,7 +18,7 @@ from color_model import ColorModel
 from color_sampler import PortalColorSampler
 
 
-class MainWindow(Gtk.Window if HAS_GTK else object):
+class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
     def __init__(self, app: Optional["Gtk.Application"] = None, model: Optional[ColorModel] = None):
         if not HAS_GTK:
             self.model = model or ColorModel()
@@ -52,9 +52,16 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         self.model.add_listener(self._on_model_changed)
         self._update_display()
 
+    def _close_application(self) -> None:
+        app = self.get_application()
+        if app:
+            app.quit()
+        else:
+            self.destroy()
+
     def _on_close_request(self, window) -> bool:
-        self.set_visible(False)
-        return True
+        self._close_application()
+        return False
 
     def _build_ui(self) -> None:
         # Window handle makes the entire card draggable
@@ -68,6 +75,7 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         # Card Container Box
         card_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         card_box.add_css_class("card-container")
+        card_box.set_overflow(Gtk.Overflow.HIDDEN)
         self.overlay.set_child(card_box)
 
         # =========================================================================
@@ -77,6 +85,11 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         self.top_region.add_css_class("top-region")
         self.top_region.add_css_class("dynamic-top")
         card_box.append(self.top_region)
+
+        # Drag gesture on top region ensuring smooth movement across all X11 and Wayland desktops
+        drag_gesture = Gtk.GestureClick()
+        drag_gesture.connect("pressed", self._on_drag_pressed)
+        self.top_region.add_controller(drag_gesture)
 
         # Top Header Bar (Close button in top-right)
         header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -88,7 +101,7 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         self.close_btn.add_css_class("close-button")
         self.close_btn.add_css_class("circle-focus")
         self.close_btn.set_tooltip_text("Close window (Esc / Ctrl+W)")
-        self.close_btn.connect("clicked", lambda b: self.set_visible(False))
+        self.close_btn.connect("clicked", lambda b: self._close_application())
         self.close_label = Gtk.Label(label="✕")
         self.close_btn.set_child(self.close_label)
         header_box.append(self.close_btn)
@@ -235,6 +248,16 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
 
         return row
 
+    def _on_drag_pressed(self, gesture, n_press, x, y) -> None:
+        if n_press == 1:
+            surface = self.get_surface()
+            if surface and hasattr(surface, "begin_move"):
+                device = gesture.get_current_device()
+                button = gesture.get_current_button()
+                event = gesture.get_last_event(button)
+                timestamp = event.get_time() if event else 0
+                surface.begin_move(device, button, x, y, timestamp)
+
     def _setup_key_controller(self) -> None:
         controller = Gtk.EventControllerKey()
         controller.connect("key-pressed", self._on_key_pressed)
@@ -244,18 +267,14 @@ class MainWindow(Gtk.Window if HAS_GTK else object):
         ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
         alt = bool(state & Gdk.ModifierType.ALT_MASK)
 
-        # Esc or Ctrl+W: Hide window
+        # Esc or Ctrl+W: Close/quit application cleanly
         if keyval == Gdk.KEY_Escape or (ctrl and keyval in (Gdk.KEY_w, Gdk.KEY_W)):
-            self.set_visible(False)
+            self._close_application()
             return True
 
         # Ctrl+Q: Quit application completely
         if ctrl and keyval in (Gdk.KEY_q, Gdk.KEY_Q):
-            app = self.get_application()
-            if app:
-                app.quit()
-            else:
-                self.destroy()
+            self._close_application()
             return True
 
         # Pick Background color: Ctrl+Alt+B, Alt+B, or Ctrl+B

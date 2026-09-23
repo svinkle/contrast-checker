@@ -10,15 +10,17 @@ Packaged as a universal **Flatpak** for seamless installation across all Linux d
 
 - **Floating Card UI**: Compact 340×260px floating card with crisp squared corners, live top Background swatch preview with dynamic Foreground sample text, large contrast ratio readout, and subtle corner close button (`✕`).
 - **WCAG 2.1 Conformance**: Precise relative luminance and contrast ratio calculations identical to macOS and Windows versions.
-- **System-Wide Screen Color Sampling**: Uses the **XDG Desktop Portal** (`org.freedesktop.portal.Screenshot.PickColor`) over DBus to invoke the system's native magnification loupe on both **Wayland** (GNOME, KDE Plasma, Sway, Hyprland) and **X11**.
-- **Full Keyboard Parity with Windows**:
+- **Universal Multi-Desktop Color Sampling**:
+  - **Wayland (GNOME, KDE Plasma)**: Uses the FreeDesktop XDG Desktop Portal (`org.freedesktop.portal.Screenshot.PickColor`) to invoke the compositor's native loupe eyedropper.
+  - **X11 (XFCE, MATE, Cinnamon)**: Direct native screen sampling with crosshair cursor via `libX11.so.6` (standard library `ctypes`, zero external pip dependencies).
+- **Full Keyboard Navigation**:
   - `Ctrl + Alt + B` (or `Alt + B` / `Ctrl + B`): Pick Background color.
   - `Ctrl + Alt + F` (or `Alt + F` / `Ctrl + F`): Pick Foreground color.
-  - `Ctrl + Alt + C`: Copy contrast ratio.
-  - `Ctrl + W` / `Esc`: Close window.
+  - `Ctrl + W` / `Esc`: Close and exit application cleanly.
   - `Ctrl + Q`: Quit application completely.
-  - `Tab` / `Shift + Tab`: Accessible dual-layer `:focus-visible` outline.
-- **Ubuntu Desktop & Dock Integration**: FreeDesktop desktop launcher, high-resolution app icons across all standard sizes (`16x16` up to `512x512`), and dock right-click context menu actions ("Pick Background Color", "Pick Foreground Color").
+  - `Tab` / `Shift + Tab`: Accessible dual-layer focus outline.
+- **Universal Window Dragging**: Draggable across both modern Wayland compositors and traditional X11 window managers (XFWM4, Marco, Muffin, KWin).
+- **Desktop & Dock Integration**: FreeDesktop desktop launcher, high-resolution app icons across all standard sizes (`16x16` up to `512x512`), and dock right-click context menu actions ("Pick Background Color", "Pick Foreground Color").
 - **Clipboard & Transient Toast**: One-click copying of HEX values and contrast ratio with a floating checkmark toast banner.
 
 ---

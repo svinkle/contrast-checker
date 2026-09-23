@@ -13,7 +13,6 @@ window.contrast-card {
   border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
 }
 
 /* TOP REGION: Live Background Color Preview */
@@ -157,20 +156,18 @@ window.contrast-card {
   font-weight: 600;
 }
 
-/* ACCESSIBLE FOCUS RINGS (Visible strictly during keyboard navigation) */
-:focus-visible {
+/* ACCESSIBLE FOCUS RINGS (GTK 4 handles focus visibility during keyboard navigation) */
+button:focus {
   outline: none;
 }
 
-.circle-focus:focus-visible {
+.circle-focus:focus {
   outline: 2px solid #4cc2ff;
   outline-offset: 3px;
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.55);
 }
 
-.rect-focus:focus-visible {
+.rect-focus:focus {
   outline: 2px solid #4cc2ff;
   outline-offset: 3px;
   border-radius: 4px;
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.55);
 }

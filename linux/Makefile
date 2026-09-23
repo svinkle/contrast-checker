@@ -19,7 +19,6 @@ install-user:
 	done
 	@cp icons/256x256/apps/io.github.svinkle.ContrastChecker.png $(HOME)/.local/share/pixmaps/io.github.svinkle.ContrastChecker.png 2>/dev/null || true
 	@sed -e 's|Exec=contrast-checker|Exec=$(CURDIR)/src/contrast_checker.py|g' \
-	     -e 's|Icon=io.github.svinkle.ContrastChecker|Icon=$(HOME)/.local/share/icons/hicolor/256x256/apps/io.github.svinkle.ContrastChecker.png|g' \
 	     io.github.svinkle.ContrastChecker.desktop > $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
 	@chmod +x $(HOME)/.local/share/applications/io.github.svinkle.ContrastChecker.desktop
 	@update-desktop-database $(HOME)/.local/share/applications 2>/dev/null || true

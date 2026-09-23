@@ -42,7 +42,6 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
-        self.hold()  # Keeps application running in background when window is hidden
         self._load_styles()
         self._setup_icons()
         self._ensure_user_desktop_integration()
@@ -140,14 +139,12 @@ class ContrastCheckerApplication(Gtk.Application if HAS_GTK else object):
             if os.path.exists(master_icon):
                 shutil.copy2(master_icon, os.path.join(pixmaps_dir, f"{APP_ID}.png"))
 
-            # Write/update desktop file with absolute paths so Ubuntu dock always loads the icon
+            # Write/update desktop file with local Exec path while preserving themed Icon=
             if os.path.exists(desktop_src):
                 with open(desktop_src, "r") as f:
                     content = f.read()
                 launcher_script = os.path.join(base_dir, "src", "contrast_checker.py")
-                icon_path = os.path.join(home, ".local", "share", "icons", "hicolor", "256x256", "apps", f"{APP_ID}.png")
                 content = content.replace("Exec=contrast-checker", f"Exec={launcher_script}")
-                content = content.replace(f"Icon={APP_ID}", f"Icon={icon_path}")
                 with open(desktop_dst, "w") as f:
                     f.write(content)
 
