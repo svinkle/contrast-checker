@@ -24,7 +24,6 @@
   // DOM Elements
   const rootStyle = document.documentElement.style;
   const themeColorMeta = document.getElementById("theme-color-meta");
-  const closeBtn = document.getElementById("close-btn");
   const copyRatioBtn = document.getElementById("copy-ratio-btn");
   const ratioText = document.getElementById("ratio-text");
   const pickBgBtn = document.getElementById("pick-bg-btn");
@@ -171,26 +170,8 @@
     fallbackInput.click();
   }
 
-  /**
-   * Closes standalone PWA window or resets colors to default black/white in a browser tab.
-   */
-  function handleCloseOrReset() {
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      window.matchMedia("(display-mode: window-controls-overlay)").matches ||
-      window.navigator.standalone === true;
-
-    if (isStandalone) {
-      window.close();
-    }
-    model.setBackgroundColor(0, 0, 0);
-    model.setForegroundColor(255, 255, 255);
-  }
-
   // Event Listeners
   model.addListener(updateDisplay);
-
-  closeBtn.addEventListener("click", handleCloseOrReset);
 
   copyRatioBtn.addEventListener("click", () => {
     copyToClipboard(model.contrastRatioString, model.contrastRatioString);
@@ -240,7 +221,7 @@
       return;
     }
 
-    // Escape: Cancel active eyedropper or clear focus / close standalone window
+    // Escape: Cancel active eyedropper or clear focus
     if (event.key === "Escape") {
       if (activeEyeDropperAbort) {
         activeEyeDropperAbort.abort();
@@ -251,7 +232,6 @@
         document.activeElement.blur();
         return;
       }
-      handleCloseOrReset();
     }
   });
 
@@ -271,20 +251,6 @@
       }
     }
   });
-
-  // Size standalone PWA window compactly on launch if permitted by browser
-  if (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.matchMedia("(display-mode: window-controls-overlay)").matches
-  ) {
-    try {
-      if (window.outerWidth > 420 || window.outerHeight > 360) {
-        window.resizeTo(340, 288);
-      }
-    } catch (_) {
-      // Ignore if window resizing is restricted
-    }
-  }
 
   // Handle PWA Install Prompt (shown in browser tabs when installable)
   window.addEventListener("beforeinstallprompt", (event) => {

@@ -17,8 +17,10 @@ Hosted on **GitHub Pages** for instant browser access and one-click installation
 - **Installable Offline-First PWA**:
   - Includes a complete Web App Manifest ([`manifest.webmanifest`](./manifest.webmanifest)) with standard (`16x16` to `512x512`), maskable (`192x192`, `512x512`), and vector SVG icons, plus shelf right-click shortcuts (*"Pick Background Color"*, *"Pick Foreground Color"*).
   - Pre-caches all application shell assets via a Service Worker ([`sw.js`](./sw.js)) so the app launches instantaneously offline from the ChromeOS Launcher or Shelf.
-- **Floating Card UI**:
-  - Replicates the 340×260px card design of the 🍎 macOS, 🪟 Windows, and 🐧 Linux apps with a live top Background swatch preview, dynamic Foreground sample text, and compact standalone window adaptation.
+- **Integrated Native Window UI**:
+  - Seamlessly blends into the ChromeOS window without artificial borders, rounded corners, or drop shadows.
+  - The dynamic Background color preview spans full-width across the top of the window, with the Contrast Ratio readout anchored in the top-left.
+  - Leaves window sizing and visibility control to the native ChromeOS window controls (minimize, maximize, snap, and close).
 - **WCAG 2.2 Conformance**:
   - Exact relative luminance and contrast ratio calculations matching the native desktop implementations (`21.00:1` to `1.00:1`).
 - **Full Keyboard Navigation & Clipboard Support**:
@@ -31,7 +33,7 @@ Hosted on **GitHub Pages** for instant browser access and one-click installation
 ## Installing on a Chromebook (ChromeOS)
 
 1. Open **[`https://svinkle.github.io/contrast-checker/`](https://svinkle.github.io/contrast-checker/)** in **Google Chrome** on your Chromebook.
-2. Click the **Install Contrast Checker** icon in the right side of the address bar (or click the **Install App** pill below the card).
+2. Click the **Install Contrast Checker** icon in the right side of the address bar (or click the **Install App** pill).
 3. Click **Install** in the prompt.
 4. Contrast Checker will open in its own standalone window. Right-click its icon in the ChromeOS Shelf and select **Pin** for one-click access (or press `Alt + [1–9]` to summon it from the shelf at any time).
 
@@ -46,7 +48,7 @@ Hosted on **GitHub Pages** for instant browser access and one-click installation
 | **`Tab`** / **`Shift + Tab`**       | Navigate between interactive controls with high-contrast outline  |
 | **`Enter`** / **`Space`**           | Activate focused picker or copy focused value to clipboard        |
 | **`Ctrl + V`** / **`⌘V`**           | Paste a HEX color code from clipboard                             |
-| **`Esc`**                           | Cancel active eyedropper, clear focus, or close standalone window |
+| **`Esc`**                           | Cancel active eyedropper or clear control focus                   |
 
 ---
 
