@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#000000" id="theme-color-meta" />
+  <meta name="description" content="A minimalist utility for measuring WCAG 2.2 color contrast anywhere across your screen." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Contrast Checker" />
+
+  <title>Contrast Checker</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-stage" aria-label="Contrast Checker">
+    <section class="contrast-card" id="contrast-card" aria-label="Contrast Checker Card">
+      <!-- Top Region: Live Background Color Preview & Contrast Ratio -->
+      <div class="top-region" id="top-region">
+        <div class="titlebar-drag-region" aria-hidden="true"></div>
+
+        <button
+          type="button"
+          class="close-button circle-focus"
+          id="close-btn"
+          aria-label="Close window or reset colors"
+          title="Close window (Esc / Ctrl+W)"
+        >
+          <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true" focusable="false">
+            <path
+              d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+
+        <div class="ratio-content">
+          <button
+            type="button"
+            class="contrast-ratio-btn rect-focus"
+            id="copy-ratio-btn"
+            aria-label="Contrast ratio 21.00:1. Click to copy contrast ratio"
+            title="Click to copy contrast ratio (21.00:1)"
+          >
+            <span class="contrast-ratio-text" id="ratio-text">21.00:1</span>
+          </button>
+          <div class="contrast-ratio-subtitle" id="ratio-subtitle">Contrast Ratio</div>
+        </div>
+      </div>
+
+      <!-- Bottom Region: Pickers, Swatches, and HEX Readouts -->
+      <div class="bottom-region">
+        <!-- Background Color Row -->
+        <div class="color-row">
+          <button
+            type="button"
+            class="scope-button circle-focus"
+            id="pick-bg-btn"
+            aria-label="Pick background color from screen"
+            title="Pick background color from anywhere on screen (Ctrl+Alt+B / Alt+B)"
+          >
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <line x1="8" y1="0.75" x2="8" y2="3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="8" y1="12.25" x2="8" y2="15.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="0.75" y1="8" x2="3.75" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="12.25" y1="8" x2="15.25" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </button>
+
+          <label class="swatch-wrapper" title="Choose background color">
+            <span class="color-swatch" id="bg-swatch" aria-hidden="true"></span>
+            <input
+              type="color"
+              class="native-color-input"
+              id="bg-color-input"
+              value="#000000"
+              tabindex="-1"
+              aria-label="Choose background color"
+            />
+          </label>
+
+          <button
+            type="button"
+            class="hex-button rect-focus"
+            id="copy-bg-btn"
+            aria-label="Background HEX #000000. Click to copy"
+            title="Click to copy background HEX (#000000)"
+          >
+            <span class="hex-text" id="bg-hex-text">#000000</span>
+          </button>
+
+          <span class="row-spacer" aria-hidden="true"></span>
+          <span class="row-label">Background</span>
+        </div>
+
+        <div class="row-divider" role="separator" aria-hidden="true"></div>
+
+        <!-- Foreground Color Row -->
+        <div class="color-row">
+          <button
+            type="button"
+            class="scope-button circle-focus"
+            id="pick-fg-btn"
+            aria-label="Pick foreground color from screen"
+            title="Pick foreground color from anywhere on screen (Ctrl+Alt+F / Alt+F)"
+          >
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <line x1="8" y1="0.75" x2="8" y2="3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="8" y1="12.25" x2="8" y2="15.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="0.75" y1="8" x2="3.75" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="12.25" y1="8" x2="15.25" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </button>
+
+          <label class="swatch-wrapper" title="Choose foreground color">
+            <span class="color-swatch" id="fg-swatch" aria-hidden="true"></span>
+            <input
+              type="color"
+              class="native-color-input"
+              id="fg-color-input"
+              value="#ffffff"
+              tabindex="-1"
+              aria-label="Choose foreground color"
+            />
+          </label>
+
+          <button
+            type="button"
+            class="hex-button rect-focus"
+            id="copy-fg-btn"
+            aria-label="Foreground HEX #FFFFFF. Click to copy"
+            title="Click to copy foreground HEX (#FFFFFF)"
+          >
+            <span class="hex-text" id="fg-hex-text">#FFFFFF</span>
+          </button>
+
+          <span class="row-spacer" aria-hidden="true"></span>
+          <span class="row-label">Foreground</span>
+        </div>
+      </div>
+
+      <!-- Floating Copied Toast Notification Overlay -->
+      <div
+        class="toast-overlay"
+        id="toast-overlay"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden
+      >
+        <span class="toast-check" aria-hidden="true">✓</span>
+        <span class="toast-text" id="toast-text">Copied #000000</span>
+      </div>
+    </section>
+
+    <!-- Subtle PWA Install Action (only shown in browser tabs when installable) -->
+    <div class="pwa-install-banner" id="pwa-install-banner" hidden>
+      <button type="button" class="install-pwa-btn rect-focus" id="install-pwa-btn">
+        Install App
+      </button>
+    </div>
+  </main>
+
+  <script src="color-model.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

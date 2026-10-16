@@ -1,0 +1,408 @@
+/*
+ * Contrast Checker — Web & Chromebook PWA Stylesheet
+ * Replicates the floating card design of the macOS, Windows, and Linux applications.
+ */
+
+:root {
+  --bg-color: #000000;
+  --fg-color: #ffffff;
+  --card-bottom-bg: #1d1d20;
+  --card-border: rgba(255, 255, 255, 0.12);
+  --row-divider: #2a2a2e;
+  --label-secondary: #8e8e93;
+  --focus-accent: #4cc2ff;
+  --toast-green: #34c759;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-rounded: ui-rounded, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Consolas", "DejaVu Sans Mono", "Ubuntu Mono", monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #141416;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+}
+
+.app-stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* Main Floating Card (340 x 260) */
+.contrast-card {
+  position: relative;
+  width: 340px;
+  height: 260px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bottom-bg);
+  border-radius: 18px;
+  border: 1px solid var(--card-border);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.55),
+    0 4px 16px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* TOP REGION: Live Background Color Preview & Contrast Ratio */
+.top-region {
+  position: relative;
+  height: 130px;
+  background-color: var(--bg-color);
+  color: var(--fg-color);
+  padding: 16px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: background-color 80ms ease-out, color 80ms ease-out;
+}
+
+/* Support draggable region when running with Window Controls Overlay */
+.titlebar-drag-region {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 44px;
+  height: env(titlebar-area-height, 28px);
+  -webkit-app-region: drag;
+  app-region: drag;
+  pointer-events: none;
+}
+
+/* Corner Close Button */
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--fg-color);
+  opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+.close-button:hover {
+  background: rgba(0, 0, 0, 0.32);
+  opacity: 1;
+}
+
+.close-button:active {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+/* Contrast Ratio Readout */
+.ratio-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.contrast-ratio-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--fg-color);
+  cursor: pointer;
+  text-align: left;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.contrast-ratio-text {
+  display: block;
+  font-family: var(--font-rounded);
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+  color: var(--fg-color);
+}
+
+.contrast-ratio-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--fg-color);
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+/* BOTTOM REGION: Pickers, Swatches, and HEX Readouts */
+.bottom-region {
+  height: 130px;
+  background-color: var(--card-bottom-bg);
+  padding: 16px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 32px;
+}
+
+/* Eyedropper Scope Button */
+.scope-button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.09);
+  color: #e0e0e0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 120ms ease, transform 80ms ease;
+}
+
+.scope-button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.scope-button:active {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Color Swatch Circle + Hidden Native Color Input */
+.swatch-wrapper {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: background-color 80ms ease-out;
+}
+
+#bg-swatch {
+  background-color: var(--bg-color);
+}
+
+#fg-swatch {
+  background-color: var(--fg-color);
+}
+
+.native-color-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Clickable HEX Code Button */
+.hex-button {
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  margin: 0 -4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hex-text {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.row-spacer {
+  flex: 1 1 auto;
+}
+
+.row-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--label-secondary);
+}
+
+/* Subtle Divider Line */
+.row-divider {
+  height: 1px;
+  background-color: var(--row-divider);
+  margin: 10px 0;
+  width: 100%;
+}
+
+/* TOAST NOTIFICATION OVERLAY */
+.toast-overlay {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(44, 44, 48, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+  animation: toast-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.toast-overlay[hidden] {
+  display: none !important;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.toast-check {
+  color: var(--toast-green);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.toast-text {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* PWA Install Button (shown only when browser fires beforeinstallprompt) */
+.pwa-install-banner[hidden] {
+  display: none !important;
+}
+
+.install-pwa-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e5ea;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.install-pwa-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* ACCESSIBLE DUAL-LAYER KEYBOARD FOCUS RINGS */
+button:focus {
+  outline: none;
+}
+
+.circle-focus:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--focus-accent),
+    0 0 0 4px rgba(0, 0, 0, 0.65);
+}
+
+.rect-focus:focus-visible {
+  outline: none;
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 2px var(--focus-accent),
+    0 0 0 4px rgba(0, 0, 0, 0.65);
+}
+
+/* Compact Standalone Window Adaptation (e.g., Installed PWA on ChromeOS) */
+@media (max-width: 380px) and (max-height: 310px) {
+  .app-stage {
+    padding: 0;
+  }
+
+  .contrast-card {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .top-region {
+    flex: 1 1 50%;
+    height: auto;
+  }
+
+  .bottom-region {
+    flex: 1 1 50%;
+    height: auto;
+  }
+
+  .pwa-install-banner {
+    display: none !important;
+  }
+}

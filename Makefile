@@ -1,4 +1,4 @@
-.PHONY: all macos windows linux test test-macos test-linux clean dmg msi flatpak bundle
+.PHONY: all macos windows linux web test test-macos test-linux test-web clean dmg msi flatpak bundle
 
 all: macos
 
@@ -23,9 +23,13 @@ flatpak:
 bundle:
 	@$(MAKE) -C linux bundle
 
+web:
+	@$(MAKE) -C web serve
+
 test:
 	@$(MAKE) -C macos test
 	@$(MAKE) -C linux test
+	@$(MAKE) -C web test
 
 test-macos:
 	@$(MAKE) -C macos test
@@ -33,9 +37,13 @@ test-macos:
 test-linux:
 	@$(MAKE) -C linux test
 
+test-web:
+	@$(MAKE) -C web test
+
 clean:
 	@$(MAKE) -C macos clean
 	@$(MAKE) -C windows clean 2>/dev/null || true
 	@$(MAKE) -C linux clean 2>/dev/null || true
+	@$(MAKE) -C web clean 2>/dev/null || true
 	@rm -rf build .cache
 
