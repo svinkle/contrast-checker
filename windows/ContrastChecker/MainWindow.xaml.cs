@@ -286,7 +286,7 @@ namespace ContrastChecker
         {
             var raw = BgHexTextBox.Text.Trim();
             var cleaned = raw.StartsWith("#", StringComparison.Ordinal) ? raw.Substring(1) : raw;
-            if (cleaned.Length == 6 && ColorModel.ColorFromHex(cleaned).HasValue)
+            if (cleaned.Length == 6 && ColorModel.ParseHex(cleaned).HasValue)
             {
                 _model.SetBackgroundHex(cleaned);
             }
@@ -296,7 +296,7 @@ namespace ContrastChecker
         {
             var raw = FgHexTextBox.Text.Trim();
             var cleaned = raw.StartsWith("#", StringComparison.Ordinal) ? raw.Substring(1) : raw;
-            if (cleaned.Length == 6 && ColorModel.ColorFromHex(cleaned).HasValue)
+            if (cleaned.Length == 6 && ColorModel.ParseHex(cleaned).HasValue)
             {
                 _model.SetForegroundHex(cleaned);
             }
@@ -348,7 +348,7 @@ namespace ContrastChecker
             }
             _bgEditFinished = true;
             var text = BgHexTextBox.Text.Trim();
-            if (ColorModel.ColorFromHex(text).HasValue)
+            if (ColorModel.ParseHex(text).HasValue)
             {
                 _model.SetBackgroundHex(text);
             }
@@ -381,7 +381,7 @@ namespace ContrastChecker
             }
             _fgEditFinished = true;
             var text = FgHexTextBox.Text.Trim();
-            if (ColorModel.ColorFromHex(text).HasValue)
+            if (ColorModel.ParseHex(text).HasValue)
             {
                 _model.SetForegroundHex(text);
             }
