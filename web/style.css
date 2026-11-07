@@ -162,11 +162,16 @@ body {
   background: rgba(255, 255, 255, 0.28);
 }
 
-/* Color Swatch Circle + Hidden Native Color Input */
-.swatch-wrapper {
+/* Color Swatch Circle Button */
+.swatch-button {
   position: relative;
   width: 22px;
   height: 22px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -193,11 +198,10 @@ body {
 
 .native-color-input {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 0;
+  height: 0;
   opacity: 0;
-  cursor: pointer;
+  pointer-events: none;
   border: none;
   padding: 0;
   margin: 0;
@@ -214,12 +218,38 @@ body {
   align-items: center;
 }
 
+.hex-button[hidden] {
+  display: none !important;
+}
+
 .hex-text {
   font-family: var(--font-mono);
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.2px;
+}
+
+/* Inline Editable HEX Input */
+.hex-edit-input {
+  width: 98px;
+  height: 24px;
+  padding: 1px 6px;
+  margin: 0 -4px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: #2a2a2e;
+  border: 1px solid var(--focus-accent);
+  border-radius: 5px;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.hex-edit-input[hidden] {
+  display: none !important;
 }
 
 .row-spacer {

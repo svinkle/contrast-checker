@@ -18,6 +18,10 @@ namespace ContrastChecker
         private readonly HotKeyManager _hotKeyManager;
         private readonly TrayIconManager _trayManager;
         private bool _isExplicitExit;
+        private string _bgInitialHex = "#000000";
+        private string _fgInitialHex = "#FFFFFF";
+        private bool _bgEditFinished;
+        private bool _fgEditFinished;
 
         public MainWindow()
         {
@@ -155,6 +159,14 @@ namespace ContrastChecker
 
         private void OnWindowDrag(object sender, MouseButtonEventArgs e)
         {
+            if (BgHexTextBox.Visibility == Visibility.Visible && !BgHexTextBox.IsMouseOver)
+            {
+                CommitBgHexEdit();
+            }
+            if (FgHexTextBox.Visibility == Visibility.Visible && !FgHexTextBox.IsMouseOver)
+            {
+                CommitFgHexEdit();
+            }
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 DragMove();
@@ -168,6 +180,11 @@ namespace ContrastChecker
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
+            if (Keyboard.FocusedElement is TextBox)
+            {
+                return;
+            }
+
             var ctrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
             var alt = (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
 
@@ -231,6 +248,162 @@ namespace ContrastChecker
         private void OnCopyForegroundHexClicked(object sender, RoutedEventArgs e)
         {
             _model.CopyValue(_model.FgHex, _model.FgHex);
+        }
+
+        // Inline HEX Editing Handlers
+
+        private void OnEditBackgroundHexClicked(object sender, RoutedEventArgs e)
+        {
+            if (FgHexTextBox.Visibility == Visibility.Visible)
+            {
+                CommitFgHexEdit();
+            }
+            _bgInitialHex = _model.BgHex;
+            _bgEditFinished = false;
+            BgHexTextBox.Text = _model.BgHex;
+            BgHexButton.Visibility = Visibility.Collapsed;
+            BgHexTextBox.Visibility = Visibility.Visible;
+            BgHexTextBox.Focus();
+            BgHexTextBox.SelectAll();
+        }
+
+        private void OnEditForegroundHexClicked(object sender, RoutedEventArgs e)
+        {
+            if (BgHexTextBox.Visibility == Visibility.Visible)
+            {
+                CommitBgHexEdit();
+            }
+            _fgInitialHex = _model.FgHex;
+            _fgEditFinished = false;
+            FgHexTextBox.Text = _model.FgHex;
+            FgHexButton.Visibility = Visibility.Collapsed;
+            FgHexTextBox.Visibility = Visibility.Visible;
+            FgHexTextBox.Focus();
+            FgHexTextBox.SelectAll();
+        }
+
+        private void OnBgHexTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var raw = BgHexTextBox.Text.Trim();
+            var cleaned = raw.StartsWith("#", StringComparison.Ordinal) ? raw.Substring(1) : raw;
+            if (cleaned.Length == 6 && ColorModel.ColorFromHex(cleaned).HasValue)
+            {
+                _model.SetBackgroundHex(cleaned);
+            }
+        }
+
+        private void OnFgHexTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var raw = FgHexTextBox.Text.Trim();
+            var cleaned = raw.StartsWith("#", StringComparison.Ordinal) ? raw.Substring(1) : raw;
+            if (cleaned.Length == 6 && ColorModel.ColorFromHex(cleaned).HasValue)
+            {
+                _model.SetForegroundHex(cleaned);
+            }
+        }
+
+        private void OnBgHexKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                CommitBgHexEdit();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                CancelBgHexEdit();
+                e.Handled = true;
+            }
+        }
+
+        private void OnFgHexKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                CommitFgHexEdit();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                CancelFgHexEdit();
+                e.Handled = true;
+            }
+        }
+
+        private void OnBgHexLostFocus(object sender, RoutedEventArgs e)
+        {
+            CommitBgHexEdit();
+        }
+
+        private void OnFgHexLostFocus(object sender, RoutedEventArgs e)
+        {
+            CommitFgHexEdit();
+        }
+
+        private void CommitBgHexEdit()
+        {
+            if (_bgEditFinished || BgHexTextBox.Visibility != Visibility.Visible)
+            {
+                return;
+            }
+            _bgEditFinished = true;
+            var text = BgHexTextBox.Text.Trim();
+            if (ColorModel.ColorFromHex(text).HasValue)
+            {
+                _model.SetBackgroundHex(text);
+            }
+            else
+            {
+                _model.SetBackgroundHex(_bgInitialHex);
+            }
+            BgHexTextBox.Visibility = Visibility.Collapsed;
+            BgHexButton.Visibility = Visibility.Visible;
+        }
+
+        private void CancelBgHexEdit()
+        {
+            if (_bgEditFinished || BgHexTextBox.Visibility != Visibility.Visible)
+            {
+                return;
+            }
+            _bgEditFinished = true;
+            _model.SetBackgroundHex(_bgInitialHex);
+            BgHexTextBox.Visibility = Visibility.Collapsed;
+            BgHexButton.Visibility = Visibility.Visible;
+            BgSwatchButton.Focus();
+        }
+
+        private void CommitFgHexEdit()
+        {
+            if (_fgEditFinished || FgHexTextBox.Visibility != Visibility.Visible)
+            {
+                return;
+            }
+            _fgEditFinished = true;
+            var text = FgHexTextBox.Text.Trim();
+            if (ColorModel.ColorFromHex(text).HasValue)
+            {
+                _model.SetForegroundHex(text);
+            }
+            else
+            {
+                _model.SetForegroundHex(_fgInitialHex);
+            }
+            FgHexTextBox.Visibility = Visibility.Collapsed;
+            FgHexButton.Visibility = Visibility.Visible;
+        }
+
+        private void CancelFgHexEdit()
+        {
+            if (_fgEditFinished || FgHexTextBox.Visibility != Visibility.Visible)
+            {
+                return;
+            }
+            _fgEditFinished = true;
+            _model.SetForegroundHex(_fgInitialHex);
+            FgHexTextBox.Visibility = Visibility.Collapsed;
+            FgHexButton.Visibility = Visibility.Visible;
+            FgSwatchButton.Focus();
         }
     }
 }

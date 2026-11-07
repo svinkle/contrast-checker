@@ -69,28 +69,44 @@ class ColorModel:
             return True
         return False
 
-    # WCAG 2.2 Contrast Calculation
+    # WCAG Contrast Calculation (cstrobbe/contrast-ratio parity)
+    @staticmethod
+    def floor(number: float, decimals: int = 0) -> float:
+        """Truncates a number to the specified decimal places without rounding up."""
+        multiplier = math.pow(10, decimals)
+        return math.floor(number * multiplier) / multiplier
+
+    @property
+    def precise_contrast_ratio(self) -> float:
+        l1 = self.relative_luminance(self._bg_r, self._bg_g, self._bg_b) + 0.05
+        l2 = self.relative_luminance(self._fg_r, self._fg_g, self._fg_b) + 0.05
+        ratio = l1 / l2
+        if l2 > l1:
+            ratio = 1.0 / ratio
+        return ratio
+
     @property
     def contrast_ratio(self) -> float:
-        lum1 = self.relative_luminance(self._bg_r, self._bg_g, self._bg_b)
-        lum2 = self.relative_luminance(self._fg_r, self._fg_g, self._fg_b)
-        lighter = max(lum1, lum2)
-        darker = min(lum1, lum2)
-        return (lighter + 0.05) / (darker + 0.05)
+        return self.floor(self.precise_contrast_ratio, 2)
 
     @property
     def contrast_ratio_string(self) -> str:
-        return f"{self.contrast_ratio:.2f}:1"
+        return f"{self.contrast_ratio_value_only}:1"
 
     @property
     def contrast_ratio_value_only(self) -> str:
-        return f"{self.contrast_ratio:.2f}"
+        cents = math.floor(self.precise_contrast_ratio * 100.0)
+        if cents % 100 == 0:
+            return f"{cents // 100}"
+        if cents % 10 == 0:
+            return f"{cents // 100}.{(cents % 100) // 10}"
+        return f"{cents // 100}.{cents % 100:02d}"
 
     @staticmethod
     def srgb_to_linear(val: float) -> float:
         """Converts an sRGB component (0.0 to 1.0) to linear light."""
         clamped = max(0.0, min(1.0, val))
-        if clamped <= 0.04045:
+        if clamped < 0.03928:
             return clamped / 12.92
         else:
             return math.pow((clamped + 0.055) / 1.055, 2.4)

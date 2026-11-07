@@ -3,7 +3,7 @@
  * Caches application shell assets for instant offline startup on ChromeOS and desktop browsers.
  */
 
-const CACHE_NAME = "contrast-checker-v1";
+const CACHE_NAME = "contrast-checker-v3";
 const ASSETS = [
   "./",
   "./index.html",

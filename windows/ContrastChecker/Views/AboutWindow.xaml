@@ -63,7 +63,7 @@
                                 FontWeight="Bold"
                                    Foreground="#FFFFFF"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Text="Version 1.0.1"
+                        <TextBlock Text="Version 1.1.0"
                                    FontSize="12"
                                    Foreground="#8E8E93"
                                    HorizontalAlignment="Center"

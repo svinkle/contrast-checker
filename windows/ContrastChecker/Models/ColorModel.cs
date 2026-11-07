@@ -79,11 +79,13 @@ namespace ContrastChecker.Models
             }
         }
 
+        public double PreciseContrastRatio => CalculatePreciseContrastRatio(_backgroundColor, _foregroundColor);
+
         public double ContrastRatio => CalculateContrastRatio(_backgroundColor, _foregroundColor);
 
-        public string ContrastRatioString => $"{ContrastRatio:F2}:1";
+        public string ContrastRatioString => $"{ContrastRatioValueOnly}:1";
 
-        public string ContrastRatioValueOnly => $"{ContrastRatio:F2}";
+        public string ContrastRatioValueOnly => FormatRatio(PreciseContrastRatio);
 
         public SolidColorBrush BackgroundBrush => new SolidColorBrush(_backgroundColor);
 
@@ -137,15 +139,39 @@ namespace ContrastChecker.Models
             return false;
         }
 
-        // MARK: - WCAG 2.2 Luminance and Contrast Ratio
+        // MARK: - WCAG Luminance and Contrast Ratio (cstrobbe/contrast-ratio parity)
+
+        public static double Floor(double number, int decimals = 0)
+        {
+            double multiplier = Math.Pow(10.0, decimals);
+            return Math.Floor(number * multiplier) / multiplier;
+        }
+
+        public static string FormatRatio(double value)
+        {
+            int cents = (int)Math.Floor(value * 100.0);
+            if (cents % 100 == 0)
+                return $"{cents / 100}";
+            if (cents % 10 == 0)
+                return $"{cents / 100}.{(cents % 100) / 10}";
+            return $"{cents / 100}.{cents % 100:D2}";
+        }
+
+        public static double CalculatePreciseContrastRatio(Color c1, Color c2)
+        {
+            double l1 = RelativeLuminance(c1) + 0.05;
+            double l2 = RelativeLuminance(c2) + 0.05;
+            double ratio = l1 / l2;
+            if (l2 > l1)
+            {
+                ratio = 1.0 / ratio;
+            }
+            return ratio;
+        }
 
         public static double CalculateContrastRatio(Color c1, Color c2)
         {
-            double lum1 = RelativeLuminance(c1);
-            double lum2 = RelativeLuminance(c2);
-            double lighter = Math.Max(lum1, lum2);
-            double darker = Math.Min(lum1, lum2);
-            return (lighter + 0.05) / (darker + 0.05);
+            return Floor(CalculatePreciseContrastRatio(c1, c2), 2);
         }
 
         public static double RelativeLuminance(Color color)
@@ -164,7 +190,7 @@ namespace ContrastChecker.Models
         public static double SRGBToLinear(double val)
         {
             double clamped = Math.Max(0.0, Math.Min(1.0, val));
-            if (clamped <= 0.04045)
+            if (clamped < 0.03928)
             {
                 return clamped / 12.92;
             }

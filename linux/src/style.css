@@ -100,6 +100,8 @@ window.contrast-card {
 .color-swatch {
   min-width: 22px;
   min-height: 22px;
+  padding: 0;
+  margin: 0;
   border-radius: 11px;
   border: 1px solid rgba(255, 255, 255, 0.35);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -118,6 +120,19 @@ window.contrast-card {
   font-size: 16px;
   font-weight: bold;
   color: #ffffff;
+}
+
+/* Inline Editable HEX Entry */
+.hex-entry {
+  font-family: "Consolas", "DejaVu Sans Mono", "Ubuntu Mono", monospace;
+  font-size: 15px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #2a2a2e;
+  border: 1px solid #4cc2ff;
+  border-radius: 5px;
+  padding: 1px 6px;
+  min-height: 24px;
 }
 
 /* Row Label ("Background" / "Foreground") */

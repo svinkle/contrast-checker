@@ -125,38 +125,62 @@
     }
 
     /**
-     * WCAG 2.2 Contrast Ratio ((L1 + 0.05) / (L2 + 0.05))
+     * Math.floor with precision (from cstrobbe/contrast-ratio).
+     * Truncates a number to the specified decimal places without rounding up.
+     * @param {number} number
+     * @param {number} [decimals=0]
+     * @returns {number}
+     */
+    static floor(number, decimals = 0) {
+      decimals = +decimals || 0;
+      const multiplier = Math.pow(10, decimals);
+      return Math.floor(number * multiplier) / multiplier;
+    }
+
+    /**
+     * Unrounded WCAG contrast ratio ((L1 + 0.05) / (L2 + 0.05))
+     * matching cstrobbe/contrast-ratio color.js.
+     * @returns {number}
+     */
+    get preciseContrastRatio() {
+      const l1 = ColorModel.relativeLuminance(this._bgR, this._bgG, this._bgB) + 0.05;
+      const l2 = ColorModel.relativeLuminance(this._fgR, this._fgG, this._fgB) + 0.05;
+      let ratio = l1 / l2;
+      if (l2 > l1) {
+        ratio = 1 / ratio;
+      }
+      return ratio;
+    }
+
+    /**
+     * WCAG Contrast Ratio floored to 2 decimal places (matching cstrobbe/contrast-ratio).
      * @returns {number}
      */
     get contrastRatio() {
-      const lum1 = ColorModel.relativeLuminance(this._bgR, this._bgG, this._bgB);
-      const lum2 = ColorModel.relativeLuminance(this._fgR, this._fgG, this._fgB);
-      const lighter = Math.max(lum1, lum2);
-      const darker = Math.min(lum1, lum2);
-      return (lighter + 0.05) / (darker + 0.05);
+      return ColorModel.floor(this.preciseContrastRatio, 2);
     }
 
     /** @returns {string} */
     get contrastRatioString() {
-      return `${this.contrastRatio.toFixed(2)}:1`;
+      return `${this.contrastRatioValueOnly}:1`;
     }
 
     /** @returns {string} */
     get contrastRatioValueOnly() {
-      return this.contrastRatio.toFixed(2);
+      return String(this.contrastRatio);
     }
 
     /**
-     * Converts an sRGB component (0.0 to 1.0) to linear light.
+     * Converts an sRGB component (0.0 to 1.0) to linear light
+     * (matching cstrobbe/contrast-ratio color.js).
      * @param {number} val
      * @returns {number}
      */
     static srgbToLinear(val) {
       const clamped = Math.max(0.0, Math.min(1.0, val));
-      if (clamped <= 0.04045) {
-        return clamped / 12.92;
-      }
-      return Math.pow((clamped + 0.055) / 1.055, 2.4);
+      return clamped < 0.03928
+        ? clamped / 12.92
+        : Math.pow((clamped + 0.055) / 1.055, 2.4);
     }
 
     /**

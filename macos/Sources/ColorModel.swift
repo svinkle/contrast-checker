@@ -20,8 +20,8 @@ public final class ColorModel: ObservableObject {
         background: NSColor = ColorModel.color(fromHex: "#000000") ?? .black,
         foreground: NSColor = ColorModel.color(fromHex: "#FFFFFF") ?? .white
     ) {
-        self.backgroundColor = background
-        self.foregroundColor = foreground
+        self.backgroundColor = ColorModel.quantizedSRGBColor(from: background)
+        self.foregroundColor = ColorModel.quantizedSRGBColor(from: foreground)
         updateHexValues()
     }
 
@@ -31,11 +31,11 @@ public final class ColorModel: ObservableObject {
     }
 
     public func setBackgroundColor(_ color: NSColor) {
-        self.backgroundColor = color
+        self.backgroundColor = ColorModel.quantizedSRGBColor(from: color)
     }
 
     public func setForegroundColor(_ color: NSColor) {
-        self.foregroundColor = color
+        self.foregroundColor = ColorModel.quantizedSRGBColor(from: color)
     }
 
     public func setBackgroundHex(_ hex: String) {
@@ -50,57 +50,85 @@ public final class ColorModel: ObservableObject {
         }
     }
 
-    // MARK: - WCAG 2.2 Contrast Calculation
+    // MARK: - WCAG Contrast Calculation (cstrobbe/contrast-ratio parity)
+
+    public static func floor(_ number: Double, decimals: Int = 0) -> Double {
+        let multiplier = pow(10.0, Double(decimals))
+        return Foundation.floor(number * multiplier) / multiplier
+    }
+
+    public var preciseContrastRatio: Double {
+        let l1 = ColorModel.relativeLuminance(of: backgroundColor) + 0.05
+        let l2 = ColorModel.relativeLuminance(of: foregroundColor) + 0.05
+        var ratio = l1 / l2
+        if l2 > l1 {
+            ratio = 1.0 / ratio
+        }
+        return ratio
+    }
 
     public var contrastRatio: Double {
-        let lum1 = ColorModel.relativeLuminance(of: backgroundColor)
-        let lum2 = ColorModel.relativeLuminance(of: foregroundColor)
-        let lighter = max(lum1, lum2)
-        let darker = min(lum1, lum2)
-        return (lighter + 0.05) / (darker + 0.05)
+        return ColorModel.floor(preciseContrastRatio, decimals: 2)
     }
 
     public var contrastRatioString: String {
-        return String(format: "%.2f:1", contrastRatio)
+        return "\(contrastRatioValueOnly):1"
     }
 
     public var contrastRatioValueOnly: String {
-        return String(format: "%.2f", contrastRatio)
+        let cents = Int(Foundation.floor(preciseContrastRatio * 100.0))
+        if cents % 100 == 0 {
+            return "\(cents / 100)"
+        } else if cents % 10 == 0 {
+            return "\(cents / 100).\((cents % 100) / 10)"
+        } else {
+            return String(format: "%d.%02d", cents / 100, cents % 100)
+        }
     }
 
     public static func relativeLuminance(of color: NSColor) -> Double {
-        guard let srgb = color.usingColorSpace(.sRGB) else {
-            return 0.0
-        }
-        let r = Double(srgb.redComponent)
-        let g = Double(srgb.greenComponent)
-        let b = Double(srgb.blueComponent)
+        let (r, g, b) = rgbComponents(of: color)
 
-        let rLin = sRGBtoLinear(r)
-        let gLin = sRGBtoLinear(g)
-        let bLin = sRGBtoLinear(b)
+        let rLin = sRGBtoLinear(Double(r) / 255.0)
+        let gLin = sRGBtoLinear(Double(g) / 255.0)
+        let bLin = sRGBtoLinear(Double(b) / 255.0)
 
         return 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin
     }
 
     private static func sRGBtoLinear(_ val: Double) -> Double {
         let clamped = max(0.0, min(1.0, val))
-        if clamped <= 0.04045 {
+        if clamped < 0.03928 {
             return clamped / 12.92
         } else {
             return pow((clamped + 0.055) / 1.055, 2.4)
         }
     }
 
-    // MARK: - HEX Helpers
+    // MARK: - HEX & 8-Bit sRGB Quantization Helpers
 
-    public static func hexString(from color: NSColor) -> String {
+    public static func rgbComponents(of color: NSColor) -> (r: Int, g: Int, b: Int) {
         guard let srgb = color.usingColorSpace(.sRGB) else {
-            return "#000000"
+            return (0, 0, 0)
         }
         let r = Int(round(max(0, min(1, srgb.redComponent)) * 255.0))
         let g = Int(round(max(0, min(1, srgb.greenComponent)) * 255.0))
         let b = Int(round(max(0, min(1, srgb.blueComponent)) * 255.0))
+        return (r, g, b)
+    }
+
+    public static func quantizedSRGBColor(from color: NSColor) -> NSColor {
+        let (r, g, b) = rgbComponents(of: color)
+        return NSColor(
+            srgbRed: CGFloat(r) / 255.0,
+            green: CGFloat(g) / 255.0,
+            blue: CGFloat(b) / 255.0,
+            alpha: 1.0
+        )
+    }
+
+    public static func hexString(from color: NSColor) -> String {
+        let (r, g, b) = rgbComponents(of: color)
         return String(format: "#%02X%02X%02X", r, g, b)
     }
 

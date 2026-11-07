@@ -2,6 +2,79 @@ import AppKit
 import SwiftUI
 import Carbon
 
+// MARK: - Custom Window & Hosting View for macOS Window Dragging
+
+final class DraggableHostingView<Content: View>: NSHostingView<Content> {
+    override var mouseDownCanMoveWindow: Bool { true }
+
+    override func didAddSubview(_ subview: NSView) {
+        super.didAddSubview(subview)
+        subview.focusRingType = .none
+    }
+
+    @objc(_regionForOpaqueDescendants:forMove:forUnderTitlebar:)
+    func _regionForOpaqueDescendants(_ rect: NSRect, forMove: Bool, forUnderTitlebar: Bool) -> AnyObject? {
+        let sel = #selector(_regionForOpaqueDescendants(_:forMove:forUnderTitlebar:))
+        typealias RegionFn = @convention(c) (AnyObject, Selector, NSRect, Bool, Bool) -> AnyObject?
+        if forMove, let imp = NSView.instanceMethod(for: sel) {
+            let fn = unsafeBitCast(imp, to: RegionFn.self)
+            return fn(self, sel, rect, forMove, forUnderTitlebar)
+        }
+        if let imp = NSHostingView<Content>.instanceMethod(for: sel) {
+            let fn = unsafeBitCast(imp, to: RegionFn.self)
+            return fn(self, sel, rect, forMove, forUnderTitlebar)
+        }
+        return nil
+    }
+}
+
+final class DraggableWindow: NSWindow {
+    private var initialMouseDownEvent: NSEvent?
+
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+
+    override func sendEvent(_ event: NSEvent) {
+        switch event.type {
+        case .leftMouseDown:
+            if let textView = firstResponder as? NSTextView,
+               let field = textView.delegate as? NSView {
+                let pointInField = field.convert(event.locationInWindow, from: nil)
+                if !field.bounds.contains(pointInField) {
+                    makeFirstResponder(nil)
+                } else {
+                    initialMouseDownEvent = nil
+                    super.sendEvent(event)
+                    return
+                }
+            }
+            initialMouseDownEvent = event
+            super.sendEvent(event)
+        case .leftMouseDragged:
+            if firstResponder is NSText {
+                initialMouseDownEvent = nil
+                super.sendEvent(event)
+                return
+            }
+            if let downEvent = initialMouseDownEvent {
+                let dx = event.locationInWindow.x - downEvent.locationInWindow.x
+                let dy = event.locationInWindow.y - downEvent.locationInWindow.y
+                if hypot(dx, dy) > 2.0 {
+                    initialMouseDownEvent = nil
+                    performDrag(with: downEvent)
+                    return
+                }
+            }
+            super.sendEvent(event)
+        case .leftMouseUp:
+            initialMouseDownEvent = nil
+            super.sendEvent(event)
+        default:
+            super.sendEvent(event)
+        }
+    }
+}
+
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var window: NSWindow!
@@ -29,7 +102,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             self?.hideApp()
         })
 
-        let win = NSWindow(
+        let win = DraggableWindow(
             contentRect: NSRect(x: 0, y: 0, width: 340, height: 260),
             styleMask: [
                 .titled,
@@ -43,6 +116,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         win.center()
         win.level = .floating // Always floats on top of all OS windows & VMs
         win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        win.isMovable = true
         win.isMovableByWindowBackground = true
         win.titlebarAppearsTransparent = true
         win.titleVisibility = .hidden
@@ -57,7 +131,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         win.standardWindowButton(.miniaturizeButton)?.isHidden = true
         win.standardWindowButton(.zoomButton)?.isHidden = true
 
-        win.contentView = NSHostingView(rootView: contentView)
+        win.contentView = DraggableHostingView(rootView: contentView)
         self.window = win
     }
 
@@ -210,7 +284,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         quitItem.target = NSApp
         appMenu.addItem(quitItem)
 
-        // 2. Window Menu
+        // 2. Edit Menu (enables ⌘V Paste, ⌘C Copy, ⌘X Cut, ⌘A Select All, ⌘Z Undo in HEX text fields)
+        let editMenuItem = NSMenuItem()
+        let editMenu = NSMenu(title: "Edit")
+        editMenuItem.submenu = editMenu
+        mainMenu.addItem(editMenuItem)
+
+        editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(NSMenuItem.separator())
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+
+        // 3. Window Menu
         let windowMenuItem = NSMenuItem()
         let windowMenu = NSMenu(title: "Window")
         windowMenuItem.submenu = windowMenu
@@ -264,7 +352,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         )
         credits.append(linkAttr)
 
-        let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.1"
+        let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.0"
         let options: [NSApplication.AboutPanelOptionKey: Any] = [
             .applicationName: "Contrast Checker",
             .applicationVersion: versionString,

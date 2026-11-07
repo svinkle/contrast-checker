@@ -28,12 +28,16 @@
   const ratioText = document.getElementById("ratio-text");
   const pickBgBtn = document.getElementById("pick-bg-btn");
   const pickFgBtn = document.getElementById("pick-fg-btn");
+  const editBgBtn = document.getElementById("edit-bg-btn");
+  const editFgBtn = document.getElementById("edit-fg-btn");
   const bgColorInput = document.getElementById("bg-color-input");
   const fgColorInput = document.getElementById("fg-color-input");
   const copyBgBtn = document.getElementById("copy-bg-btn");
   const copyFgBtn = document.getElementById("copy-fg-btn");
   const bgHexText = document.getElementById("bg-hex-text");
   const fgHexText = document.getElementById("fg-hex-text");
+  const bgHexInput = document.getElementById("bg-hex-input");
+  const fgHexInput = document.getElementById("fg-hex-input");
   const toastOverlay = document.getElementById("toast-overlay");
   const toastText = document.getElementById("toast-text");
   const installBanner = document.getElementById("pwa-install-banner");
@@ -42,6 +46,10 @@
   let toastTimerId = null;
   let activeEyeDropperAbort = null;
   let deferredInstallPrompt = null;
+  let bgInitialHex = "#000000";
+  let fgInitialHex = "#FFFFFF";
+  let bgEditFinished = false;
+  let fgEditFinished = false;
 
   /**
    * Updates the UI to reflect current ColorModel state.
@@ -68,11 +76,17 @@
     bgHexText.textContent = bgHex;
     copyBgBtn.setAttribute("aria-label", `Background HEX ${bgHex}. Click to copy`);
     copyBgBtn.setAttribute("title", `Click to copy background HEX (${bgHex})`);
+    if (editBgBtn) {
+      editBgBtn.setAttribute("title", `Click to edit background HEX (${bgHex})`);
+    }
     bgColorInput.value = bgHex.toLowerCase();
 
     fgHexText.textContent = fgHex;
     copyFgBtn.setAttribute("aria-label", `Foreground HEX ${fgHex}. Click to copy`);
     copyFgBtn.setAttribute("title", `Click to copy foreground HEX (${fgHex})`);
+    if (editFgBtn) {
+      editFgBtn.setAttribute("title", `Click to edit foreground HEX (${fgHex})`);
+    }
     fgColorInput.value = fgHex.toLowerCase();
 
     try {
@@ -201,6 +215,126 @@
     model.setForegroundHex(event.target.value);
   });
 
+  // Inline HEX Editing via Swatch Click
+  function startHexEdit(target) {
+    if (target === "bg") {
+      if (fgHexInput && !fgHexInput.hidden) {
+        commitHexEdit("fg");
+      }
+      bgInitialHex = model.bgHex;
+      bgEditFinished = false;
+      bgHexInput.value = model.bgHex;
+      copyBgBtn.hidden = true;
+      bgHexInput.hidden = false;
+      bgHexInput.focus();
+      bgHexInput.select();
+    } else {
+      if (bgHexInput && !bgHexInput.hidden) {
+        commitHexEdit("bg");
+      }
+      fgInitialHex = model.fgHex;
+      fgEditFinished = false;
+      fgHexInput.value = model.fgHex;
+      copyFgBtn.hidden = true;
+      fgHexInput.hidden = false;
+      fgHexInput.focus();
+      fgHexInput.select();
+    }
+  }
+
+  function handleLiveHexInput(target, value) {
+    const raw = String(value).trim();
+    const cleaned = raw.startsWith("#") ? raw.slice(1) : raw;
+    if (cleaned.length === 6 && window.ColorModel.colorFromHex(cleaned) !== null) {
+      if (target === "bg") {
+        model.setBackgroundHex(cleaned);
+      } else {
+        model.setForegroundHex(cleaned);
+      }
+    }
+  }
+
+  function commitHexEdit(target) {
+    if (target === "bg") {
+      if (bgEditFinished || !bgHexInput || bgHexInput.hidden) return;
+      bgEditFinished = true;
+      const val = bgHexInput.value.trim();
+      if (window.ColorModel.colorFromHex(val) !== null) {
+        model.setBackgroundHex(val);
+      } else {
+        model.setBackgroundHex(bgInitialHex);
+      }
+      bgHexInput.hidden = true;
+      copyBgBtn.hidden = false;
+    } else {
+      if (fgEditFinished || !fgHexInput || fgHexInput.hidden) return;
+      fgEditFinished = true;
+      const val = fgHexInput.value.trim();
+      if (window.ColorModel.colorFromHex(val) !== null) {
+        model.setForegroundHex(val);
+      } else {
+        model.setForegroundHex(fgInitialHex);
+      }
+      fgHexInput.hidden = true;
+      copyFgBtn.hidden = false;
+    }
+  }
+
+  function cancelHexEdit(target) {
+    if (target === "bg") {
+      if (bgEditFinished || !bgHexInput || bgHexInput.hidden) return;
+      bgEditFinished = true;
+      model.setBackgroundHex(bgInitialHex);
+      bgHexInput.hidden = true;
+      copyBgBtn.hidden = false;
+      if (editBgBtn) editBgBtn.focus();
+    } else {
+      if (fgEditFinished || !fgHexInput || fgHexInput.hidden) return;
+      fgEditFinished = true;
+      model.setForegroundHex(fgInitialHex);
+      fgHexInput.hidden = true;
+      copyFgBtn.hidden = false;
+      if (editFgBtn) editFgBtn.focus();
+    }
+  }
+
+  if (editBgBtn) {
+    editBgBtn.addEventListener("click", () => startHexEdit("bg"));
+  }
+  if (editFgBtn) {
+    editFgBtn.addEventListener("click", () => startHexEdit("fg"));
+  }
+
+  if (bgHexInput) {
+    bgHexInput.addEventListener("input", (e) => handleLiveHexInput("bg", e.target.value));
+    bgHexInput.addEventListener("blur", () => commitHexEdit("bg"));
+    bgHexInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitHexEdit("bg");
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        cancelHexEdit("bg");
+      }
+    });
+  }
+
+  if (fgHexInput) {
+    fgHexInput.addEventListener("input", (e) => handleLiveHexInput("fg", e.target.value));
+    fgHexInput.addEventListener("blur", () => commitHexEdit("fg"));
+    fgHexInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitHexEdit("fg");
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        cancelHexEdit("fg");
+      }
+    });
+  }
+
   // Keyboard Shortcuts (matching macOS, Windows, and Linux)
   window.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
@@ -237,6 +371,9 @@
 
   // Support pasting a HEX color code directly into the window (Ctrl+V / Cmd+V)
   window.addEventListener("paste", (event) => {
+    if (document.activeElement === bgHexInput || document.activeElement === fgHexInput) {
+      return;
+    }
     const text = event.clipboardData ? event.clipboardData.getData("text") : "";
     const rgb = window.ColorModel.colorFromHex(text);
     if (rgb !== null) {

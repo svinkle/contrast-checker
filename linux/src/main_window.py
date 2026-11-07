@@ -29,6 +29,10 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
         self.model = model or ColorModel()
         self.sampler = PortalColorSampler()
         self.toast_timer_id: Optional[int] = None
+        self._bg_initial_hex: str = self.model.bg_hex
+        self._fg_initial_hex: str = self.model.fg_hex
+        self._bg_edit_finished: bool = False
+        self._fg_edit_finished: bool = False
 
         # Window presentation
         self.set_default_size(340, 260)
@@ -235,16 +239,20 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
         scope_btn.set_child(scope_label)
         row.append(scope_btn)
 
-        # Color Swatch Circle
-        swatch = Gtk.Box()
-        swatch.add_css_class("color-swatch")
+        # Color Swatch Circle (Click to edit HEX value)
+        swatch_btn = Gtk.Button()
+        swatch_btn.add_css_class("color-swatch")
+        swatch_btn.add_css_class("circle-focus")
+        swatch_btn.set_tooltip_text(f"Click to edit {title.lower()} HEX")
         if is_background:
-            swatch.add_css_class("dynamic-bg-swatch")
-            self.bg_swatch = swatch
+            swatch_btn.add_css_class("dynamic-bg-swatch")
+            swatch_btn.connect("clicked", lambda b: self._start_hex_edit(is_background=True))
+            self.bg_swatch = swatch_btn
         else:
-            swatch.add_css_class("dynamic-fg-swatch")
-            self.fg_swatch = swatch
-        row.append(swatch)
+            swatch_btn.add_css_class("dynamic-fg-swatch")
+            swatch_btn.connect("clicked", lambda b: self._start_hex_edit(is_background=False))
+            self.fg_swatch = swatch_btn
+        row.append(swatch_btn)
 
         # Clickable HEX Code Button
         hex_btn = Gtk.Button()
@@ -256,11 +264,31 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
         hex_label = Gtk.Label(label="#000000" if is_background else "#FFFFFF")
         hex_label.add_css_class("hex-text")
         hex_btn.set_child(hex_label)
+
+        # Inline Editable HEX Entry (shown when clicking the color swatch)
+        hex_entry = Gtk.Entry()
+        hex_entry.add_css_class("hex-entry")
+        hex_entry.set_max_length(7)
+        hex_entry.set_width_chars(8)
+        hex_entry.set_max_width_chars(8)
+        hex_entry.set_visible(False)
+        hex_entry.connect("changed", lambda e: self._on_hex_entry_changed(e, is_background=is_background))
+        hex_entry.connect("activate", lambda e: self._commit_hex_edit(is_background=is_background))
+
+        focus_ctrl = Gtk.EventControllerFocus()
+        focus_ctrl.connect("leave", lambda c: self._commit_hex_edit(is_background=is_background))
+        hex_entry.add_controller(focus_ctrl)
+
         if is_background:
+            self.bg_hex_btn = hex_btn
             self.bg_hex_label = hex_label
+            self.bg_hex_entry = hex_entry
         else:
+            self.fg_hex_btn = hex_btn
             self.fg_hex_label = hex_label
+            self.fg_hex_entry = hex_entry
         row.append(hex_btn)
+        row.append(hex_entry)
 
         # Spacer
         spacer = Gtk.Box()
@@ -282,6 +310,15 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
     def _on_key_pressed(self, controller, keyval, keycode, state) -> bool:
         ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
         alt = bool(state & Gdk.ModifierType.ALT_MASK)
+
+        # If inline HEX entry is active, Escape cancels editing instead of quitting
+        if keyval == Gdk.KEY_Escape:
+            if hasattr(self, "bg_hex_entry") and self.bg_hex_entry.get_visible():
+                self._cancel_hex_edit(is_background=True)
+                return True
+            if hasattr(self, "fg_hex_entry") and self.fg_hex_entry.get_visible():
+                self._cancel_hex_edit(is_background=False)
+                return True
 
         # Esc or Ctrl+W: Close/quit application cleanly
         if keyval == Gdk.KEY_Escape or (ctrl and keyval in (Gdk.KEY_w, Gdk.KEY_W)):
@@ -376,6 +413,80 @@ class MainWindow(Gtk.ApplicationWindow if HAS_GTK else object):
         self.toast_timer_id = None
         self.model.copied_message = None
         return False
+
+    # Inline HEX Editing Actions
+    def _start_hex_edit(self, is_background: bool) -> None:
+        if is_background:
+            if self.fg_hex_entry.get_visible():
+                self._commit_hex_edit(is_background=False)
+            self._bg_initial_hex = self.model.bg_hex
+            self._bg_edit_finished = False
+            self.bg_hex_entry.set_text(self.model.bg_hex)
+            self.bg_hex_btn.set_visible(False)
+            self.bg_hex_entry.set_visible(True)
+            self.bg_hex_entry.grab_focus()
+            self.bg_hex_entry.select_region(0, -1)
+        else:
+            if self.bg_hex_entry.get_visible():
+                self._commit_hex_edit(is_background=True)
+            self._fg_initial_hex = self.model.fg_hex
+            self._fg_edit_finished = False
+            self.fg_hex_entry.set_text(self.model.fg_hex)
+            self.fg_hex_btn.set_visible(False)
+            self.fg_hex_entry.set_visible(True)
+            self.fg_hex_entry.grab_focus()
+            self.fg_hex_entry.select_region(0, -1)
+
+    def _on_hex_entry_changed(self, entry: "Gtk.Entry", is_background: bool) -> None:
+        raw = entry.get_text().strip()
+        cleaned = raw[1:] if raw.startswith("#") else raw
+        if len(cleaned) == 6 and ColorModel.color_from_hex(cleaned) is not None:
+            if is_background:
+                self.model.set_background_hex(cleaned)
+            else:
+                self.model.set_foreground_hex(cleaned)
+
+    def _commit_hex_edit(self, is_background: bool) -> None:
+        if is_background:
+            if self._bg_edit_finished or not self.bg_hex_entry.get_visible():
+                return
+            self._bg_edit_finished = True
+            text = self.bg_hex_entry.get_text().strip()
+            if ColorModel.color_from_hex(text) is not None:
+                self.model.set_background_hex(text)
+            else:
+                self.model.set_background_hex(self._bg_initial_hex)
+            self.bg_hex_entry.set_visible(False)
+            self.bg_hex_btn.set_visible(True)
+        else:
+            if self._fg_edit_finished or not self.fg_hex_entry.get_visible():
+                return
+            self._fg_edit_finished = True
+            text = self.fg_hex_entry.get_text().strip()
+            if ColorModel.color_from_hex(text) is not None:
+                self.model.set_foreground_hex(text)
+            else:
+                self.model.set_foreground_hex(self._fg_initial_hex)
+            self.fg_hex_entry.set_visible(False)
+            self.fg_hex_btn.set_visible(True)
+
+    def _cancel_hex_edit(self, is_background: bool) -> None:
+        if is_background:
+            if self._bg_edit_finished or not self.bg_hex_entry.get_visible():
+                return
+            self._bg_edit_finished = True
+            self.model.set_background_hex(self._bg_initial_hex)
+            self.bg_hex_entry.set_visible(False)
+            self.bg_hex_btn.set_visible(True)
+            self.bg_swatch.grab_focus()
+        else:
+            if self._fg_edit_finished or not self.fg_hex_entry.get_visible():
+                return
+            self._fg_edit_finished = True
+            self.model.set_foreground_hex(self._fg_initial_hex)
+            self.fg_hex_entry.set_visible(False)
+            self.fg_hex_btn.set_visible(True)
+            self.fg_swatch.grab_focus()
 
     # Button Actions
     def _on_copy_ratio_clicked(self, button) -> None:

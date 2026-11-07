@@ -20,30 +20,48 @@ function runTest(name, fn) {
 
 console.log("Running Contrast Checker Web / PWA unit tests...");
 
-runTest("default initialization (#000000 vs #FFFFFF -> 21.00:1)", () => {
+runTest("default initialization (#000000 vs #FFFFFF -> 21:1)", () => {
   const model = new ColorModel();
   assert.equal(model.bgHex, "#000000");
   assert.equal(model.fgHex, "#FFFFFF");
   assert.ok(Math.abs(model.contrastRatio - 21.0) < 0.001);
-  assert.equal(model.contrastRatioString, "21.00:1");
-  assert.equal(model.contrastRatioValueOnly, "21.00");
+  assert.equal(model.contrastRatioString, "21:1");
+  assert.equal(model.contrastRatioValueOnly, "21");
 });
 
-runTest("identical colors yield 1.00:1", () => {
+runTest("identical colors yield 1:1", () => {
   const model = new ColorModel([255, 255, 255], [255, 255, 255]);
   assert.ok(Math.abs(model.contrastRatio - 1.0) < 0.001);
-  assert.equal(model.contrastRatioString, "1.00:1");
+  assert.equal(model.contrastRatioString, "1:1");
 });
 
-runTest("reference pair (#101631 vs #FFFFFF -> 17.78:1) matches native apps", () => {
+runTest("reference pair (#101631 vs #FFFFFF -> 17.77:1) matches native apps", () => {
   const model = new ColorModel();
   assert.equal(model.setBackgroundHex("#101631"), true);
   assert.equal(model.setForegroundHex("#FFFFFF"), true);
   assert.equal(model.bgHex, "#101631");
   assert.equal(model.fgHex, "#FFFFFF");
-  assert.ok(Math.abs(model.contrastRatio - 17.78) < 0.01);
-  assert.equal(model.contrastRatioValueOnly, "17.78");
-  assert.equal(model.contrastRatioString, "17.78:1");
+  assert.equal(model.contrastRatio, 17.77);
+  assert.equal(model.contrastRatioValueOnly, "17.77");
+  assert.equal(model.contrastRatioString, "17.77:1");
+});
+
+runTest("#D7D7D7 on #FFFFFF floors to 1.43:1 (cstrobbe/contrast-ratio parity)", () => {
+  const model = new ColorModel();
+  assert.equal(model.setBackgroundHex("#FFFFFF"), true);
+  assert.equal(model.setForegroundHex("#D7D7D7"), true);
+  assert.equal(model.contrastRatio, 1.43);
+  assert.equal(model.contrastRatioValueOnly, "1.43");
+  assert.equal(model.contrastRatioString, "1.43:1");
+});
+
+runTest("#6F1C96 on #FFFFFF yields 9.2:1 (cstrobbe/contrast-ratio parity)", () => {
+  const model = new ColorModel();
+  assert.equal(model.setBackgroundHex("#FFFFFF"), true);
+  assert.equal(model.setForegroundHex("#6F1C96"), true);
+  assert.equal(model.contrastRatio, 9.2);
+  assert.equal(model.contrastRatioValueOnly, "9.2");
+  assert.equal(model.contrastRatioString, "9.2:1");
 });
 
 runTest("symmetry: inverted foreground/background yields identical contrast ratio", () => {

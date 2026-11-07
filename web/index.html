@@ -59,17 +59,24 @@
             </svg>
           </button>
 
-          <label class="swatch-wrapper" title="Choose background color">
+          <button
+            type="button"
+            class="swatch-button circle-focus"
+            id="edit-bg-btn"
+            aria-label="Edit background HEX value"
+            title="Click to edit background HEX (#000000)"
+          >
             <span class="color-swatch" id="bg-swatch" aria-hidden="true"></span>
-            <input
-              type="color"
-              class="native-color-input"
-              id="bg-color-input"
-              value="#000000"
-              tabindex="-1"
-              aria-label="Choose background color"
-            />
-          </label>
+          </button>
+          <input
+            type="color"
+            class="native-color-input"
+            id="bg-color-input"
+            value="#000000"
+            tabindex="-1"
+            aria-hidden="true"
+            hidden
+          />
 
           <button
             type="button"
@@ -80,6 +87,17 @@
           >
             <span class="hex-text" id="bg-hex-text">#000000</span>
           </button>
+
+          <input
+            type="text"
+            class="hex-edit-input rect-focus"
+            id="bg-hex-input"
+            maxlength="7"
+            spellcheck="false"
+            autocomplete="off"
+            aria-label="Edit background HEX value"
+            hidden
+          />
 
           <span class="row-spacer" aria-hidden="true"></span>
           <span class="row-label">Background</span>
@@ -105,17 +123,24 @@
             </svg>
           </button>
 
-          <label class="swatch-wrapper" title="Choose foreground color">
+          <button
+            type="button"
+            class="swatch-button circle-focus"
+            id="edit-fg-btn"
+            aria-label="Edit foreground HEX value"
+            title="Click to edit foreground HEX (#FFFFFF)"
+          >
             <span class="color-swatch" id="fg-swatch" aria-hidden="true"></span>
-            <input
-              type="color"
-              class="native-color-input"
-              id="fg-color-input"
-              value="#ffffff"
-              tabindex="-1"
-              aria-label="Choose foreground color"
-            />
-          </label>
+          </button>
+          <input
+            type="color"
+            class="native-color-input"
+            id="fg-color-input"
+            value="#ffffff"
+            tabindex="-1"
+            aria-hidden="true"
+            hidden
+          />
 
           <button
             type="button"
@@ -126,6 +151,17 @@
           >
             <span class="hex-text" id="fg-hex-text">#FFFFFF</span>
           </button>
+
+          <input
+            type="text"
+            class="hex-edit-input rect-focus"
+            id="fg-hex-input"
+            maxlength="7"
+            spellcheck="false"
+            autocomplete="off"
+            aria-label="Edit foreground HEX value"
+            hidden
+          />
 
           <span class="row-spacer" aria-hidden="true"></span>
           <span class="row-label">Foreground</span>

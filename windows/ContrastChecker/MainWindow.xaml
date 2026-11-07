@@ -97,6 +97,25 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Clickable Color Swatch Circle Button Style -->
+        <Style x:Key="SwatchButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="22" />
+            <Setter Property="Height" Value="22" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="IsTabStop" Value="True" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource CircleFocusVisual}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Ellipse Width="22" Height="22"
+                                 Fill="{TemplateBinding Background}"
+                                 Stroke="#55FFFFFF" StrokeThickness="1" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <!-- Outer Margin for Drop Shadow -->
@@ -190,15 +209,21 @@
                                         Click="OnPickBackgroundClicked"
                                         ToolTip="Pick background color from anywhere on screen (Ctrl+Alt+B)" />
 
-                                <!-- Color Swatch Circle -->
-                                <Ellipse Grid.Column="2" Width="22" Height="22"
-                                         Fill="{Binding BackgroundBrush}"
-                                         Stroke="#55FFFFFF" StrokeThickness="1" />
+                                <!-- Color Swatch Circle (Click to edit HEX) -->
+                                <Button x:Name="BgSwatchButton"
+                                        Grid.Column="2"
+                                        Style="{StaticResource SwatchButtonStyle}"
+                                        Background="{Binding BackgroundBrush}"
+                                        TabIndex="3"
+                                        AutomationProperties.Name="Edit background HEX value"
+                                        Click="OnEditBackgroundHexClicked"
+                                        ToolTip="Click to edit background HEX" />
 
                                 <!-- Clickable HEX Code -->
-                                <Button Grid.Column="4"
+                                <Button x:Name="BgHexButton"
+                                        Grid.Column="4"
                                         Style="{StaticResource PlainButtonStyle}"
-                                        TabIndex="3"
+                                        TabIndex="4"
                                         AutomationProperties.Name="Copy background HEX"
                                         Click="OnCopyBackgroundHexClicked"
                                         ToolTip="Click to copy background HEX">
@@ -207,6 +232,26 @@
                                                FontSize="16" FontWeight="Bold"
                                                Foreground="#FFFFFF" VerticalAlignment="Center" />
                                 </Button>
+
+                                <!-- Inline Editable HEX TextBox -->
+                                <TextBox x:Name="BgHexTextBox"
+                                         Grid.Column="4"
+                                         Width="96" Height="24"
+                                         MaxLength="7"
+                                         FontFamily="Consolas, monospace"
+                                         FontSize="15" FontWeight="Bold"
+                                         Foreground="#FFFFFF"
+                                         CaretBrush="#FFFFFF"
+                                         Background="#2A2A2E"
+                                         BorderBrush="#4CC2FF"
+                                         BorderThickness="1"
+                                         Padding="4,1,4,1"
+                                         VerticalContentAlignment="Center"
+                                         Visibility="Collapsed"
+                                         AutomationProperties.Name="Edit background HEX value"
+                                         TextChanged="OnBgHexTextChanged"
+                                         KeyDown="OnBgHexKeyDown"
+                                         LostFocus="OnBgHexLostFocus" />
 
                                 <!-- Row Label -->
                                 <TextBlock Grid.Column="6" Text="Background"
@@ -232,20 +277,26 @@
                                 <!-- Eyedropper Button -->
                                 <Button Grid.Column="0"
                                         Style="{StaticResource ScopeButtonStyle}"
-                                        TabIndex="4"
+                                        TabIndex="5"
                                         AutomationProperties.Name="Pick foreground color from screen"
                                         Click="OnPickForegroundClicked"
                                         ToolTip="Pick foreground color from anywhere on screen (Ctrl+Alt+F)" />
 
-                                <!-- Color Swatch Circle -->
-                                <Ellipse Grid.Column="2" Width="22" Height="22"
-                                         Fill="{Binding ForegroundBrush}"
-                                         Stroke="#55FFFFFF" StrokeThickness="1" />
+                                <!-- Color Swatch Circle (Click to edit HEX) -->
+                                <Button x:Name="FgSwatchButton"
+                                        Grid.Column="2"
+                                        Style="{StaticResource SwatchButtonStyle}"
+                                        Background="{Binding ForegroundBrush}"
+                                        TabIndex="6"
+                                        AutomationProperties.Name="Edit foreground HEX value"
+                                        Click="OnEditForegroundHexClicked"
+                                        ToolTip="Click to edit foreground HEX" />
 
                                 <!-- Clickable HEX Code -->
-                                <Button Grid.Column="4"
+                                <Button x:Name="FgHexButton"
+                                        Grid.Column="4"
                                         Style="{StaticResource PlainButtonStyle}"
-                                        TabIndex="5"
+                                        TabIndex="7"
                                         AutomationProperties.Name="Copy foreground HEX"
                                         Click="OnCopyForegroundHexClicked"
                                         ToolTip="Click to copy foreground HEX">
@@ -254,6 +305,26 @@
                                                FontSize="16" FontWeight="Bold"
                                                Foreground="#FFFFFF" VerticalAlignment="Center" />
                                 </Button>
+
+                                <!-- Inline Editable HEX TextBox -->
+                                <TextBox x:Name="FgHexTextBox"
+                                         Grid.Column="4"
+                                         Width="96" Height="24"
+                                         MaxLength="7"
+                                         FontFamily="Consolas, monospace"
+                                         FontSize="15" FontWeight="Bold"
+                                         Foreground="#FFFFFF"
+                                         CaretBrush="#FFFFFF"
+                                         Background="#2A2A2E"
+                                         BorderBrush="#4CC2FF"
+                                         BorderThickness="1"
+                                         Padding="4,1,4,1"
+                                         VerticalContentAlignment="Center"
+                                         Visibility="Collapsed"
+                                         AutomationProperties.Name="Edit foreground HEX value"
+                                         TextChanged="OnFgHexTextChanged"
+                                         KeyDown="OnFgHexKeyDown"
+                                         LostFocus="OnFgHexLostFocus" />
 
                                 <!-- Row Label -->
                                 <TextBlock Grid.Column="6" Text="Foreground"

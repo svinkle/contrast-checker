@@ -7,9 +7,16 @@ public enum FocusField: Hashable, CaseIterable {
     case close
     case contrastRatio
     case bgPicker
+    case bgSwatch
     case bgHex
     case fgPicker
+    case fgSwatch
     case fgHex
+}
+
+public enum EditingTarget: Hashable {
+    case background
+    case foreground
 }
 
 // MARK: - Accessible Focus Ring Modifier
@@ -18,8 +25,9 @@ struct FocusRingModifier: ViewModifier {
     let isFocused: Bool
     let isCircle: Bool
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        content
+        let decorated = content
             .overlay(
                 Group {
                     if isFocused {
@@ -43,6 +51,11 @@ struct FocusRingModifier: ViewModifier {
                     }
                 }
             )
+        if #available(macOS 14.0, *) {
+            decorated.focusEffectDisabled()
+        } else {
+            decorated
+        }
     }
 }
 
@@ -73,6 +86,7 @@ public struct ContentView: View {
 
                     // Subtle close button in the top-right corner
                     Button(action: {
+                        commitCurrentEditIfNeeded()
                         if let onClose = onClose {
                             onClose()
                         } else {
@@ -96,6 +110,7 @@ public struct ContentView: View {
 
                         // Contrast Ratio acting as live sample text (no copy icon)
                         Button(action: {
+                            commitCurrentEditIfNeeded()
                             model.copyValue(model.contrastRatioString, label: model.contrastRatioString)
                         }) {
                             Text(model.contrastRatioString)
@@ -128,10 +143,28 @@ public struct ContentView: View {
                         title: "Background",
                         hex: model.bgHex,
                         color: model.backgroundColor,
+                        isEditing: navManager.editingTarget == .background,
+                        editingText: navManager.editingText,
+                        focusTrigger: navManager.editFocusTrigger,
                         isPickerFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .bgPicker,
+                        isSwatchFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .bgSwatch,
                         isHexFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .bgHex,
                         onPick: {
+                            commitCurrentEditIfNeeded()
                             sampler.pickBackgroundColor(into: model)
+                        },
+                        onStartEdit: {
+                            startEditing(.background)
+                        },
+                        onLiveChange: { newText in
+                            navManager.editingText = newText
+                            applyLiveHexIfComplete(newText, for: .background)
+                        },
+                        onCommitEdit: {
+                            commitEdit(for: .background)
+                        },
+                        onCancelEdit: {
+                            cancelEdit(for: .background)
                         },
                         onCopy: {
                             model.copyValue(model.bgHex, label: model.bgHex)
@@ -146,10 +179,28 @@ public struct ContentView: View {
                         title: "Foreground",
                         hex: model.fgHex,
                         color: model.foregroundColor,
+                        isEditing: navManager.editingTarget == .foreground,
+                        editingText: navManager.editingText,
+                        focusTrigger: navManager.editFocusTrigger,
                         isPickerFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .fgPicker,
+                        isSwatchFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .fgSwatch,
                         isHexFocused: navManager.isKeyboardNavigating && navManager.currentFocus == .fgHex,
                         onPick: {
+                            commitCurrentEditIfNeeded()
                             sampler.pickForegroundColor(into: model)
+                        },
+                        onStartEdit: {
+                            startEditing(.foreground)
+                        },
+                        onLiveChange: { newText in
+                            navManager.editingText = newText
+                            applyLiveHexIfComplete(newText, for: .foreground)
+                        },
+                        onCommitEdit: {
+                            commitEdit(for: .foreground)
+                        },
+                        onCancelEdit: {
+                            cancelEdit(for: .foreground)
                         },
                         onCopy: {
                             model.copyValue(model.fgHex, label: model.fgHex)
@@ -209,24 +260,181 @@ public struct ContentView: View {
         }
     }
 
+    private func startEditing(_ target: EditingTarget) {
+        if navManager.editingTarget != nil && navManager.editingTarget != target {
+            commitCurrentEditIfNeeded()
+        }
+        let currentHex = (target == .background) ? model.bgHex : model.fgHex
+        navManager.editingInitialHex = currentHex
+        navManager.editingText = currentHex
+        navManager.editingTarget = target
+        navManager.editFocusTrigger &+= 1
+    }
+
+    private func applyLiveHexIfComplete(_ text: String, for target: EditingTarget) {
+        var cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleaned.hasPrefix("#") {
+            cleaned.removeFirst()
+        }
+        guard cleaned.count == 6, let color = ColorModel.color(fromHex: cleaned) else {
+            return
+        }
+        if target == .background {
+            model.setBackgroundColor(color)
+        } else {
+            model.setForegroundColor(color)
+        }
+    }
+
+    private func commitCurrentEditIfNeeded() {
+        if let active = navManager.editingTarget {
+            commitEdit(for: active)
+        }
+    }
+
+    private func commitEdit(for target: EditingTarget) {
+        guard navManager.editingTarget == target else { return }
+        if let color = ColorModel.color(fromHex: navManager.editingText) {
+            if target == .background {
+                model.setBackgroundColor(color)
+            } else {
+                model.setForegroundColor(color)
+            }
+        } else {
+            if target == .background {
+                model.setBackgroundHex(navManager.editingInitialHex)
+            } else {
+                model.setForegroundHex(navManager.editingInitialHex)
+            }
+        }
+        navManager.editingTarget = nil
+    }
+
+    private func cancelEdit(for target: EditingTarget) {
+        guard navManager.editingTarget == target else { return }
+        if target == .background {
+            model.setBackgroundHex(navManager.editingInitialHex)
+        } else {
+            model.setForegroundHex(navManager.editingInitialHex)
+        }
+        navManager.editingTarget = nil
+    }
+
     private func activateField(_ field: FocusField) {
         switch field {
         case .close:
+            commitCurrentEditIfNeeded()
             if let onClose = onClose {
                 onClose()
             } else {
                 NSApp.keyWindow?.orderOut(nil)
             }
         case .contrastRatio:
+            commitCurrentEditIfNeeded()
             model.copyValue(model.contrastRatioString, label: model.contrastRatioString)
         case .bgPicker:
+            commitCurrentEditIfNeeded()
             sampler.pickBackgroundColor(into: model)
+        case .bgSwatch:
+            startEditing(.background)
         case .bgHex:
+            commitCurrentEditIfNeeded()
             model.copyValue(model.bgHex, label: model.bgHex)
         case .fgPicker:
+            commitCurrentEditIfNeeded()
             sampler.pickForegroundColor(into: model)
+        case .fgSwatch:
+            startEditing(.foreground)
         case .fgHex:
+            commitCurrentEditIfNeeded()
             model.copyValue(model.fgHex, label: model.fgHex)
+        }
+    }
+}
+
+// MARK: - Inline AppKit HEX Text Field
+
+struct HexEditField: NSViewRepresentable {
+    let text: String
+    let focusTrigger: Int
+    let title: String
+    let onLiveChange: (String) -> Void
+    let onCommit: () -> Void
+    let onCancel: () -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeNSView(context: Context) -> NSTextField {
+        let tf = NSTextField(string: text)
+        tf.delegate = context.coordinator
+        tf.font = .monospacedSystemFont(ofSize: 15, weight: .bold)
+        tf.textColor = .labelColor
+        tf.backgroundColor = .textBackgroundColor
+        tf.drawsBackground = true
+        tf.isBordered = true
+        tf.isBezeled = true
+        tf.bezelStyle = .roundedBezel
+        tf.focusRingType = .exterior
+        tf.lineBreakMode = .byClipping
+        tf.cell?.isScrollable = true
+        tf.cell?.usesSingleLineMode = true
+        tf.setAccessibilityLabel("Edit \(title.lowercased()) HEX value")
+        return tf
+    }
+
+    func updateNSView(_ nsView: NSTextField, context: Context) {
+        context.coordinator.parent = self
+        if nsView.window?.firstResponder !== nsView.currentEditor() && nsView.stringValue != text {
+            nsView.stringValue = text
+        }
+        if context.coordinator.lastFocusTrigger != focusTrigger {
+            context.coordinator.lastFocusTrigger = focusTrigger
+            context.coordinator.didFinish = false
+            nsView.stringValue = text
+            DispatchQueue.main.async {
+                guard let window = nsView.window else { return }
+                window.makeFirstResponder(nsView)
+                nsView.currentEditor()?.selectAll(nil)
+            }
+        }
+    }
+
+    final class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: HexEditField
+        var lastFocusTrigger: Int = -1
+        var didFinish = false
+
+        init(_ parent: HexEditField) {
+            self.parent = parent
+        }
+
+        func controlTextDidChange(_ obj: Notification) {
+            guard let tf = obj.object as? NSTextField else { return }
+            let val = tf.stringValue
+            parent.onLiveChange(val)
+        }
+
+        func controlTextDidEndEditing(_ obj: Notification) {
+            guard !didFinish else { return }
+            didFinish = true
+            parent.onCommit()
+        }
+
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            if commandSelector == #selector(NSResponder.insertNewline(_:)) {
+                didFinish = true
+                parent.onCommit()
+                control.window?.makeFirstResponder(nil)
+                return true
+            } else if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
+                didFinish = true
+                parent.onCancel()
+                control.window?.makeFirstResponder(nil)
+                return true
+            }
+            return false
         }
     }
 }
@@ -237,9 +445,17 @@ struct ColorItemRow: View {
     let title: String
     let hex: String
     let color: NSColor
+    var isEditing: Bool = false
+    var editingText: String = ""
+    var focusTrigger: Int = 0
     var isPickerFocused: Bool = false
+    var isSwatchFocused: Bool = false
     var isHexFocused: Bool = false
     let onPick: () -> Void
+    let onStartEdit: () -> Void
+    let onLiveChange: (String) -> Void
+    let onCommitEdit: () -> Void
+    let onCancelEdit: () -> Void
     let onCopy: () -> Void
 
     var body: some View {
@@ -257,26 +473,45 @@ struct ColorItemRow: View {
             .focusRing(isFocused: isPickerFocused, isCircle: true)
             .help("Pick \(title.lowercased()) color from anywhere on screen")
 
-            // Color Swatch Circle
-            Circle()
-                .fill(Color(nsColor: color))
-                .frame(width: 22, height: 22)
-                .overlay(
-                    Circle()
-                        .stroke(Color.primary.opacity(0.25), lineWidth: 1)
-                )
-                .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
-
-            // HEX Code (Clickable to Copy, no copy icon)
-            Button(action: onCopy) {
-                Text(hex)
-                    .font(.system(size: 16, weight: .bold, design: .monospaced))
-                    .foregroundColor(.primary)
-                    .contentShape(Rectangle())
+            // Color Swatch Circle (Click to edit HEX value)
+            Button(action: onStartEdit) {
+                Circle()
+                    .fill(Color(nsColor: color))
+                    .frame(width: 22, height: 22)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.primary.opacity(0.25), lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
+                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .focusRing(isFocused: isHexFocused, isCircle: false)
-            .help("Click to copy \(title.lowercased()) HEX (\(hex))")
+            .focusRing(isFocused: isSwatchFocused, isCircle: true)
+            .help("Click to edit \(title.lowercased()) HEX (\(hex))")
+            .accessibilityLabel("Edit \(title.lowercased()) HEX value")
+
+            if isEditing {
+                HexEditField(
+                    text: editingText,
+                    focusTrigger: focusTrigger,
+                    title: title,
+                    onLiveChange: onLiveChange,
+                    onCommit: onCommitEdit,
+                    onCancel: onCancelEdit
+                )
+                .frame(width: 98, height: 24)
+            } else {
+                // HEX Code (Clickable to Copy, no copy icon)
+                Button(action: onCopy) {
+                    Text(hex)
+                        .font(.system(size: 16, weight: .bold, design: .monospaced))
+                        .foregroundColor(.primary)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .focusRing(isFocused: isHexFocused, isCircle: false)
+                .help("Click to copy \(title.lowercased()) HEX (\(hex))")
+            }
 
             Spacer()
 
@@ -294,6 +529,10 @@ struct ColorItemRow: View {
 final class KeyboardNavigationManager: ObservableObject {
     @Published var currentFocus: FocusField? = nil
     @Published var isKeyboardNavigating: Bool = false
+    @Published var editingTarget: EditingTarget? = nil
+    @Published var editingText: String = ""
+    @Published var editFocusTrigger: Int = 0
+    var editingInitialHex: String = ""
 
     private var keyMonitor: Any?
     private var mouseMonitor: Any?
@@ -305,6 +544,18 @@ final class KeyboardNavigationManager: ObservableObject {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self = self else { return event }
             guard let keyWindow = NSApp.keyWindow, keyWindow.isKeyWindow else { return event }
+
+            // Let active HEX text field handle its own key events (typing, Return, Escape, Paste)
+            if keyWindow.firstResponder is NSText {
+                if event.keyCode == 48 { // Tab key while editing: end editing and move focus
+                    keyWindow.makeFirstResponder(nil)
+                    self.isKeyboardNavigating = true
+                    let isShift = event.modifierFlags.contains(.shift)
+                    self.moveFocus(reverse: isShift)
+                    return nil
+                }
+                return event
+            }
 
             if event.keyCode == 48 { // Tab key
                 self.isKeyboardNavigating = true

@@ -14,7 +14,7 @@ namespace ContrastChecker.Tests
             Assert.Equal("#000000", model.BgHex);
             Assert.Equal("#FFFFFF", model.FgHex);
             Assert.Equal(21.0, model.ContrastRatio, 2);
-            Assert.Equal("21.00:1", model.ContrastRatioString);
+            Assert.Equal("21:1", model.ContrastRatioString);
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace ContrastChecker.Tests
             var white = Color.FromRgb(255, 255, 255);
             var model = new ColorModel(white, white);
             Assert.Equal(1.0, model.ContrastRatio, 2);
-            Assert.Equal("1.00:1", model.ContrastRatioString);
+            Assert.Equal("1:1", model.ContrastRatioString);
         }
 
         [Fact]
@@ -35,9 +35,33 @@ namespace ContrastChecker.Tests
 
             Assert.Equal("#101631", model.BgHex);
             Assert.Equal("#FFFFFF", model.FgHex);
-            Assert.Equal(17.78, model.ContrastRatio, 2);
-            Assert.Equal("17.78", model.ContrastRatioValueOnly);
-            Assert.Equal("17.78:1", model.ContrastRatioString);
+            Assert.Equal(17.77, model.ContrastRatio, 2);
+            Assert.Equal("17.77", model.ContrastRatioValueOnly);
+            Assert.Equal("17.77:1", model.ContrastRatioString);
+        }
+
+        [Fact]
+        public void Test3b_D7D7D7_On_FFFFFF_FloorsTo_1_43()
+        {
+            var bg = ColorModel.ParseHex("#FFFFFF")!.Value;
+            var fg = ColorModel.ParseHex("#D7D7D7")!.Value;
+            var model = new ColorModel(bg, fg);
+
+            Assert.Equal(1.43, model.ContrastRatio, 2);
+            Assert.Equal("1.43", model.ContrastRatioValueOnly);
+            Assert.Equal("1.43:1", model.ContrastRatioString);
+        }
+
+        [Fact]
+        public void Test3c_6F1C96_On_FFFFFF_Yields_9_2()
+        {
+            var bg = ColorModel.ParseHex("#FFFFFF")!.Value;
+            var fg = ColorModel.ParseHex("#6F1C96")!.Value;
+            var model = new ColorModel(bg, fg);
+
+            Assert.Equal(9.2, model.ContrastRatio, 2);
+            Assert.Equal("9.2", model.ContrastRatioValueOnly);
+            Assert.Equal("9.2:1", model.ContrastRatioString);
         }
 
         [Fact]
